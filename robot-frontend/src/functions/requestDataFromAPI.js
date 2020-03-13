@@ -22,6 +22,9 @@ function getData(url) {
 
 //调用
 // const data = getData("areas/tree");
+// getData("areas/tree").then(data => {
+//   console.log("get结果", data);
+// });
 
 //————————————————————————————POST请求
 function postData(url, paramData) {
@@ -35,7 +38,7 @@ function postData(url, paramData) {
       })
       .catch(error => {
         console.log("[postData] error is", error);
-        reject(false); // rejected
+        reject(error); // rejected
       });
   });
 }
