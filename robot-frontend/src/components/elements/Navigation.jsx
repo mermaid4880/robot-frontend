@@ -1,5 +1,8 @@
 //packages
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Paper } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Collapse,
   Navbar,
@@ -17,56 +20,69 @@ import {
 //fuctions
 import menuList from "../../functions/menuList";
 
-function Navigation() {
-  //————————————————————————————css
-  const navStyle = {
-    fontSize: "1.2rem"
+const useStyles = makeStyles({
+  navbar: {
+    fontSize: "1.2rem",
+    backgroundColor: "#71c9ce"
     // position: "fixed",
     // width: "100%"
-    // color: "aliceblue"
-  };
-  const titleStyle = {
+  },
+  navbarBrand: {
     fontSize: "1.5rem",
     paddingRight: "3rem"
-  };
-  const subtitleStyle = {
+  },
+  navItem: {
     paddingRight: "0.8rem"
-  };
+  }
+});
+
+function Navigation() {
+  const classes = useStyles();
 
   const [isOpen, setIsOpen] = useState(false);
 
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <div>
-      <Navbar style={navStyle} color="info" light expand="lg">
-        <NavbarBrand style={titleStyle}>{menuList.title.name}</NavbarBrand>
+    <Paper elevation="10">
+      <Navbar light expand="lg" className={classes.navbar}>
+        <NavbarBrand className={classes.navbarBrand}>
+          {menuList.title.name}
+        </NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="mr-auto" navbar>
-            <NavItem style={subtitleStyle}>
-              <NavLink href="/Home">{menuList.level1_1.name}</NavLink>
+            <NavItem className={classes.navItem}>
+              <Link to="/Home">
+                <NavLink>{menuList.level1_1.name}</NavLink>
+              </Link>
             </NavItem>
-            <NavItem style={subtitleStyle}>
+            <NavItem className={classes.navItem}>
               <NavLink>{menuList.level1_2.name}</NavLink>
             </NavItem>
             <UncontrolledDropdown nav inNavbar>
-              <DropdownToggle style={subtitleStyle} nav caret>
+              <DropdownToggle className={classes.navItem} nav caret>
                 {menuList.level1_3.title.name}
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem href="/Tour">{menuList.level1_3.level2_1.name}</DropdownItem>
+                <Link to="/TaskMgr">
+                  <DropdownItem>{menuList.level1_3.level2_1.name}</DropdownItem>
+                </Link>
                 <DropdownItem divider />
-                <DropdownItem>{menuList.level1_3.level2_2.name}</DropdownItem>
+                <Link to="/TaskShow">
+                  <DropdownItem>{menuList.level1_3.level2_2.name}</DropdownItem>
+                </Link>
               </DropdownMenu>
             </UncontrolledDropdown>
           </Nav>
           <NavbarText>
-            <NavLink href="/">退出</NavLink>
+            <Link to="/">
+              <NavLink>退出</NavLink>
+            </Link>
           </NavbarText>
         </Collapse>
       </Navbar>
-    </div>
+    </Paper>
   );
 }
 

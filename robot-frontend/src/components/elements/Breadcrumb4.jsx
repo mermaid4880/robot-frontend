@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function Breadcrumb3(props) {
+function Breadcrumb4(props) {
   const classes = useStyles();
   return (
     <Breadcrumbs aria-label="breadcrumb">
@@ -38,10 +38,10 @@ function Breadcrumb3(props) {
       </Link>
       <Typography color="inherit" className={classes.link}>
         <AccountTreeIcon className={classes.icon} />
-        巡检任务管理
+        巡检任务展示
       </Typography>
     </Breadcrumbs>
   );
 }
 
-export default Breadcrumb3;
+export default Breadcrumb4;

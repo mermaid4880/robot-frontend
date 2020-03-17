@@ -4,9 +4,9 @@ import { Container, Row, Col } from "reactstrap";
 import { makeStyles } from "@material-ui/core/styles";
 //elements
 import Navigation from "../elements/Navigation";
-import Breadcrumb2 from "../elements/Breadcrumb2";
-import RobotCard from "../elements/RobotCard";
-import TabTable from "../elements/TabTable";
+import Breadcrumb3 from "../elements/Breadcrumb3";
+import Table3 from "../elements/Table3";
+import Tree from "../elements/Tree";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -21,16 +21,15 @@ const useStyles = makeStyles(theme => ({
   },
   body: {
     top: "0",
-    height: "640px",
+    height: "900px",
     paddingTop: "10px"
   },
-  bottom: {
-    top: "0",
-    height: "250px"
+  paperRow: {
+    height: "350px"
   }
 }));
 
-function PageHome() {
+function PageTaskMgr() {
   const classes = useStyles();
 
   return (
@@ -41,28 +40,21 @@ function PageHome() {
         </Col>
       </Row>
       <Row className={classes.body}>
-        <Col sm="12" md={{ size: 8, offset: 0 }}>
-          <Row>
-            <Breadcrumb2 />
-          </Row>
-          <Row>
-            <RobotCard />
-          </Row>
-        </Col>
         <Col sm="12" md={{ size: 4, offset: 0 }}>
-          <Row>video</Row>
+          <Row>
+            <Breadcrumb3 />
+          </Row>
+          <Tree />
         </Col>
-      </Row>
-      <Row className={classes.bottom}>
         <Col sm="12" md={{ size: 8, offset: 0 }}>
-          <TabTable />
-        </Col>
-        <Col sm="12" md={{ size: 4, offset: 0 }}>
-          .col-sm-12 .col-md-6 .offset-md-3
+          <Row className={classes.paperRow}>paper</Row>
+          <Row>
+            <Table3 />
+          </Row>
         </Col>
       </Row>
     </Container>
   );
 }
 
-export default PageHome;
+export default PageTaskMgr;

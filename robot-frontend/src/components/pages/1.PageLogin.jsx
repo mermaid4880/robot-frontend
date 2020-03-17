@@ -1,26 +1,32 @@
 //packages
 import React from "react";
 import { Container, Row, Col } from "reactstrap";
+import { makeStyles } from "@material-ui/core/styles";
 //elements
 import UserForm from "../elements/UserForm";
 //images
 import ImageBackground from "../../images/PageLogin-bg.png";
 
-function PageLogin() {
-  //————————————————————————————css
-  const pageStyle = {
+const useStyles = makeStyles(theme => ({
+  root: {
     position: "absolute",
     top: "0",
     width: "100%",
     height: "937px",
     backgroundImage: `url(${ImageBackground})`
-  };
-  const rowStyle = { paddingTop: "40%" };
+  },
+  row: {
+    paddingTop: "40%"
+  }
+}));
+
+function PageLogin() {
+  const classes = useStyles();
 
   return (
-    <div style={pageStyle}>
+    <div className={classes.root}>
       <Container>
-        <Row style={rowStyle}>
+        <Row className={classes.row}>
           <Col sm={{ size: 4, order: 2, offset: 4 }}>
             <UserForm />
           </Col>

@@ -1,5 +1,6 @@
 //packages
 import React, { useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
   Form,
@@ -13,23 +14,24 @@ import { useHistory } from "react-router-dom";
 //functions
 import { postData } from "../../functions/requestDataFromAPI";
 
-function UserForm() {
-  //————————————————————————————css
-  const formStyle = {
+const useStyles = makeStyles(theme => ({
+  root: {
     fontStyle: "微软雅黑",
     fontSize: "1.5rem",
     color: "aliceblue"
-  };
-
-  const textStyle = {
+  },
+  text: {
     width: "50%",
     fontStyle: "微软雅黑",
     fontSize: "1rem",
     paddingBottom: "0.7rem",
     color: "aliceblue"
-  };
+  }
+}));
 
-  //————————————————————————————
+function UserForm() {
+  const classes = useStyles();
+
   const history = useHistory();
 
   const [input, setInput] = useState({ username: "", password: "" }); //用户输入内容
@@ -63,7 +65,7 @@ function UserForm() {
   }
 
   return (
-    <Form style={formStyle}>
+    <Form className={classes.root}>
       <FormGroup>
         <Label>用户名</Label>
         <Input
@@ -86,12 +88,12 @@ function UserForm() {
       </FormGroup>
       <FormGroup>
         {isAccess ? (
-          <FormText style={textStyle} color="muted">
+          <FormText className={classes.text} color="muted">
             {text}
             <Spinner color="info" size="sm" />
           </FormText>
         ) : (
-          <FormText color="muted" style={textStyle}>
+          <FormText className={classes.text} color="muted">
             {text}
           </FormText>
         )}

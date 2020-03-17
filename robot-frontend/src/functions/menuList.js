@@ -4,7 +4,7 @@ const menu = {
   level1_2: { name: "实时监控", path: "" },
   level1_3: {
     title: { name: "任务管理", path: "" },
-    level2_1: { name: "巡检类型管理", path: "" },
+    level2_1: { name: "巡检任务管理", path: "" },
     level2_2: { name: "巡检任务展示", path: "" }
   }
 };
