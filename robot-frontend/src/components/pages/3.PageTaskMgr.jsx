@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Navigation from "../elements/Navigation";
 import Breadcrumb3 from "../elements/Breadcrumb3";
 import Table3 from "../elements/Table3";
-import Tree from "../elements/Tree";
+import Tree1 from "../elements/Tree1";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -44,7 +44,7 @@ function PageTaskMgr() {
           <Row>
             <Breadcrumb3 />
           </Row>
-          <Tree />
+          <Tree1 />
         </Col>
         <Col sm="12" md={{ size: 8, offset: 0 }}>
           <Row className={classes.paperRow}>paper</Row>

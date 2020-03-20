@@ -7,6 +7,7 @@ import Navigation from "../elements/Navigation";
 import Breadcrumb2 from "../elements/Breadcrumb2";
 import RobotCard from "../elements/RobotCard";
 import TabTable from "../elements/TabTable";
+import Map from "../elements/Map";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,6 +48,9 @@ function PageHome() {
           </Row>
           <Row>
             <RobotCard />
+          </Row>
+          <Row>
+            <Map />
           </Row>
         </Col>
         <Col sm="12" md={{ size: 4, offset: 0 }}>
