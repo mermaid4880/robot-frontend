@@ -48,6 +48,7 @@ function Tree1() {
       if (data.success) {
         var result = data.data;
         setTreeData(result);
+        // console.log("treeData", treeData);
       } else {
         alert(data.data.detail);
       }

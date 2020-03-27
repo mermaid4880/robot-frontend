@@ -9,8 +9,6 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
-//functions
-import { getData,postData } from "../../functions/requestDataFromAPI";
 
 //表样式
 const columns = [
@@ -74,7 +72,7 @@ const useStyles = makeStyles({
   }
 });
 
-function Table3() {
+function Table4() {
   const classes = useStyles();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -140,4 +138,4 @@ function Table3() {
   );
 }
 
-export default Table3;
+export default Table4;

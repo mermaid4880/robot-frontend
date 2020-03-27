@@ -5,7 +5,7 @@ import { makeStyles } from "@material-ui/core/styles";
 //elements
 import Navigation from "../elements/Navigation";
 import Breadcrumb4 from "../elements/Breadcrumb4";
-import Table3 from "../elements/Table3";
+import Table4 from "../elements/Table4";
 import TaskCalendar from "../elements/TaskCalendar";
 import { Collapse } from "antd";
 
@@ -77,7 +77,7 @@ function PageTaskShow() {
               <p>{text}</p>
             </Panel>
             <Panel header="任务编辑列表" key="2">
-              <Table3 />
+              <Table4 />
             </Panel>
           </Collapse>
         </Col>
