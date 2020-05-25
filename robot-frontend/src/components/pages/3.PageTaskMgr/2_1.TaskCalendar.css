@@ -1,0 +1,81 @@
+/* 按钮-正常状态 */
+.btn-primary {
+  color: #fff;
+  background-color: #78c2ad;
+  border-color: #56cc9d;
+  font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+/* 按钮-鼠标悬停状态 */
+.btn-primary:hover {
+  color: #fff;
+  background-color: #00b5ad;
+  border-color: #56cc9d;
+}
+
+/* 按钮-禁用状态 */
+.btn-primary.disabled,
+.btn-primary:disabled {
+  color: #fff;
+  background-color: #00b5ad;
+  border-color: #56cc9d;
+  opacity: 1;
+}
+
+/* 按钮-按下状态 */
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show > .btn-primary.dropdown-toggle {
+  color: #fff;
+  background-color: #55b298;
+  border-color: #56cc9d;
+}
+/* 
+.fc-timeGridMonth-button,
+.fc-timeGridWeed-button,
+.fc-timeGridDay-button {
+  color: #fff;
+  background-color: #00b5ad;
+  border-color: #56cc9d;
+}
+
+.fc-timeGridMonth-button:not(:disabled):not(.disabled).active,
+.fc-timeGridWeed-button:not(:disabled):not(.disabled):active,
+.fc-timeGridDay-button:not(:disabled):not(.disabled):active {
+  color: #fff;
+  background-color: #55B298;
+  border-color: #56aa9d;
+} */
+
+.fc-next-button,
+.fc-prev-button {
+  /* color: #ffffff;
+  background-color: #00b5ad;
+  border-color: #56cc9d; */
+  font-size: 14px;
+  width: 35px;
+  height: 33.5px;
+  margin: 0px, 0px, 0px, -1px;
+  padding: 5.6px, 9.1px;
+}
+
+.fc-icon-chevron-left,
+.fc-icon-chevron-right {
+  width: 15px;
+  height: 21px;
+}
+
+.fc-toolbar h2 {
+  font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size: 1.2em;
+  margin: 0;
+}
+
+.fc-day-header {
+  font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #bee5eb;
+}
