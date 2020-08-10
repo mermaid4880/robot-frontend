@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom"; 
 import { Collapse, Tree, Input, Checkbox, Tooltip, Row, Col } from "antd";
 import { makeStyles } from "@material-ui/core/styles";
 //functions
@@ -76,10 +77,10 @@ const getParentKey = (key, tree) => {
 //将API返回的json格式数据转化为树所需要的数组格式[{key,title,children:[{key,title,children:[]},...]},{},...]
 //1
 function generateMeters(node) {
-  console.log("generateMeters_node", node);
+  // console.log("generateMeters_node", node);
   //是否有meterName
   var hasMeterName = node.meterName;
-  console.log("hasMeterName", hasMeterName);
+  // console.log("hasMeterName", hasMeterName);
   if (hasMeterName) {
     return {
       title: node.meterName + "（" + node.detectionType + "）",
@@ -89,13 +90,13 @@ function generateMeters(node) {
 }
 //2
 function generateDevices(node) {
-  console.log("generateDevices_node", node);
+  // console.log("generateDevices_node", node);
   //是否有deviceName
   var hasDeviceName = node.deviceName;
-  console.log("hasDeviceName", hasDeviceName);
+  // console.log("hasDeviceName", hasDeviceName);
   //是否有meters
   var hasMeters = Array.isArray(node.meters) && node.meters.length > 0;
-  console.log("hasMeters", hasMeters);
+  // console.log("hasMeters", hasMeters);
   if (hasDeviceName) {
     return {
       title: node.deviceName,
@@ -106,13 +107,13 @@ function generateDevices(node) {
 }
 //3
 function generateDeviceGroupByTypes(node, parentID, index) {
-  console.log("generateDeviceGroupByTypes_node", node);
+  // console.log("generateDeviceGroupByTypes_node", node);
   //是否有deviceTypeName
   var hasDeviceTypeName = node.deviceTypeName;
-  console.log("hasDeviceTypeName", hasDeviceTypeName);
+  // console.log("hasDeviceTypeName", hasDeviceTypeName);
   //是否有devices
   var hasDevices = Array.isArray(node.devices) && node.devices.length > 0;
-  console.log("hasDevices", hasDevices);
+  // console.log("hasDevices", hasDevices);
   if (hasDeviceTypeName) {
     return {
       title: node.deviceTypeName,
@@ -125,17 +126,17 @@ function generateDeviceGroupByTypes(node, parentID, index) {
 function generateTree(nodes) {
   //是否有areaName
   var hasAreaName = nodes.areaName;
-  console.log("hasAreaName", hasAreaName);
+  // console.log("hasAreaName", hasAreaName);
   //有areaName
   if (hasAreaName) {
     //是否有children
     var hasChild = Array.isArray(nodes.children) && nodes.children.length > 0;
-    console.log("hasChild", hasChild);
+    // console.log("hasChild", hasChild);
     //是否有deviceGroupByTypes
     var hasDeviceGroup =
       Array.isArray(nodes.deviceGroupByTypes) &&
       nodes.deviceGroupByTypes.length > 0;
-    console.log("hasDeviceGroup", hasDeviceGroup);
+    // console.log("hasDeviceGroup", hasDeviceGroup);
     if (hasChild)
       return {
         title: nodes.areaName,
@@ -185,7 +186,7 @@ function getMetersID(checkedKeys) {
   checkedKeys.forEach((item) => {
     if (item.indexOf("meter") > -1) {
       arrayID.push(item.slice(5));
-      console.log("arrayID", arrayID);
+      // console.log("arrayID", arrayID);
       IDstring = arrayID.join(",");
       console.log("IDstring", IDstring);
     }
@@ -204,20 +205,23 @@ function getMeterID(selectedKey) {
 function TreeSearch(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //<Collapse>的展开状态
   const [collapseState, setCollapseState] = useState({
-    CheckGroup: true,
-    Tree: true,
+    CheckGroup: true, //筛选条件的<Collapse>
+    Tree: true, //设备点位树的<Collapse>
   });
 
   //<Checkbox.Group>中被选中的<Checkbox>
-  const [checkValue, setcheckValue] = useState([]);
+  const [checkValue, setcheckValue] = useState([]); //eg.["红外测温","设备外观查看（不可识别）"]
 
   //<Search>中的文字
   const [searchText, setSearchText] = useState("");
 
-  //<Tree>的数据的状态
+  //<Tree>的数据
   const [treeData, setTreeData] = useState([]);
 
   //<Tree>的状态
@@ -230,24 +234,34 @@ function TreeSearch(props) {
   //<Tree>中CheckBox被勾选的节点的Keys
   const [checkedTreeKeys, setCheckedTreeKeys] = useState([]);
 
+  //———————————————————————————————————————————————useEffect
+  //当组件加载完成后GET请求获取点位树
   useEffect(() => {
     //————————————————————————————GET请求
-    getData("areas/tree").then((data) => {
-      console.log("get结果", data);
-      if (data.success) {
-        var result = data.data;
-        console.log("result", result);
-        var newTreeData = [generateTree(result)];
-        console.log("newTreeData", newTreeData);
-        setTreeData(newTreeData);
-        generateList(newTreeData); //产生所有节点的list（供搜索使用）
-        console.log("dataList", dataList);
-      } else {
-        alert(data.data.detail);
-      }
-    });
+    getData("areas/tree")
+      .then((data) => {
+        console.log("get结果", data);
+        if (data.success) {
+          var result = data.data;
+          // console.log("result", result);
+          var newTreeData = [generateTree(result)];
+          // console.log("newTreeData", newTreeData);
+          setTreeData(newTreeData);
+          generateList(newTreeData); //产生所有节点的list（供搜索使用）
+          // console.log("dataList", dataList);
+        } else {
+          alert(data.data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }, []);
 
+  //GET请求获取点位树完成后根据传入的meters字符串（eg."1,2,6"）展开并勾选树
   useEffect(() => {
     //————————————————————————————根据传入的meters字符串（eg."1,2,6"）展开并勾选树
     if (props.meters) {

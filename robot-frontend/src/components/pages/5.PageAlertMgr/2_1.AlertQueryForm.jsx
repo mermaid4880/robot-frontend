@@ -1,7 +1,8 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { Input, Form } from "semantic-ui-react";
-import { Calendar } from "primereact/calendar";
+import { DatePicker } from "rsuite";
 import swal from "sweetalert";
 //functions
 import { getData } from "../../../functions/requestDataFromAPI.js";
@@ -56,58 +57,6 @@ const alertIsDealedOptions = [
   },
 ];
 
-//———————————————————————————————————————————————Calendar（https://www.primefaces.org/primereact/showcase/#/calendar）
-//设置Calendar的当前时间
-let today = new Date();
-let month = today.getMonth();
-let year = today.getFullYear();
-let prevMonth = month === 0 ? 11 : month - 1;
-let prevYear = prevMonth === 11 ? year - 1 : year;
-let nextMonth = month === 11 ? 0 : month + 1;
-let nextYear = nextMonth === 0 ? year + 1 : year;
-//日期选择范围（暂时没用到）
-let minDate = new Date();
-minDate.setMonth(prevMonth);
-minDate.setFullYear(prevYear);
-let maxDate = new Date();
-maxDate.setMonth(nextMonth);
-maxDate.setFullYear(nextYear);
-//地区
-const location = {
-  firstDayOfWeek: 1,
-  dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
-  dayNamesShort: ["日", "一", "二", "三", "四", "五", "六"],
-  dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
-  monthNames: [
-    "1月",
-    "2月",
-    "3月",
-    "4月",
-    "5月",
-    "6月",
-    "7月",
-    "8月",
-    "9月",
-    "10月",
-    "11月",
-    "12月",
-  ],
-  monthNamesShort: [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-  ],
-};
-
 //———————————————————————————————————————————————全局函数
 //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
 function timeFormat(time) {
@@ -135,6 +84,9 @@ function timeDeformat(convertedTime) {
 }
 
 function AlertQueryForm(props) {
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //用户输入内容
   // const [input, setInput] = useState({
@@ -154,20 +106,14 @@ function AlertQueryForm(props) {
     isDealed: "", //确认状态（5种）【"未确认"  "现场确认无异常"  "确认异常——已处理"  "确认异常——需要进一步跟踪"  "确认异常——在允许范围内"】
   });
 
-  //<Calendar>的状态（暂时只用到了date）
-  const [calendar1State, setCalendar1State] = useState({
+  //<DatePicker>的状态
+  const [datePicker1State, setDatePicker1State] = useState({
     date: timeDeformat(input.startTime),
-    minDate: minDate,
-    maxDate: maxDate,
-    invalidDates: [today],
   });
 
-  //<Calendar>的状态（暂时只用到了date）
-  const [calendar2State, setCalendar2State] = useState({
-    date: timeDeformat(input.startTime),
-    minDate: minDate,
-    maxDate: maxDate,
-    invalidDates: [today],
+  //<DatePicker>的状态
+  const [datePicker2State, setDatePicker2State] = useState({
+    date: timeDeformat(input.endTime),
   });
 
   //———————————————————————————————————————————————其他函数
@@ -177,10 +123,12 @@ function AlertQueryForm(props) {
     // 用URLSearchParams来传递参数
     let paramData = new URLSearchParams();
     input.keyword && paramData.append("keyword", input.keyword.toString());
-    input.startTime && paramData.append("startTime", input.startTime.toString());
+    input.startTime &&
+      paramData.append("startTime", input.startTime.toString());
     input.endTime && paramData.append("endTime", input.endTime.toString());
     input.level && paramData.append("level", input.level.toString());
-    input.detectionType && paramData.append("detectionType", input.detectionType.toString());
+    input.detectionType &&
+      paramData.append("detectionType", input.detectionType.toString());
     input.isDealed && paramData.append("isDealed", input.isDealed.toString());
     console.log("paramData", paramData);
     //发送GET请求
@@ -204,6 +152,10 @@ function AlertQueryForm(props) {
         }
       })
       .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "按条件获取告警信息列表失败",
@@ -240,32 +192,28 @@ function AlertQueryForm(props) {
     });
   }
 
-  //<Form>中告警开始时间<Calendar>组件变化事件响应函数
-  function handleCalendar1Change(e) {
-    //设置<Calendar>的状态
-    setCalendar1State((prev) => {
-      return { ...prev, date: e.value };
-    });
+  //<Form>中告警开始时间<DatePicker>组件变化事件响应函数
+  function handleDatePicker1Change(date) {
+    //设置<DatePicker>的状态
+    setDatePicker1State({ date: date });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = e.value;
+    let time = date;
     let convertedTime = timeFormat(time);
-    console.log("convertedTime", convertedTime);
+    console.log("convertedDatePicker1Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, startTime: convertedTime };
     });
   }
 
-  //<Form>中告警结束时间<Calendar>组件变化事件响应函数
-  function handleCalendar2Change(e) {
-    //设置<Calendar>的状态
-    setCalendar2State((prev) => {
-      return { ...prev, date: e.value };
-    });
+  //<Form>中告警结束时间<DatePicker>组件变化事件响应函数
+  function handleDatePicker2Change(date) {
+    //设置<DatePicker>的状态
+    setDatePicker2State({ date: date });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = e.value;
+    let time = date;
     let convertedTime = timeFormat(time);
-    console.log("convertedTime", convertedTime);
+    console.log("convertedDatePicker2Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, endTime: convertedTime };
@@ -276,37 +224,87 @@ function AlertQueryForm(props) {
     <Form>
       <Form.Group inline>
         <Form.Field>
+          <label>告警开始时间</label>
+          <div
+            id="father1"
+            style={{ position: "relative", display: "inline-block" }}
+          >
+            <DatePicker
+              container={() => document.getElementById("father1")}
+              style={{ width: 200 }}
+              block
+              format="YYYY-MM-DD HH:mm:ss"
+              locale={{
+                sunday: "日",
+                monday: "一",
+                tuesday: "二",
+                wednesday: "三",
+                thursday: "四",
+                friday: "五",
+                saturday: "六",
+                ok: "确定",
+                today: "今天",
+                yesterday: "昨天",
+                hours: "时",
+                minutes: "分",
+                seconds: "秒",
+              }}
+              ranges={[
+                {
+                  label: "今天",
+                  value: new Date(),
+                },
+              ]}
+              placeholder="告警开始时间"
+              value={datePicker1State.date}
+              onChange={handleDatePicker1Change}
+            />
+          </div>
+        </Form.Field>
+        <Form.Field>
+          <label>告警结束时间</label>
+          <div
+            id="father2"
+            style={{ position: "relative", display: "inline-block" }}
+          >
+            <DatePicker
+              container={() => document.getElementById("father2")}
+              style={{ width: 200 }}
+              block
+              format="YYYY-MM-DD HH:mm:ss"
+              locale={{
+                sunday: "日",
+                monday: "一",
+                tuesday: "二",
+                wednesday: "三",
+                thursday: "四",
+                friday: "五",
+                saturday: "六",
+                ok: "确定",
+                today: "今天",
+                yesterday: "昨天",
+                hours: "时",
+                minutes: "分",
+                seconds: "秒",
+              }}
+              ranges={[
+                {
+                  label: "今天",
+                  value: new Date(),
+                },
+              ]}
+              placeholder="告警结束时间"
+              value={datePicker2State.date}
+              onChange={handleDatePicker2Change}
+            />
+          </div>
+        </Form.Field>
+        <Form.Field>
           <label>关键字查询</label>
           <Input
             value={input.keyword}
             placeholder="关键字"
             onChange={(e, { value }) => handleChange(e, { value }, "keyword")}
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>告警开始时间</label>
-          <Calendar
-            style={{ width: "180px" }}
-            value={calendar1State.date}
-            locale={location}
-            dateFormat="yy/mm/dd"
-            showTime={true}
-            showSeconds={true}
-            placeholder="告警开始时间"
-            onChange={handleCalendar1Change}
-          />
-        </Form.Field>
-        <Form.Field>
-          <label>告警结束时间</label>
-          <Calendar
-            style={{ width: "180px" }}
-            value={calendar2State.date}
-            locale={location}
-            dateFormat="yy/mm/dd"
-            showTime={true}
-            showSeconds={true}
-            placeholder="告警结束时间"
-            onChange={handleCalendar2Change}
           />
         </Form.Field>
         <Form.Select
@@ -336,8 +334,8 @@ function AlertQueryForm(props) {
           <Form.Button
             style={{ width: "70px", marginTop: "19px" }} //将查询按钮对齐底部
             onClick={() => {
-              console.log("calendar1State", calendar1State);
-              console.log("calendar2State", calendar2State);
+              console.log("datePicker1State", datePicker1State);
+              console.log("datePicker2State", datePicker2State);
               console.log("hello", input);
               queryAlertListGET();
             }}

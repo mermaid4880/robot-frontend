@@ -1,8 +1,11 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Tooltip } from "antd";
-import { Button, Modal, Icon } from "semantic-ui-react";
+import { Button, Modal } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import swal from "sweetalert";
 //functions
 import { deleteData } from "../../../functions/requestDataFromAPI.js";
@@ -19,6 +22,9 @@ const useStyles = makeStyles((theme) => ({
 function DeleteTaskModal(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
@@ -27,7 +33,11 @@ function DeleteTaskModal(props) {
   //删除任务DELETE请求
   function deleteTaskDELETE() {
     //————————————————————————————DELETE请求
-    deleteData("/taskTemplates/" + props.taskId)
+    //用URLSearchParams来传递参数
+    let params = new URLSearchParams();
+    params.append("id", props.taskId.toString());
+    //发送DELETE请求
+    deleteData("task/delete", { params: params })
       .then((data) => {
         console.log("delete结果", data);
         if (data.success) {
@@ -41,9 +51,9 @@ function DeleteTaskModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET任务列表并刷新页面）
+          //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新页面）
+          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar:");
         } else {
           //关闭本modal
@@ -61,6 +71,10 @@ function DeleteTaskModal(props) {
       .catch((error) => {
         //关闭本modal
         setModalOpen(false);
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "删除任务失败",
@@ -82,7 +96,7 @@ function DeleteTaskModal(props) {
       size={"tiny"}
       trigger={
         <Tooltip placement="bottom" title="删除任务">
-          <Icon name="trash" />
+          <FontAwesomeIcon icon={faTrash} />
         </Tooltip>
       }
     >
@@ -91,17 +105,8 @@ function DeleteTaskModal(props) {
         <p>确认删除该任务？</p>
       </Modal.Content>
       <Modal.Actions>
-        <Button
-          primary
-          icon="checkmark"
-          content="确认删除"
-          onClick={() => deleteTaskDELETE()}
-        />
-        <Button
-          icon="cancel"
-          content="取消删除"
-          onClick={() => setModalOpen(false)}
-        />
+        <Button primary content="确认删除" onClick={() => deleteTaskDELETE()} />
+        <Button content="取消删除" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>
   );

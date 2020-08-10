@@ -1,11 +1,14 @@
 //packages
 import React, { useRef, useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Paper, Card, CardContent } from "@material-ui/core";
 import { Spin, Table, Input, Button, Tooltip, Space, DatePicker } from "antd";
 import { SearchOutlined, FilterFilled } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import { Label, Icon } from "semantic-ui-react";
+import { Label } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheckCircle, faBan } from "@fortawesome/free-solid-svg-icons";
 //elements
 import AddOrEditTaskModal from "./3_1_.AddOrEditTaskModal.jsx";
 import DeleteTaskModal from "./3_2.DeleteTaskModal.jsx";
@@ -51,28 +54,30 @@ function getTableData(list) {
       key: "",
       id: "", //任务ID
       taskName: "", //任务名称
+      taskDescription: "", //任务描述
       createTime: "", //任务创建时间
-      type: "", //任务类型
+      endAction: "", //结束动作【"自动充电"  "原地待命"】
+      type: "", //任务类型【"例行巡检"  "自定义巡检"  "特殊巡检"】
       createUserId: "", //创建任务UserId
       meters: "", //点位信息
-      status: "", //任务执行状态
-      mode: "", //任务执行方式
+      status: "", //任务执行状态【"等待执行"  "执行完成"  "正在执行"  "中途终止"  "任务超期"】
+      mode: "", //任务执行方式【"立即执行"  "定期执行"  "周期执行"】
       startTime: "", //任务开始时间（当mode为定期执行和周期执行时有效）
-      endTime: "", //任务结束时间
       period: "", //任务执行周期（当mode为周期执行时有效）
-      isStart: "", //任务是否启用（当mode为周期执行时有效）
+      isStart: "", //任务是否启用【"启用"  "禁用"】
     };
     newItem.key = index;
     newItem.id = item.id;
     newItem.taskName = item.taskName;
+    newItem.taskDescription = item.taskDescription;
     newItem.createTime = item.createTime;
+    newItem.endAction = item.endAction;
     newItem.type = item.type;
     newItem.createUserId = item.createUserId;
     newItem.meters = item.meters;
     newItem.status = item.status;
     newItem.mode = item.mode;
     newItem.startTime = item.startTime;
-    newItem.endTime = item.endTime;
     newItem.period = item.period;
     newItem.isStart = item.isStart;
     return newItem;
@@ -84,6 +89,9 @@ function getTableData(list) {
 function TaskTableAndDetail() {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useRef
   //<Table>中taskName列的下拉菜单里的<Input>节点
   const taskNameSearchInput = useRef();
@@ -92,7 +100,7 @@ function TaskTableAndDetail() {
   //表格数据是否正在请求的状态
   const [loading, setLoading] = useState(false);
 
-  //页面是否需要更新的状态
+  //组件是否需要更新的状态
   const [update, setUpdate] = useState(false);
 
   //<Table>的状态
@@ -109,16 +117,17 @@ function TaskTableAndDetail() {
     key: "",
     id: "", //任务ID
     taskName: "", //任务名称
+    taskDescription: "", //任务描述
     createTime: "", //任务创建时间
-    type: "", //任务类型
+    endAction: "", //结束动作【"自动充电"  "原地待命"】
+    type: "", //任务类型【"例行巡检"  "自定义巡检"  "特殊巡检"】
     createUserId: "", //创建任务UserId
     meters: "", //点位信息
-    status: "", //任务执行状态
-    mode: "", //任务执行方式
+    status: "", //任务执行状态【"等待执行"  "执行完成"  "正在执行"  "中途终止"  "任务超期"】
+    mode: "", //任务执行方式【"立即执行"  "定期执行"  "周期执行"】
     startTime: "", //任务开始时间（当mode为定期执行和周期执行时有效）
-    endTime: "", //任务结束时间
     period: "", //任务执行周期（当mode为周期执行时有效）
-    isStart: "", //任务是否启用（当mode为周期执行时有效）
+    isStart: "", //任务是否启用【"启用"  "禁用"】
   });
 
   //<Table>中taskName列的搜索状态
@@ -137,29 +146,36 @@ function TaskTableAndDetail() {
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    getData("/taskTemplates").then((data) => {
-      console.log("get结果", data);
-      if (data.success) {
-        var result = data.data.list;
-        console.log("result", result);
-        //获取表数据
-        const tableData = getTableData(result);
-        //设置<Table>的状态
-        setTableState((prev) => ({
-          pageIndex: prev.pageIndex,
-          pageSize: prev.pageSize,
-          tableData: tableData,
-          pageData: tableData.slice(
-            (prev.pageIndex - 1) * prev.pageSize,
-            prev.pageIndex * prev.pageSize
-          ),
-        }));
-        //设置表格数据请求状态为完成
-        setLoading(false);
-      } else {
-        alert(data.data.detail);
-      }
-    });
+    getData("/task/all")
+      .then((data) => {
+        console.log("get结果", data);
+        if (data.success) {
+          var result = data.data.list;
+          console.log("result", result);
+          //获取表数据
+          const tableData = getTableData(result);
+          //设置<Table>的状态
+          setTableState((prev) => ({
+            pageIndex: prev.pageIndex,
+            pageSize: prev.pageSize,
+            tableData: tableData,
+            pageData: tableData.slice(
+              (prev.pageIndex - 1) * prev.pageSize,
+              prev.pageIndex * prev.pageSize
+            ),
+          }));
+          //设置表格数据请求状态为完成
+          setLoading(false);
+        } else {
+          alert(data.data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }, [update]);
 
   //———————————————————————————————————————————————设置<Table>用到的变量
@@ -349,8 +365,10 @@ function TaskTableAndDetail() {
       width: 120,
       render: (x) => {
         if (x === "启用")
-          return <Icon color="olive" name="check circle outline" />;
-        else return <Icon color="grey" name="ban" />;
+          return (
+            <FontAwesomeIcon icon={faCheckCircle} style={{ color: "green" }} />
+          );
+        else return <FontAwesomeIcon icon={faBan} style={{ color: "grey" }} />;
       },
     },
     {
@@ -370,6 +388,7 @@ function TaskTableAndDetail() {
               }}
             />
           </a>
+          &nbsp;&nbsp;
           <a>
             <DeleteTaskModal
               taskId={rowData.id}
@@ -379,6 +398,7 @@ function TaskTableAndDetail() {
               }}
             />
           </a>
+          &nbsp;&nbsp;&nbsp;
           <a>
             <IssueTaskModal
               taskId={rowData.id}
@@ -511,7 +531,7 @@ function TaskTableAndDetail() {
           <Spin spinning={loading} tip="Loading..." size="large">
             <Table
               bordered="true" //是否展示外边框和列边框
-              loading={loading} //页面是否加载中
+              loading={loading} //表格是否加载中
               size="small" //表格大小
               columns={columns}
               dataSource={tableState.tableData}

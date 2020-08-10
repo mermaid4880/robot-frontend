@@ -1,0 +1,30 @@
+/* .ant-tabs-ink-bar{
+    background-color: transparent !important;
+  }
+  
+  .ant-tabs-top .ant-tabs-ink-bar-animated:before{
+    content: " ";
+    background-color: rgb(0, 255, 234);
+    width: 50px;
+    height: 2px;
+    position: absolute;
+    margin: auto;
+    margin-left: 25%;
+  
+  
+  } */
+
+  .ant-tabs-nav .ant-tabs-tab-active {
+    color: #3f72af;
+    font-weight: 500;
+    outline: none;
+    outline-color: initial;
+    outline-style: none;
+    outline-width: initial;
+}
+
+.ant-tabs .ant-tabs-left-bar .ant-tabs-tab, .ant-tabs .ant-tabs-right-bar .ant-tabs-tab {
+  margin: 0 0 16px 0;
+  padding: 2px 6px;
+  text-align: center;
+}

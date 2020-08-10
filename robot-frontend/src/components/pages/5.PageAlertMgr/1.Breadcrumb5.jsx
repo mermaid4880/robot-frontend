@@ -3,7 +3,11 @@ import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import Typography from "@material-ui/core/Typography";
-import { Icon } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faExclamationTriangle,
+} from "@fortawesome/free-solid-svg-icons";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -12,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: "幼圆",
     fontSize: "1.1rem",
   },
+  icon: {
+    margin: "3px 4px 0px 4px",
+  },
 }));
 
 function Breadcrumb5(props) {
@@ -19,11 +26,14 @@ function Breadcrumb5(props) {
   return (
     <Breadcrumbs aria-label="breadcrumb">
       <Typography color="inherit" className={classes.link}>
-        <Icon name="home" />
+        <FontAwesomeIcon icon={faHome} className={classes.icon} />
         智能巡检机器人系统
       </Typography>
       <Typography color="inherit" className={classes.link}>
-        <Icon name="warning sign" />
+        <FontAwesomeIcon
+          icon={faExclamationTriangle}
+          className={classes.icon}
+        />
         异常告警
       </Typography>
     </Breadcrumbs>

@@ -1,8 +1,12 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
+import Button1 from "@material-ui/core/Button";
 import { Tooltip } from "antd";
-import { Input, Button, Modal, Icon, Form } from "semantic-ui-react";
+import { Input, Button, Modal, Form } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClipboardCheck } from "@fortawesome/free-solid-svg-icons";
 import swal from "sweetalert";
 //functions
 import { putData } from "../../functions/requestDataFromAPI.js";
@@ -17,51 +21,60 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "410px",
   },
+  startIcon: {
+    width: 14,
+    height: 14,
+  },
 }));
 
 function CheckRecordModal(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
 
-  //checkData的状态（记录id、点位id和<Form>的状态）
+  //checkData的状态（巡检结果ID、和<Form>的状态[识别结果、巡检审核状态、巡检审核信息]）
   const [checkData, setCheckData] = useState({
-    id: "",
-    meterId: "",
+    resultId: "",
     value: "",
     checkStatus: "",
     checkInfo: "",
   });
 
   //<Form.Radio>的选中状态（3种确认状态checkStatus）
-  const [radioState, setRadioState] = useState("");
+  const [radioState, setRadioState] = useState(""); //"待审核"、"已确认"、"已修改"
 
   //———————————————————————————————————————————————useEffect
+  //父组件传入data后更新checkData的状态、<Form.Radio>的选中状态
+  //父组件1（pages\4.PageTaskRecord\0.PageAllRecords\3_.OneRecordDetailTable#2#3#4#5.jsx）
+  //父组件2（pages\4.PageTaskRecord\1.PageOneMeterRecords\2_.OneMeterRecordsTableAndDetail#2#3.jsx）
   useEffect(() => {
     setRadioState(props.data.checkStatus);
     setCheckData(props.data);
   }, [props.data]);
 
   //———————————————————————————————————————————————其他函数
-  //根据记录ID和点位ID审核单次巡检记录中的某些点位信息PUT请求
-  function checkOneRecordPUT() {
+  //审核单条巡检结果（按巡检结果ID）PUT请求
+  function checkResultPUT() {
     //————————————————————————————PUT请求
     // 用URLSearchParams来传递参数
-    let paramData = new URLSearchParams();
-    paramData.append("id", checkData.id.toString()); //记录ID
-    paramData.append("meterId", checkData.meterId.toString()); //点位ID
-    if (props.batch === false && checkData.checkStatus === "已修改") {
-      paramData.append("value", checkData.value.toString()); //识别结果（当checkStatus为已修改并且点位ID为单点位时有效）
-    }
-    paramData.append("checkStatus", checkData.checkStatus.toString()); //巡检审核状态【"待审核"  "已确认"  "已修改"】
-    paramData.append("checkInfo", checkData.checkInfo.toString()); //巡检审核信息
-    // paramData.append("meters", checkData.meterId.toString());//HJJ 适配现有的API
-    console.log("paramData...........", paramData);
+    let BodyParams = new URLSearchParams();
+    BodyParams.append("resultId", checkData.resultId.toString());
+    props.batch === false &&
+      BodyParams.append("value", checkData.value.toString());
+    BodyParams.append("checkStatus", checkData.checkStatus.toString());
+    BodyParams.append("checkInfo", checkData.checkInfo.toString());
     //发送PUT请求
-    putData("/taskTemplates/", paramData)
-      // putData("/taskTemplates/" + checkData.id, paramData)//HJJ 适配现有的API
+    putData(
+      props.batch === false
+        ? "checkDetectionDatas/byid"
+        : "checkDetectionDatas/bybatchid",
+      BodyParams
+    )
       .then((data) => {
         console.log("put结果", data);
         if (data.success) {
@@ -75,7 +88,7 @@ function CheckRecordModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET全部详细点位信息列表并刷新页面）
+          //调用父组件函数（重新GET全部详细点位信息列表并刷新组件）
           props.updateParent();
         } else {
           //alert失败
@@ -89,61 +102,10 @@ function CheckRecordModal(props) {
         }
       })
       .catch((error) => {
-        //alert失败
-        swal({
-          title: "审核巡检点位信息",
-          text: "请重新审核巡检点位信息！错误信息：" + error.toString(),
-          icon: "error",
-          timer: 3000,
-          buttons: false,
-        });
-      });
-  }
-
-  //根据记录ID和点位ID审核多次巡检记录中的单点位信息PUT请求
-  function checkOneMeterPUT() {
-    //————————————————————————————PUT请求
-    // 用URLSearchParams来传递参数
-    let paramData = new URLSearchParams();
-    paramData.append("id", checkData.id.toString()); //记录ID
-    paramData.append("meterId", checkData.meterId.toString()); //点位ID
-    if (props.batch === false && checkData.checkStatus === "已修改") {
-      paramData.append("value", checkData.value.toString()); //识别结果（当checkStatus为已修改并且点位ID为单点位时有效）
-    }
-    paramData.append("checkStatus", checkData.checkStatus.toString()); //巡检审核状态【"待审核"  "已确认"  "已修改"】
-    paramData.append("checkInfo", checkData.checkInfo.toString()); //巡检审核信息
-    // paramData.append("meters", checkData.meterId.toString());//HJJ 适配现有的API
-    console.log("paramData...........", paramData);
-    //发送PUT请求
-    putData("/taskTemplates/", paramData)
-      // putData("/taskTemplates/" + checkData.id, paramData)//HJJ 适配现有的API
-      .then((data) => {
-        console.log("put结果", data);
-        if (data.success) {
-          //关闭本modal
-          setModalOpen(false);
-          //alert成功
-          swal({
-            title: "审核巡检点位信息成功",
-            text: "                 ",
-            icon: "success",
-            timer: 3000,
-            buttons: false,
-          });
-          //调用父组件函数（重新GET全部详细点位信息列表并刷新页面）
-          props.updateParent();
-        } else {
-          //alert失败
-          swal({
-            title: "审核巡检点位信息失败",
-            text: "请重新审核巡检点位信息！错误信息：" + data.detail.toString(),
-            icon: "error",
-            timer: 3000,
-            buttons: false,
-          });
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
         }
-      })
-      .catch((error) => {
         //alert失败
         swal({
           title: "审核巡检点位信息",
@@ -173,80 +135,39 @@ function CheckRecordModal(props) {
       onClose={() => setModalOpen(false)}
       closeOnDimmerClick={false}
       size={"tiny"}
-      // trigger={
-      //   props.batch === true ? (
-      //     props.data.meterId === "" ? (
-      //       <Button
-      //         disabled
-      //         // basic
-      //         // color="grey"
-      //         size="small"
-      //         icon="clipboard check"
-      //         labelPosition="left"
-      //         content="批量审核"
-      //       />
-      //     ) : (
-      //       <Button
-      //         // basic
-      //         // color="grey"
-      //         size="small"
-      //         icon="clipboard check"
-      //         labelPosition="left"
-      //         content="批量审核"
-      //       />
-      //     )
-      //   ) : (
-      //     <Tooltip placement="bottom" title="审核巡检点位信息">
-      //       <Icon name="clipboard check" />
-      //     </Tooltip>
-      //   )
-      // }
       trigger={
         props.batch === true ? (
-          props.type === "oneRecord" ? (
-            props.data.meterId === "" ? (
-              <Button
-                disabled
-                // basic
-                // color="grey"
-                size="small"
-                icon="clipboard check"
-                labelPosition="left"
-                content="批量审核"
-              />
-            ) : (
-              <Button
-                // basic
-                // color="grey"
-                size="small"
-                icon="clipboard check"
-                labelPosition="left"
-                content="批量审核"
-              />
-            )
-          ) : props.data.id === "" ? (
-            <Button
-              disabled
-              // basic
-              // color="grey"
-              size="small"
-              icon="clipboard check"
-              labelPosition="left"
-              content="批量审核"
-            />
+          props.data.resultId === "" ? (
+            <Button1
+              disabled //不可用
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon
+                  icon={faClipboardCheck}
+                  className={classes.startIcon}
+                />
+              }
+            >
+              批量审核
+            </Button1>
           ) : (
-            <Button
-              // basic
-              // color="grey"
-              size="small"
-              icon="clipboard check"
-              labelPosition="left"
-              content="批量审核"
-            />
+            <Button1
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon
+                  icon={faClipboardCheck}
+                  className={classes.startIcon}
+                />
+              }
+            >
+              批量审核
+            </Button1>
           )
         ) : (
           <Tooltip placement="bottom" title="审核巡检点位信息">
-            <Icon name="clipboard check" />
+            <FontAwesomeIcon icon={faClipboardCheck} />
           </Tooltip>
         )
       }
@@ -300,27 +221,24 @@ function CheckRecordModal(props) {
             />
           </Form.Group>
         </Form>
-        <p>
-          确认审核记录{"（ID=" + checkData.id + "）"}中的点位
-          {"（ID=" + checkData.meterId + "）"}？
-        </p>
+        <p>确认审核记录{"（ID=" + checkData.resultId + "）"}？</p>
       </Modal.Content>
       <Modal.Actions>
         <Button
           primary
-          icon="checkmark"
           content="确认"
           onClick={() => {
-            props.type === "oneRecord"
-              ? checkOneRecordPUT()
-              : checkOneMeterPUT();
+            //审核单条巡检结果（按巡检结果ID）
+            checkResultPUT();
           }}
         />
         <Button
-          icon="cancel"
           content="取消"
           onClick={() => {
-            setRadioState(""); //清空Radio的记忆
+            //清空用户输入的所有记忆，设置为父组件传来的参数
+            setRadioState(props.data.checkStatus);
+            setCheckData(props.data);
+            //关闭本modal
             setModalOpen(false);
           }}
         />

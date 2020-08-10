@@ -1,16 +1,11 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import {
-  Button,
-  Modal,
-  Icon,
-  Grid,
-  Form,
-  Table,
-  Header,
-} from "semantic-ui-react";
-import { Calendar } from "primereact/calendar";
+import { Button, Modal, Grid, Form, Table, Header } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChartLine } from "@fortawesome/free-solid-svg-icons";
+import { DatePicker } from "rsuite";
 import { Tooltip, Spin } from "antd";
 import { Chart, Geom, Axis, Tooltip as Tooltip1 } from "bizcharts";
 import { DataSet } from "@antv/data-set";
@@ -171,60 +166,11 @@ function getChartTimeRange(list) {
   return timeRange;
 }
 
-//———————————————————————————————————————————————Calendar（https://www.primefaces.org/primereact/showcase/#/calendar）
-//设置Calendar的当前时间
-let today = new Date();
-let month = today.getMonth();
-let year = today.getFullYear();
-let prevMonth = month === 0 ? 11 : month - 1;
-let prevYear = prevMonth === 11 ? year - 1 : year;
-let nextMonth = month === 11 ? 0 : month + 1;
-let nextYear = nextMonth === 0 ? year + 1 : year;
-//日期选择范围（暂时没用到）
-let minDate = new Date();
-minDate.setMonth(prevMonth);
-minDate.setFullYear(prevYear);
-let maxDate = new Date();
-maxDate.setMonth(nextMonth);
-maxDate.setFullYear(nextYear);
-//地区
-const location = {
-  firstDayOfWeek: 1,
-  dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
-  dayNamesShort: ["日", "一", "二", "三", "四", "五", "六"],
-  dayNamesMin: ["日", "一", "二", "三", "四", "五", "六"],
-  monthNames: [
-    "1月",
-    "2月",
-    "3月",
-    "4月",
-    "5月",
-    "6月",
-    "7月",
-    "8月",
-    "9月",
-    "10月",
-    "11月",
-    "12月",
-  ],
-  monthNamesShort: [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-  ],
-};
-
 function OneMeterHistoryModal(props) {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
 
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
@@ -233,7 +179,7 @@ function OneMeterHistoryModal(props) {
   //Chart数据是否正在请求的状态
   const [loading, setLoading] = useState(false);
 
-  //页面是否需要更新的状态
+  //组件是否需要更新的状态
   const [update, setUpdate] = useState(false);
 
   //所有数据的状态
@@ -251,28 +197,22 @@ function OneMeterHistoryModal(props) {
 
   //用户输入内容
   // const [input, setInput] = useState({
-  //   startTime: "2018-10-25 17:36:45", //识别时间段起点
-  //   endTime: "2018-10-28 17:36:45", //识别时间段终点
+  //   startDate: "2018-10-25 17:36:45", //识别时间段起点
+  //   endDate: "2018-10-28 17:36:45", //识别时间段终点
   // });
   const [input, setInput] = useState({
     startDate: "", //识别时间段起点
     endDate: "", //识别时间段终点
   });
 
-  //<Calendar>的状态（暂时只用到了date）
-  const [calendar1State, setCalendar1State] = useState({
+  //<DatePicker>的状态
+  const [datePicker1State, setDatePicker1State] = useState({
     date: timeDeformat(input.startDate),
-    minDate: minDate,
-    maxDate: maxDate,
-    invalidDates: [today],
   });
 
-  //<Calendar>的状态（暂时只用到了date）
-  const [calendar2State, setCalendar2State] = useState({
-    date: timeDeformat(input.startDate),
-    minDate: minDate,
-    maxDate: maxDate,
-    invalidDates: [today],
+  //<DatePicker>的状态
+  const [datePicker2State, setDatePicker2State] = useState({
+    date: timeDeformat(input.endDate),
   });
 
   //———————————————————————————————————————————————useEffect
@@ -290,41 +230,48 @@ function OneMeterHistoryModal(props) {
         paramData.append("startDate", input.startDate.toString());
       input.endDate && paramData.append("endDate", input.endDate.toString());
       //发送GET请求
-      getData("/detectionDatas", { params: paramData }).then((data) => {
-        console.log("get结果", data);
-        if (data.success) {
-          var result = data.data.list;
-          console.log("result", result);
-          //获取所有数据
-          const allData = getAllData(result);
-          //设置所有数据的状态
-          setAllData(allData);
-          //获取并设置当前明细表格数据在所有数据中的索引
-          console.log("allData", allData);
-          console.log("props.id", props.data.id);
-          console.log(
-            "getIndexInAllData(allData, props.id)",
-            getIndexInAllData(allData, props.data.id)
-          );
-          setIndexInAllData(getIndexInAllData(allData, props.data.id));
-          //获取Chart数据
-          const chartData = getChartData(allData);
-          //根据Chart数据获取检测时间time的范围
-          let timeRange = getChartTimeRange(chartData);
-          //设置<Chart>的状态
-          setChartState({
-            start: timeRange.start, //横坐标起点
-            end: timeRange.end, //横坐标终点
-            chartData: chartData, //全部Chart数据
-          });
-          //实现<Chart>和chartData的联动
-          linkChartState();
-          //设置Chart数据请求状态为完成
-          setLoading(false);
-        } else {
-          alert(data.data.detail);
-        }
-      });
+      getData("/detectionDatas", { params: paramData })
+        .then((data) => {
+          console.log("get结果", data);
+          if (data.success) {
+            var result = data.data.list;
+            console.log("result", result);
+            //获取所有数据
+            const allData = getAllData(result);
+            //设置所有数据的状态
+            setAllData(allData);
+            //获取并设置当前明细表格数据在所有数据中的索引
+            console.log("allData", allData);
+            console.log("props.id", props.data.id);
+            console.log(
+              "getIndexInAllData(allData, props.id)",
+              getIndexInAllData(allData, props.data.id)
+            );
+            setIndexInAllData(getIndexInAllData(allData, props.data.id));
+            //获取Chart数据
+            const chartData = getChartData(allData);
+            //根据Chart数据获取检测时间time的范围
+            let timeRange = getChartTimeRange(chartData);
+            //设置<Chart>的状态
+            setChartState({
+              start: timeRange.start, //横坐标起点
+              end: timeRange.end, //横坐标终点
+              chartData: chartData, //全部Chart数据
+            });
+            //实现<Chart>和chartData的联动
+            linkChartState();
+            //设置Chart数据请求状态为完成
+            setLoading(false);
+          } else {
+            alert(data.data.detail);
+          }
+        })
+        .catch((error) => {
+          //如果鉴权失败，跳转至登录页
+          if (error.response.status === 401) {
+            history.push("/");
+          }
+        });
     }
   }, [update]);
 
@@ -376,32 +323,28 @@ function OneMeterHistoryModal(props) {
   }
 
   //———————————————————————————————————————————————事件响应函数
-  //<Form>中告警开始时间<Calendar>组件变化事件响应函数
-  function handleCalendar1Change(e) {
-    //设置<Calendar>的状态
-    setCalendar1State((prev) => {
-      return { ...prev, date: e.value };
-    });
+  //<Form>中告警开始时间<DatePicker>组件变化事件响应函数
+  function handleDatePicker1Change(date) {
+    //设置<DatePicker>的状态
+    setDatePicker1State({ date: date });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = e.value;
+    let time = date;
     let convertedTime = timeFormat(time);
-    console.log("convertedTime", convertedTime);
+    console.log("convertedDatePicker1Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, startDate: convertedTime };
     });
   }
 
-  //<Form>中告警结束时间<Calendar>组件变化事件响应函数
-  function handleCalendar2Change(e) {
-    //设置<Calendar>的状态
-    setCalendar2State((prev) => {
-      return { ...prev, date: e.value };
-    });
+  //<Form>中告警结束时间<DatePicker>组件变化事件响应函数
+  function handleDatePicker2Change(date) {
+    //设置<DatePicker>的状态
+    setDatePicker2State({ date: date });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = e.value;
+    let time = date;
     let convertedTime = timeFormat(time);
-    console.log("convertedTime", convertedTime);
+    console.log("convertedDatePicker2Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, endDate: convertedTime };
@@ -421,7 +364,7 @@ function OneMeterHistoryModal(props) {
       size={"large"}
       trigger={
         <Tooltip placement="bottom" title="查看该点位巡检历史曲线">
-          <Icon name="chart line" />
+          <FontAwesomeIcon icon={faChartLine} />
         </Tooltip>
       }
     >
@@ -431,40 +374,90 @@ function OneMeterHistoryModal(props) {
         <Grid>
           <Grid.Row>
             <Grid.Column width={3}></Grid.Column>
-            <Grid.Column width={10}>
+            <Grid.Column width={12}>
               <Form>
                 <Form.Group inline>
-                  <Form.Field>
+                  <Form.Field inline>
                     <label>检测开始时间</label>
-                    <Calendar
-                      style={{ width: "180px" }}
-                      value={calendar1State.date}
-                      locale={location}
-                      dateFormat="yy/mm/dd"
-                      showTime={true}
-                      showSeconds={true}
-                      placeholder="检测开始时间"
-                      onChange={handleCalendar1Change}
-                    />
+                    <div
+                      id="father1"
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <DatePicker
+                        container={() => document.getElementById("father1")}
+                        style={{ width: 200 }}
+                        block
+                        format="YYYY-MM-DD HH:mm:ss"
+                        locale={{
+                          sunday: "日",
+                          monday: "一",
+                          tuesday: "二",
+                          wednesday: "三",
+                          thursday: "四",
+                          friday: "五",
+                          saturday: "六",
+                          ok: "确定",
+                          today: "今天",
+                          yesterday: "昨天",
+                          hours: "时",
+                          minutes: "分",
+                          seconds: "秒",
+                        }}
+                        ranges={[
+                          {
+                            label: "今天",
+                            value: new Date(),
+                          },
+                        ]}
+                        placeholder="检测开始时间"
+                        value={datePicker1State.date}
+                        onChange={handleDatePicker1Change}
+                      />
+                    </div>
                   </Form.Field>
                   <Form.Field>
                     <label>检测结束时间</label>
-                    <Calendar
-                      style={{ width: "180px" }}
-                      value={calendar2State.date}
-                      locale={location}
-                      dateFormat="yy/mm/dd"
-                      showTime={true}
-                      showSeconds={true}
-                      placeholder="检测结束时间"
-                      onChange={handleCalendar2Change}
-                    />
+                    <div
+                      id="father2"
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      <DatePicker
+                        container={() => document.getElementById("father2")}
+                        style={{ width: 200 }}
+                        block
+                        format="YYYY-MM-DD HH:mm:ss"
+                        locale={{
+                          sunday: "日",
+                          monday: "一",
+                          tuesday: "二",
+                          wednesday: "三",
+                          thursday: "四",
+                          friday: "五",
+                          saturday: "六",
+                          ok: "确定",
+                          today: "今天",
+                          yesterday: "昨天",
+                          hours: "时",
+                          minutes: "分",
+                          seconds: "秒",
+                        }}
+                        ranges={[
+                          {
+                            label: "今天",
+                            value: new Date(),
+                          },
+                        ]}
+                        placeholder="检测结束时间"
+                        value={datePicker2State.date}
+                        onChange={handleDatePicker2Change}
+                      />
+                    </div>
                   </Form.Field>
                   <Form.Button
                     style={{ width: "70px" }} //将查询按钮对齐底部
                     onClick={() => {
-                      // console.log("calendar1State", calendar1State);
-                      // console.log("calendar2State", calendar2State);
+                      // console.log("datePicker1State", datePicker1State);
+                      // console.log("datePicker2State", datePicker2State);
                       // console.log("hello", input);
                       setUpdate(!update);
                     }}
@@ -685,11 +678,7 @@ function OneMeterHistoryModal(props) {
         </Grid>
       </Modal.Content>
       <Modal.Actions>
-        <Button
-          icon="cancel"
-          content="关闭"
-          onClick={() => setModalOpen(false)}
-        />
+        <Button content="返回" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>
   );

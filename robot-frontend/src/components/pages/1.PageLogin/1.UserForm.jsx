@@ -1,5 +1,6 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Button,
@@ -10,7 +11,7 @@ import {
   FormText,
   Spinner,
 } from "reactstrap";
-import { useHistory } from "react-router-dom";
+import cookie from "react-cookies";
 //functions
 import { postData } from "../../../functions/requestDataFromAPI.js";
 
@@ -30,12 +31,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//———————————————————————————————————————————————用户ID（需要导出给其他组件使用）
-var userID = "";
-
 function UserForm() {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
   //———————————————————————————————————————————————useState
@@ -68,8 +67,26 @@ function UserForm() {
       isAccess = data.data.success;
       if (isAccess) {
         console.log("userId:", data.data.userMessage.userId);
-        userID = data.data.userMessage.userId; //获取用户ID
-
+        console.log("token:", data.data.token);
+        //获取用户ID和token并存入cookie
+        const expires = new Date();
+        expires.setDate(Date.now() + 1000 * 60 * 60 * 1);
+        cookie.save("userId", data.data.userMessage.userId, {
+          path: "/", //Cookie path. Use / as the path if you want your cookie to be accessible on all pages
+          // expires, //Absolute expiration date for the cookie.
+          //maxAge: 1000, //Relative max age of the cookie from when the client receives it in seconds
+          // domain: "https://play.bukinoshita.io", //Domain for the cookie
+          // secure: true, //If set true it will only be accessible through https
+          // httpOnly: true, //If set true it will only be accessible on the server
+        });
+        cookie.save("token", data.data.token, {
+          path: "/",
+          // expires,
+          //maxAge: 1000,
+          //domain: 'https://play.bukinoshita.io',
+          //secure: true,
+          //httpOnly: true,
+        });
         history.push("/Monitor");
         setText("正在登录，请稍后");
       } else {
@@ -121,4 +138,3 @@ function UserForm() {
 }
 
 export default UserForm;
-export { userID }; //用户ID（导出给其他组件使用）

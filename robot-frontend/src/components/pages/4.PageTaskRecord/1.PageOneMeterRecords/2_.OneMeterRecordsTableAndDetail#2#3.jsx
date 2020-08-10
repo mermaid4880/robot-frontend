@@ -1,5 +1,6 @@
 //packages
 import React, { useRef, useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Paper, Card, CardContent } from "@material-ui/core";
 import { Spin, Table, Tooltip, Input, Button, Space, DatePicker } from "antd";
@@ -148,6 +149,9 @@ function getTableData(list) {
 function OneMeterRecordsTableAndDetail() {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useRef
   //<Table>中taskName列的下拉菜单里的<Input>节点
   const taskNameSearchInput = useRef();
@@ -156,7 +160,7 @@ function OneMeterRecordsTableAndDetail() {
   //表格数据是否正在请求的状态
   const [loading, setLoading] = useState(false);
 
-  //页面是否需要更新的状态
+  //组件是否需要更新的状态
   const [update, setUpdate] = useState(false);
 
   //消息接收到的点位ID
@@ -249,29 +253,36 @@ function OneMeterRecordsTableAndDetail() {
       let paramData = new URLSearchParams();
       //meterId && paramData.append("meterId", meterId.toString());
       meterId && paramData.append("taskID", meterId.toString()); //HJJ 适应旧接口测试
-      getData("/detectionDatas", { params: paramData }).then((data) => {
-        console.log("get结果", data);
-        if (data.success) {
-          var result = data.data.list;
-          console.log("result", result);
-          //获取表数据
-          const tableData = getTableData(result);
-          //设置<Table>的状态
-          setTableState((prev) => ({
-            pageIndex: prev.pageIndex,
-            pageSize: prev.pageSize,
-            tableData: tableData,
-            pageData: tableData.slice(
-              (prev.pageIndex - 1) * prev.pageSize,
-              prev.pageIndex * prev.pageSize
-            ),
-          }));
-          //设置表格数据请求状态为完成
-          setLoading(false);
-        } else {
-          alert(data.data.detail);
-        }
-      });
+      getData("/detectionDatas", { params: paramData })
+        .then((data) => {
+          console.log("get结果", data);
+          if (data.success) {
+            var result = data.data.list;
+            console.log("result", result);
+            //获取表数据
+            const tableData = getTableData(result);
+            //设置<Table>的状态
+            setTableState((prev) => ({
+              pageIndex: prev.pageIndex,
+              pageSize: prev.pageSize,
+              tableData: tableData,
+              pageData: tableData.slice(
+                (prev.pageIndex - 1) * prev.pageSize,
+                prev.pageIndex * prev.pageSize
+              ),
+            }));
+            //设置表格数据请求状态为完成
+            setLoading(false);
+          } else {
+            alert(data.data.detail);
+          }
+        })
+        .catch((error) => {
+          //如果鉴权失败，跳转至登录页
+          if (error.response.status === 401) {
+            history.push("/");
+          }
+        });
     }
   }, [update]);
 
@@ -514,6 +525,7 @@ function OneMeterRecordsTableAndDetail() {
               }}
             />
           </a>
+          &nbsp;&nbsp;
           <a>
             <CheckRecordModal
               type="oneMeter" //多个记录ID和一个点位ID
@@ -686,7 +698,7 @@ function OneMeterRecordsTableAndDetail() {
           <Spin spinning={loading} tip="Loading..." size="large">
             <Table
               bordered="true" //是否展示外边框和列边框
-              loading={loading} //页面是否加载中
+              loading={loading} //表格是否加载中
               size="small" //表格大小
               columns={columns}
               dataSource={tableState.pageData}

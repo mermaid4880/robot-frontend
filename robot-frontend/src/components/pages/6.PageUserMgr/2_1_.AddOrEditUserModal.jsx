@@ -1,7 +1,11 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button, Icon, Header, Modal } from "semantic-ui-react";
+import Button1 from "@material-ui/core/Button";
+import { Button, Header, Modal } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import swal from "sweetalert";
 //elements
 import UserForm from "./2_1_1.UserForm.jsx";
@@ -14,10 +18,17 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "630px",
   },
+  startIcon: {
+    width: 14,
+    height: 14,
+  },
 }));
 
 function EditUserModal(props) {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
 
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
@@ -132,32 +143,39 @@ function EditUserModal(props) {
     postParamData.append("accessIds", paramData.accessIds.toString());
     postParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送POST请求
-    postData("/users", postParamData).then((data) => {
-      console.log("post结果", data);
-      if (data.success) {
-        //关闭本modal
-        setModalOpen(false);
-        //alert成功
-        swal({
-          title: "新增成功",
-          text: "用户" + paramData.username + "新增成功",
-          icon: "success",
-          timer: 3000,
-          buttons: false,
-        });
-        //调用父组件函数（重新GET用户列表并刷新页面）
-        props.updateParent();
-      } else {
-        //alert失败
-        swal({
-          title: "新增失败",
-          text: data.detail,
-          icon: "error",
-          timer: 3000,
-          buttons: false,
-        });
-      }
-    });
+    postData("/users", postParamData)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //关闭本modal
+          setModalOpen(false);
+          //alert成功
+          swal({
+            title: "新增成功",
+            text: "用户" + paramData.username + "新增成功",
+            icon: "success",
+            timer: 3000,
+            buttons: false,
+          });
+          //调用父组件函数（重新GET用户列表并刷新组件）
+          props.updateParent();
+        } else {
+          //alert失败
+          swal({
+            title: "新增失败",
+            text: data.detail,
+            icon: "error",
+            timer: 3000,
+            buttons: false,
+          });
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }
 
   //修改用户PUT请求
@@ -264,32 +282,39 @@ function EditUserModal(props) {
     putParamData.append("accessIds", paramData.accessIds.toString());
     putParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送PUT请求
-    putData("/users/" + props.data.id, putParamData).then((data) => {
-      console.log("post结果", data);
-      if (data.success) {
-        //关闭本modal
-        setModalOpen(false);
-        //alert成功
-        swal({
-          title: "编辑成功",
-          text: "用户" + paramData.username + "编辑成功",
-          icon: "success",
-          timer: 1500,
-          buttons: false,
-        });
-        //调用父组件函数（重新GET用户列表并刷新页面）
-        props.updateParent();
-      } else {
-        //alert失败
-        swal({
-          title: "编辑失败",
-          text: data.detail,
-          icon: "error",
-          timer: 1500,
-          buttons: false,
-        });
-      }
-    });
+    putData("/users/" + props.data.id, putParamData)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //关闭本modal
+          setModalOpen(false);
+          //alert成功
+          swal({
+            title: "编辑成功",
+            text: "用户" + paramData.username + "编辑成功",
+            icon: "success",
+            timer: 1500,
+            buttons: false,
+          });
+          //调用父组件函数（重新GET用户列表并刷新组件）
+          props.updateParent();
+        } else {
+          //alert失败
+          swal({
+            title: "编辑失败",
+            text: data.detail,
+            icon: "error",
+            timer: 1500,
+            buttons: false,
+          });
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }
 
   return (
@@ -301,9 +326,20 @@ function EditUserModal(props) {
       dimmer={"inverted"}
       trigger={
         props.action === "add" ? (
-          <Button icon="plus" content="新增用户" />
+          <Button1
+            variant="contained"
+            color="default"
+            startIcon={
+              <FontAwesomeIcon
+                icon={faUserPlus}
+                className={classes.startIcon}
+              />
+            }
+          >
+            新增用户
+          </Button1>
         ) : (
-          <Icon name="edit" />
+          <FontAwesomeIcon icon={faEdit} />
         )
       }
     >
@@ -330,17 +366,12 @@ function EditUserModal(props) {
       <Modal.Actions>
         <Button
           primary
-          icon="check"
           content="提交"
           onClick={() => {
             props.action === "add" ? addUserPOST() : editUserPUT();
           }}
         />
-        <Button
-          icon="cancel"
-          content="取消"
-          onClick={() => setModalOpen(false)}
-        />
+        <Button content="取消" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>
   );

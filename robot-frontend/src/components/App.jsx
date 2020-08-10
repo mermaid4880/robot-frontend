@@ -4,7 +4,7 @@ import { Router as HashRouter, Route, Switch } from "react-router-dom";
 import createHistory from "history/createHashHistory";
 //pages
 import PageLogin from "./pages/1.PageLogin/0.PageLogin.jsx";
-import PageMonitor from "./pages/2.PageMonitor/0.PageMonitor#0.jsx";
+import PageMonitor from "./pages/2.PageMonitor/0.PageMonitor.jsx";
 import PageTaskMgr from "./pages/3.PageTaskMgr/0.PageTaskMgr#0.jsx";
 import PageAllRecords from "./pages/4.PageTaskRecord/0.PageAllRecords/0.PageAllRecords#0.jsx";
 import PageOneMeterRecords from "./pages/4.PageTaskRecord/1.PageOneMeterRecords/0.PageOneMeterRecords#0#1.jsx";
@@ -19,7 +19,7 @@ function App() {
       <div>
         <Switch>
           {/* <Route path="/" component={PageLogin} exact></Route> */}
-          <Route path="/" component={PageMonitor} exact></Route>
+          <Route path="/" component={PageAllRecords} exact></Route>
           <Route path="/Monitor" component={PageMonitor}></Route>
           <Route path="/TaskMgr" component={PageTaskMgr}></Route>
           <Route path="/AllRecords" component={PageAllRecords}></Route>

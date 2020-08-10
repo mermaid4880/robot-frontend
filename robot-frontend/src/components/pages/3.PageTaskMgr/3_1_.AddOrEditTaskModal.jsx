@@ -1,11 +1,14 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Button1 from "@material-ui/core/Button";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { Tooltip } from "antd";
-import { Button, Icon, Header, Modal } from "semantic-ui-react";
+import { Button, Header, Modal } from "semantic-ui-react";
 import swal from "sweetalert";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPencilAlt, faEdit } from "@fortawesome/free-solid-svg-icons";
 //elements
 import TaskForm from "./3_1_1.TaskForm#1.jsx";
 //functions
@@ -26,32 +29,34 @@ const useStyles = makeStyles((theme) => ({
 function AddOrEditTaskModal(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
 
-  const [postParamData, setPostParamData] = useState({}); //
+  //新增或修改任务POST请求所带的参数
+  const [bodyParams, setBodyParams] = useState({});
 
   //———————————————————————————————————————————————其他函数
   //新增任务POST请求
   function addTaskPOST() {
     //————————————————————————————POST请求
     // 用URLSearchParams来传递参数
-    let paramData = new URLSearchParams();
-    paramData.append("taskName", postParamData.taskName.toString());
-    // paramData.append("taskDescription", postParamData.taskDescription.toString());
-    // paramData.append("createTime", postParamData.createTime.toString());
-    paramData.append("type", postParamData.type.toString());
-    paramData.append("createUserId", postParamData.createUserId.toString());
-    paramData.append("meters", postParamData.meters.toString());
-    // paramData.append("status", postParamData.status.toString());
-    // paramData.append("mode", postParamData.mode.toString());
-    // paramData.append("startTime", postParamData.startTime.toString());
-    // paramData.append("endTime", postParamData.endTime.toString());
-    // paramData.append("period", postParamData.period.toString());
-    // paramData.append("isStart", postParamData.isStart.toString());
+    let BodyParams = new URLSearchParams();
+    BodyParams.append("taskName", bodyParams.taskName.toString());
+    BodyParams.append("taskDescription", bodyParams.taskDescription.toString());
+    BodyParams.append("createTime", bodyParams.createTime.toString());
+    BodyParams.append("endAction", bodyParams.endAction.toString());
+    BodyParams.append("type", bodyParams.type.toString());
+    BodyParams.append("meters", bodyParams.meters.toString());
+    BodyParams.append("mode", bodyParams.mode.toString());
+    BodyParams.append("startTime", bodyParams.startTime.toString());
+    BodyParams.append("period", bodyParams.period.toString());
+    BodyParams.append("isStart", bodyParams.isStart.toString());
     //发送POST请求
-    postData("/taskTemplates", paramData)
+    postData("task/addnew", BodyParams)
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
@@ -65,9 +70,9 @@ function AddOrEditTaskModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET任务列表并刷新页面）
+          //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新页面）
+          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar:");
         } else {
           //alert失败
@@ -81,6 +86,10 @@ function AddOrEditTaskModal(props) {
         }
       })
       .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "新增任务失败",
@@ -95,24 +104,20 @@ function AddOrEditTaskModal(props) {
   //修改任务PUT请求
   function editTaskPUT() {
     //————————————————————————————PUT请求
-    // 用URLSearchParams来传递参数
-    let paramData = new URLSearchParams();
-    // paramData.append("id", postParamData.id.toString());
-    // paramData.append("taskName", postParamData.taskName.toString());
-    // paramData.append("taskDescription", postParamData.taskDescription.toString());
-    // paramData.append("createTime", postParamData.createTime.toString());
-    // paramData.append("type", postParamData.type.toString());
-    // paramData.append("createUserId", postParamData.createUserId.toString());
-    paramData.append("meters", postParamData.meters.toString());//HJJ 适配现有的API
-    // paramData.append("status", postParamData.status.toString());
-    // paramData.append("mode", postParamData.mode.toString());
-    // paramData.append("startTime", postParamData.startTime.toString());
-    // paramData.append("endTime", postParamData.endTime.toString());
-    // paramData.append("period", postParamData.period.toString());
-    // paramData.append("isStart", postParamData.isStart.toString());
-
+    let BodyParams = new URLSearchParams();
+    BodyParams.append("id", bodyParams.id.toString());
+    BodyParams.append("taskName", bodyParams.taskName.toString());
+    BodyParams.append("taskDescription", bodyParams.taskDescription.toString());
+    BodyParams.append("createTime", bodyParams.createTime.toString());
+    BodyParams.append("endAction", bodyParams.endAction.toString());
+    BodyParams.append("type", bodyParams.type.toString());
+    BodyParams.append("meters", bodyParams.meters.toString());
+    BodyParams.append("mode", bodyParams.mode.toString());
+    BodyParams.append("startTime", bodyParams.startTime.toString());
+    BodyParams.append("period", bodyParams.period.toString());
+    BodyParams.append("isStart", bodyParams.isStart.toString());
     //发送PUT请求
-    putData("/taskTemplates/" + postParamData.id, paramData)
+    putData("task/edit", BodyParams)
       .then((data) => {
         console.log("put结果", data);
         if (data.success) {
@@ -126,9 +131,9 @@ function AddOrEditTaskModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET任务列表并刷新页面）
+          //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新页面）
+          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar:");
         } else {
           //alert失败
@@ -142,6 +147,10 @@ function AddOrEditTaskModal(props) {
         }
       })
       .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "修改任务失败",
@@ -172,7 +181,7 @@ function AddOrEditTaskModal(props) {
           </Button1>
         ) : (
           <Tooltip placement="bottom" title="编辑任务">
-            <Icon name="edit" />
+            <FontAwesomeIcon icon={faEdit} />
           </Tooltip>
         )
       }
@@ -184,17 +193,17 @@ function AddOrEditTaskModal(props) {
       )}
       <Modal.Content image scrolling>
         <div className="image">
-          <Icon name="pencil alternate" />
+          <FontAwesomeIcon icon={faPencilAlt} className="fa-8x" />
         </div>
         <Modal.Description>
           <Header>编辑任务信息</Header>
           <div className="ui container" style={{ width: "678px" }}>
             <TaskForm
-              data={props.data}
+              data={props.data} //将父组件传来的表格行数据传给子组件3_1_1.TaskForm#1.jsx
               exportData={(input) => {
-                console.log("input", input);
-                setPostParamData(input);
-              }}
+                console.log("TaskForm output：", input);
+                setBodyParams(input);
+              }} //将子组件3_1_1.TaskForm#1.jsx中的用户输入数据导出，用于设置POST新增任务或PUT修改任务请求的参数
             />
           </div>
         </Modal.Description>
@@ -202,17 +211,12 @@ function AddOrEditTaskModal(props) {
       <Modal.Actions>
         <Button
           primary
-          icon="check"
           content="提交"
           onClick={() => {
             props.action === "add" ? addTaskPOST() : editTaskPUT();
           }}
         />
-        <Button
-          icon="cancel"
-          content="取消"
-          onClick={() => setModalOpen(false)}
-        />
+        <Button content="取消" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>
   );

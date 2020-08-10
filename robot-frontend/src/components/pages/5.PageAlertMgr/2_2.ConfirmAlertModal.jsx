@@ -1,8 +1,12 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
+import Button1 from "@material-ui/core/Button";
 import { Tooltip } from "antd";
-import { Button, Modal, Icon, Form } from "semantic-ui-react";
+import { Button, Modal, Form } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWrench } from "@fortawesome/free-solid-svg-icons";
 import swal from "sweetalert";
 //functions
 import { postData } from "../../../functions/requestDataFromAPI.js";
@@ -13,10 +17,17 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "300px",
   },
+  startIcon: {
+    width: 14,
+    height: 14,
+  },
 }));
 
 function ConfirmAlertModal(props) {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
 
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
@@ -60,7 +71,7 @@ function ConfirmAlertModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET告警信息列表并刷新页面）
+          //调用父组件函数（重新GET告警信息列表并刷新组件）
           props.updateParent();
         } else {
           //alert失败
@@ -74,6 +85,10 @@ function ConfirmAlertModal(props) {
         }
       })
       .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "处理告警信息失败",
@@ -106,28 +121,36 @@ function ConfirmAlertModal(props) {
       trigger={
         props.batch === true ? (
           props.alertId === "" ? (
-            <Button
+            <Button1
               disabled
-              // basic
-              // color="grey"
-              size="small"
-              icon="wrench"
-              labelPosition="left"
-              content="批量处理"
-            />
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon
+                  icon={faWrench}
+                  className={classes.startIcon}
+                />
+              }
+            >
+              批量处理
+            </Button1>
           ) : (
-            <Button
-              // basic
-              // color="grey"
-              size="small"
-              icon="wrench"
-              labelPosition="left"
-              content="批量处理"
-            />
+            <Button1
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon
+                  icon={faWrench}
+                  className={classes.startIcon}
+                />
+              }
+            >
+              批量处理
+            </Button1>
           )
         ) : (
           <Tooltip placement="bottom" title="处理告警信息">
-            <Icon name="wrench" />
+            <FontAwesomeIcon icon={faWrench} />
           </Tooltip>
         )
       }
@@ -190,14 +213,8 @@ function ConfirmAlertModal(props) {
         <p>确认处理告警信息{"（ID=" + alertId + "）"}？</p>
       </Modal.Content>
       <Modal.Actions>
+        <Button primary content="确认" onClick={() => confirmAlertPOST()} />
         <Button
-          primary
-          icon="checkmark"
-          content="确认"
-          onClick={() => confirmAlertPOST()}
-        />
-        <Button
-          icon="cancel"
           content="取消"
           onClick={() => {
             setRadioState(""); //清空Radio的记忆

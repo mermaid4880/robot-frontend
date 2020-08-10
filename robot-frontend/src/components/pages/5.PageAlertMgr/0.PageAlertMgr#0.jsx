@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function PageAlertMgr() {
+function PageAlertMgr(props) {
   const classes = useStyles();
 
   return (
@@ -42,7 +42,9 @@ function PageAlertMgr() {
         <Breadcrumb5 />
       </Row>
       <Row className={classes.main}>
-        <AlertTableAndDetail />
+        <AlertTableAndDetail
+          filter={props.location.query && props.location.query.filter} //从导航栏小铃铛进入告警页面时带参数
+        />
       </Row>
     </Container>
   );

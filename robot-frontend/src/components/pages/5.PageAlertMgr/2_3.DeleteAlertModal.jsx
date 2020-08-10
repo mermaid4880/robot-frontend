@@ -1,8 +1,12 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
+import Button1 from "@material-ui/core/Button";
 import { Tooltip } from "antd";
-import { Button, Modal, Icon } from "semantic-ui-react";
+import { Button, Modal } from "semantic-ui-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import swal from "sweetalert";
 //functions
 import { deleteData } from "../../../functions/requestDataFromAPI.js";
@@ -13,10 +17,17 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: "185px",
   },
+  startIcon: {
+    width: 14,
+    height: 14,
+  },
 }));
 
 function DeleteAlertModal(props) {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
 
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
@@ -51,7 +62,7 @@ function DeleteAlertModal(props) {
             timer: 3000,
             buttons: false,
           });
-          //调用父组件函数（重新GET告警信息列表并刷新页面）
+          //调用父组件函数（重新GET告警信息列表并刷新组件）
           props.updateParent();
         } else {
           //关闭本modal
@@ -69,6 +80,10 @@ function DeleteAlertModal(props) {
       .catch((error) => {
         //关闭本modal
         setModalOpen(false);
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "删除告警信息失败",
@@ -91,29 +106,31 @@ function DeleteAlertModal(props) {
       trigger={
         props.batch === true ? (
           props.alertId === "" ? (
-            <Button
+            <Button1
               disabled
-              // basic
-              // color="grey"
-              size="small"
-              icon="trash"
-              labelPosition="left"
-              content="批量删除"
-            />
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon icon={faTrash} className={classes.startIcon} />
+              }
+            >
+              批量删除
+            </Button1>
           ) : (
-            <Button
-              // basic
-              // color="grey"
-              size="small"
-              icon="trash"
-              labelPosition="left"
-              content="批量删除"
-            />
+            <Button1
+              variant="contained"
+              color="default"
+              startIcon={
+                <FontAwesomeIcon icon={faTrash} className={classes.startIcon} />
+              }
+            >
+              批量删除
+            </Button1>
           )
         ) : (
           <Tooltip placement="bottom" title="删除告警信息">
-          <Icon name="trash" />
-        </Tooltip>
+            <FontAwesomeIcon icon={faTrash} />
+          </Tooltip>
         )
       }
     >
@@ -124,15 +141,10 @@ function DeleteAlertModal(props) {
       <Modal.Actions>
         <Button
           primary
-          icon="checkmark"
           content="确认删除"
           onClick={() => deleteAlertDELETE()}
         />
-        <Button
-          icon="cancel"
-          content="取消删除"
-          onClick={() => setModalOpen(false)}
-        />
+        <Button content="取消删除" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>
   );

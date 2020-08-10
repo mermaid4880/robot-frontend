@@ -6,7 +6,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Navigation from "../../../elements/0.Navigation.jsx";
 import Breadcrumb4_0 from "./1.Breadcrumb4_0.jsx";
 import AllRecordsTable from "./2_.AllRecordsTable.jsx";
-import OneRecordDetailTable from "./3.OneRecordDetailTable#2#3#4#5.jsx";
+import OneRecordDetailTable from "./3_.OneRecordDetailTable#2#3#4.jsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {

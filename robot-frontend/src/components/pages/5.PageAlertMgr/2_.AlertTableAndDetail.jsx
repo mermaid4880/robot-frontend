@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Card, CardContent } from "@material-ui/core";
 import { Spin, Table, Badge } from "antd";
@@ -11,6 +12,7 @@ import DeleteAlertModal from "./2_3.DeleteAlertModal.jsx";
 import AlertDetail from "./2_4.AlertDetail.jsx";
 //functions
 import { getData } from "../../../functions/requestDataFromAPI.js";
+import emitter from "../../../functions/events.js";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -76,14 +78,17 @@ function getTableData(list) {
   return newList;
 }
 
-function AlertTableAndDetail() {
+function AlertTableAndDetail(props) {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
 
   //———————————————————————————————————————————————useState
   //表格数据是否正在请求的状态
   const [loading, setLoading] = useState(false);
 
-  //页面是否需要更新的状态
+  //组件是否需要更新的状态
   const [update, setUpdate] = useState(false);
 
   //<Table>的状态
@@ -114,33 +119,56 @@ function AlertTableAndDetail() {
   //<Table>中被CheckBox选中的行对应的任务信息的id用","级联组成的字符串
   const [idString, setIdString] = useState("");
 
+  //是否收到来自0.Navigation.jsx的消息事件的状态（getUndealedAlertTable:）
+  const [hasMessage, setHasMessage] = useState(false);
+
   useEffect(() => {
+    //————————————————————————————添加监听事件
+    emitter.addListener("thisPageGetUndealedAlertTable:", () => {
+      //如果由0.Navigation.jsx发来消息（重新GET未处理告警信息列表并刷新组件）
+      setHasMessage(true);
+      setUpdate(!update);
+    });
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    getData("/systemAlarms").then((data) => {
-      console.log("get结果", data);
-      if (data.success) {
-        var result = data.data;
-        console.log("result", result);
-        //获取表数据
-        const tableData = getTableData(result);
-        //设置<Table>的状态
-        setTableState((prev) => ({
-          pageIndex: prev.pageIndex,
-          pageSize: prev.pageSize,
-          tableData: tableData,
-          pageData: tableData.slice(
-            (prev.pageIndex - 1) * prev.pageSize,
-            prev.pageIndex * prev.pageSize
-          ),
-        }));
-        //设置表格数据请求状态为完成
-        setLoading(false);
-      } else {
-        alert(data.data.detail);
-      }
-    });
+    // 用URLSearchParams来传递参数
+    let paramData = new URLSearchParams();
+    (props.filter || hasMessage) && paramData.append("isDealed", "未确认"); //小铃铛进入本页面时获取未处理告警信息列表
+    console.log("paramData.get isDealed", paramData.get("isDealed"));
+    //发送GET请求
+    getData("/systemAlarms", { params: paramData })
+      .then((data) => {
+        console.log("get结果", data);
+        if (data.success) {
+          var result = data.data;
+          console.log("result", result);
+          //获取表数据
+          const tableData = getTableData(result);
+          //设置<Table>的状态
+          setTableState((prev) => ({
+            pageIndex: prev.pageIndex,
+            pageSize: prev.pageSize,
+            tableData: tableData,
+            pageData: tableData.slice(
+              (prev.pageIndex - 1) * prev.pageSize,
+              prev.pageIndex * prev.pageSize
+            ),
+          }));
+          //设置表格数据请求状态为完成
+          setLoading(false);
+          //设置收到来自0.Navigation.jsx的消息事件为空
+          setHasMessage(false);
+        } else {
+          alert(data.data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }, [update]);
 
   //———————————————————————————————————————————————设置<Table>用到的变量
@@ -233,6 +261,7 @@ function AlertTableAndDetail() {
               }}
             />
           </a>
+          &nbsp;&nbsp;
           <a>
             <DeleteAlertModal
               batch={false}
@@ -375,6 +404,7 @@ function AlertTableAndDetail() {
                   setUpdate(!update);
                 }}
               />
+              &nbsp;&nbsp;&nbsp;&nbsp;
               <DeleteAlertModal
                 batch={true}
                 alertId={idString}
@@ -388,7 +418,7 @@ function AlertTableAndDetail() {
           <Spin spinning={loading} tip="Loading..." size="large">
             <Table
               bordered="true" //是否展示外边框和列边框
-              loading={loading} //页面是否加载中
+              loading={loading} //表格是否加载中
               size="small" //表格大小
               columns={columns}
               dataSource={tableState.pageData}
