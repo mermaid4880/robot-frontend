@@ -32,7 +32,7 @@ function DeleteUserModal(props) {
   function deleteUserDELETE() {
     //————————————————————————————DELETE请求
     //发送DELETE请求
-    deleteData("/users/" + props.data.id)
+    deleteData("users/" + props.data.id)
       .then((data) => {
         console.log("delete结果", data);
         if (data.success) {

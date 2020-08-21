@@ -19,7 +19,7 @@ function App() {
       <div>
         <Switch>
           {/* <Route path="/" component={PageLogin} exact></Route> */}
-          <Route path="/" component={PageAllRecords} exact></Route>
+          <Route path="/" component={PageTaskMgr} exact></Route>
           <Route path="/Monitor" component={PageMonitor}></Route>
           <Route path="/TaskMgr" component={PageTaskMgr}></Route>
           <Route path="/AllRecords" component={PageAllRecords}></Route>

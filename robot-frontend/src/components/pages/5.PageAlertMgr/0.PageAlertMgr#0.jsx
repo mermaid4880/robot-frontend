@@ -7,6 +7,7 @@ import Navigation from "../../elements/0.Navigation.jsx";
 import Breadcrumb5 from "./1.Breadcrumb5.jsx";
 import AlertTableAndDetail from "./2_.AlertTableAndDetail.jsx";
 
+//———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",

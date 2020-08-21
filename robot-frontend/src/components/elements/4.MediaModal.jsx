@@ -1,16 +1,14 @@
 //packages
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Button, Modal, Grid } from "semantic-ui-react";
+import { Button, Modal } from "semantic-ui-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage as hdImageIcon } from "@fortawesome/free-regular-svg-icons";
 import { faImage as irImageIcon } from "@fortawesome/free-solid-svg-icons";
 import { faPhotoVideo as resultImageIcon } from "@fortawesome/free-solid-svg-icons";
 import { faVolumeUp as soundIcon } from "@fortawesome/free-solid-svg-icons";
 import { faVideo as videoIcon } from "@fortawesome/free-solid-svg-icons";
-import { Tooltip, Spin } from "antd";
-//images
-import ImageBackground from "../../images/PageLogin-bg.png";
+import { Tooltip } from "antd";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({

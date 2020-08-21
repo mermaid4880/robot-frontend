@@ -1,4 +1,4 @@
-//packages  
+//packages
 import React, { useState } from "react";
 import { Input, Form } from "semantic-ui-react";
 import { DatePicker } from "rsuite";
@@ -37,7 +37,7 @@ function timeDeformat(convertedTime) {
   return time;
 }
 
-function RecordQueryForm(props) {
+function AllRecordsTableQueryForm(props) {
   //———————————————————————————————————————————————useState
   //用户输入内容
   // const [input, setInput] = useState({
@@ -55,12 +55,12 @@ function RecordQueryForm(props) {
 
   //<DatePicker>的状态
   const [datePicker1State, setDatePicker1State] = useState({
-    date: timeDeformat(input.startTime),
+    time: timeDeformat(input.startTime),
   });
 
   //<DatePicker>的状态
   const [datePicker2State, setDatePicker2State] = useState({
-    date: timeDeformat(input.endTime),
+    time: timeDeformat(input.endTime),
   });
 
   //———————————————————————————————————————————————事件响应函数
@@ -73,28 +73,26 @@ function RecordQueryForm(props) {
     });
   }
 
-  //<Form>中告警开始时间<DatePicker>组件变化事件响应函数
-  function handleDatePicker1Change(date) {
+  //<Form>中巡检开始时间的时间段起点<DatePicker>组件变化事件响应函数
+  function handleDatePicker1Change(time) {
     //设置<DatePicker>的状态
-    setDatePicker1State({ date: date });
+    setDatePicker1State({ time: time });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = date;
     let convertedTime = timeFormat(time);
-    // console.log("convertedDatePicker1Time", convertedTime);
+    console.log("convertedDatePicker1Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, startTime: convertedTime };
     });
   }
 
-  //<Form>中告警结束时间<DatePicker>组件变化事件响应函数
-  function handleDatePicker2Change(date) {
+  //<Form>中巡检开始时间的时间段终点<DatePicker>组件变化事件响应函数
+  function handleDatePicker2Change(time) {
     //设置<DatePicker>的状态
-    setDatePicker2State({ date: date });
+    setDatePicker2State({ time: time });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = date;
     let convertedTime = timeFormat(time);
-    // console.log("convertedDatePicker2Time", convertedTime);
+    console.log("convertedDatePicker2Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, endTime: convertedTime };
@@ -137,7 +135,7 @@ function RecordQueryForm(props) {
                 },
               ]}
               placeholder="时间段起点"
-              value={datePicker1State.date}
+              value={datePicker1State.time}
               onChange={handleDatePicker1Change}
             />
           </div>
@@ -175,7 +173,7 @@ function RecordQueryForm(props) {
                 },
               ]}
               placeholder="时间段终点"
-              value={datePicker2State.date}
+              value={datePicker2State.time}
               onChange={handleDatePicker2Change}
             />
           </div>
@@ -202,7 +200,7 @@ function RecordQueryForm(props) {
               // console.log("datePicker1State", datePicker1State);
               // console.log("datePicker2State", datePicker2State);
               // console.log("hello", input);
-              //将input传给父组件2_.AllRecordsTable.jsx（用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数）
+              //将input传给父组件2_.AllRecordsTable.jsx，用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数和父组件<Table>的状态
               props.exportData(input);
             }}
           >
@@ -214,4 +212,4 @@ function RecordQueryForm(props) {
   );
 }
 
-export default RecordQueryForm;
+export default AllRecordsTableQueryForm;

@@ -11,6 +11,9 @@ import { Table, Tooltip, Spin } from "antd";
 import MediaModal from "../../../elements/4.MediaModal.jsx";
 //functions
 import { getData } from "../../../../functions/requestDataFromAPI.js";
+//images
+import ImageNotFound from "../../../../images/image_not_found.png";
+import ImageWaiting from "../../../../images/image_waiting.png";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -18,6 +21,10 @@ const useStyles = makeStyles((theme) => ({
     // width: "100%",
     width: "120%",
     height: "816px",
+  },
+  imageStyle: {
+    margin: "auto",
+    height: "255px",
   },
 }));
 
@@ -161,7 +168,7 @@ function RelatedMetersModal(props) {
     let paramData = new URLSearchParams();
     paramData.append("resultId", props.data.resultId.toString());
     //发送GET请求
-    getData("/detectionDatas/relation", { params: paramData })
+    getData("detectionDatas/relation", { params: paramData })
       .then((data) => {
         console.log("get结果", data);
         if (data.success) {
@@ -237,7 +244,7 @@ function RelatedMetersModal(props) {
       ellipsis: true,
     },
     {
-      title: "结果信息",
+      title: "结果详情",
       dataIndex: "mediaUrl",
       key: "mediaUrl",
       align: "center",
@@ -249,7 +256,7 @@ function RelatedMetersModal(props) {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "可见光图片文件路径（一定有）",
-                  mediaUrl: rowData.mediaUrl.vlPath,
+                  mediaUrl: x.vlPath,
                 }}
               />
             </a>
@@ -261,7 +268,7 @@ function RelatedMetersModal(props) {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "红外图片文件路径",
-                  mediaUrl: rowData.mediaUrl.irPath,
+                  mediaUrl: x.irPath,
                 }}
               />
             </a>
@@ -273,7 +280,7 @@ function RelatedMetersModal(props) {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "识别结果图片路径",
-                  mediaUrl: rowData.mediaUrl.valuePath,
+                  mediaUrl: x.valuePath,
                 }}
               />
             </a>
@@ -285,7 +292,7 @@ function RelatedMetersModal(props) {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "音频文件路径",
-                  mediaUrl: rowData.mediaUrl.voicePath,
+                  mediaUrl: x.voicePath,
                 }}
               />
             </a>
@@ -293,7 +300,7 @@ function RelatedMetersModal(props) {
           &nbsp;&nbsp;
           {x.videoPath && ( //视频文件路径
             <a
-              href={rowData.mediaUrl.videoPath}
+              href={x.videoPath}
               download="video"
               style={{ color: "#6C6C6C", textDecoration: "none" }}
             >
@@ -332,15 +339,25 @@ function RelatedMetersModal(props) {
 
   //<Table>中pagination的配置描述
   const pagination = {
-    pageIndex: tableState.pageIndex,
+    //当前页数
+    current: tableState.pageIndex,
+    //每页条数
     pageSize: tableState.pageSize,
+    //指定每页可以显示多少条
     pageSizeOptions: ["5", "10", "20", "50", "100"],
+    //页码改变的回调，参数是改变后的页码及每页条数
     onChange: (pageIndex, pageSize) =>
-      handleTablePaginationChange(pageIndex, pageSize, false), // 页码改变的回调
+      handleTablePaginationChange(pageIndex, pageSize, false),
+    //pageSize 变化的回调
     onShowSizeChange: (pageIndex, pageSize) =>
-      handleTablePaginationChange(pageIndex, pageSize, true), //pageSize 变化的回调
+      handleTablePaginationChange(pageIndex, pageSize, true),
+    //是否展示 pageSize 切换器，当 total 大于 50 时默认为 true
     showSizeChanger: false,
-    showTotal: (total, range) => `共${total}条`,
+    //数据总数
+    total: tableState.tableData.length,
+    //用于显示数据总量和当前数据顺序
+    showTotal: () => `共${tableState.tableData.length}条`,
+    //用于自定义页码的结构，可用于优化 SEO
     itemRender: itemRender,
   };
 
@@ -402,21 +419,29 @@ function RelatedMetersModal(props) {
         <Grid centered>
           <Grid.Row>
             <Spin spinning={loading} tip="Loading..." size="large">
-              <div
-                style={{
-                  height: "256px",
-                }}
-              >
-                <Table
-                  bordered="true" //是否展示外边框和列边框
-                  loading={loading} //表格是否加载中
-                  size="small" //表格大小
-                  columns={columns}
-                  dataSource={tableState.tableData}
-                  pagination={pagination}
-                  onRow={handleTableRowClick}
+              {loading ? ( //Table数据正在请求
+                <img
+                  className={classes.imageStyle}
+                  src={ImageWaiting}
+                  alt="加载中"
                 />
-              </div>
+              ) : (
+                <div
+                  style={{
+                    height: "256px",
+                  }}
+                >
+                  <Table
+                    bordered="true" //是否展示外边框和列边框
+                    loading={loading} //表格是否加载中
+                    size="small" //表格大小
+                    columns={columns}
+                    dataSource={tableState.tableData}
+                    pagination={pagination}
+                    onRow={handleTableRowClick}
+                  />
+                </div>
+              )}
             </Spin>
           </Grid.Row>
           <Grid.Row>
@@ -437,7 +462,14 @@ function RelatedMetersModal(props) {
         </Grid>
       </Modal.Content>
       <Modal.Actions>
-        <Button content="返回" onClick={() => setModalOpen(false)} />
+        <Button
+          content="返回"
+          onClick={() => {
+            setModalOpen(false);
+            //清空<Card.Group>的数据
+            setCardItems([]);
+          }}
+        />
       </Modal.Actions>
     </Modal>
   );

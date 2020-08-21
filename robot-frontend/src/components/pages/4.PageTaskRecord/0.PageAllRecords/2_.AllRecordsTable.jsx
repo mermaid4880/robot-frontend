@@ -8,7 +8,7 @@ import { Label } from "semantic-ui-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faListUl } from "@fortawesome/free-solid-svg-icons";
 //elements
-import RecordQueryForm from "./2_1.RecordQueryForm.jsx";
+import AllRecordsTableQueryForm from "./2_1.AllRecordsTableQueryForm.jsx";
 import DownloadRecordModal from "./2_2.DownloadRecordModal.jsx";
 //functions
 import { getData } from "../../../../functions/requestDataFromAPI.js";
@@ -25,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   label: {
     fontSize: 14,
   },
-  recordQueryForm: {
+  allRecordsTableQueryForm: {
     width: "1500px",
     margin: "8px 100px 0px 52px",
     display: "inline-block",
@@ -131,7 +131,7 @@ function AllRecordsTable() {
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    // 用URLSearchParams来传递参数
+    //用URLSearchParams来传递参数
     let paramData = new URLSearchParams();
     paramData.append("pageNum", tableState.pageIndex);
     paramData.append("pageSize", tableState.pageSize);
@@ -144,7 +144,7 @@ function AllRecordsTable() {
     queryConditions.isFinished &&
       paramData.append("isFinished", queryConditions.isFinished);
     //发送GET请求
-    getData("/taskFinish/search/conditions", { params: paramData })
+    getData("taskFinish/search/conditions", { params: paramData })
       .then((data) => {
         // console.log("get结果", data);
         if (data.success) {
@@ -152,7 +152,16 @@ function AllRecordsTable() {
           var pageIndex = data.data.pageNum;
           var pageSize = data.data.pageSize;
           var result = data.data.list;
-          // console.log("result", result);
+          // console.log(
+          //   "total",
+          //   total,
+          //   "pageIndex",
+          //   pageIndex,
+          //   "pageSize",
+          //   pageSize,
+          //   "result",
+          //   result
+          // );
           //获取巡检记录列表数据
           const tableData = getTableData(result);
           //设置<Table>的状态（更新pagination的总条数、当前页码、每页行数、全部表数据、checkbox选中行的key数组））
@@ -246,8 +255,8 @@ function AllRecordsTable() {
               <FontAwesomeIcon
                 icon={faListUl}
                 onClick={() => {
-                  //发送事件到3_.OneRecordDetailTable中（重新根据记录ID获取该巡检记录全部详细点位信息列表并刷新）
-                  emitter.emit("updateOneRecordDetailTable:", record.id);
+                  //发送事件到3_.OneRecordDetailTable#2#3#4.jsx中（重新根据记录ID获取该巡检记录全部详细点位信息列表并刷新）
+                  emitter.emit("updateOneRecordDetailTable", record.id);
                 }}
               />
             </Tooltip>
@@ -299,7 +308,7 @@ function AllRecordsTable() {
   //<Table>中pagination的配置描述
   const pagination = {
     //当前页数
-    current: tableState.pageIndex,  //HJJ
+    current: tableState.pageIndex,
     //每页条数
     pageSize: tableState.pageSize,
     //指定每页可以显示多少条
@@ -359,8 +368,8 @@ function AllRecordsTable() {
       onClick: (event) => {
         console.log("event", event, "row", row);
         setRowData(row);
-        //发送事件到3_.OneRecordDetailTable中（重新根据记录ID获取该巡检记录全部详细点位信息列表并刷新）
-        emitter.emit("updateOneRecordDetailTable:", row.id);
+        //发送事件到3_.OneRecordDetailTable#2#3#4.jsx中（重新根据记录ID获取该巡检记录全部详细点位信息列表并刷新）
+        emitter.emit("updateOneRecordDetailTable", row.id);
       }, // 单击行
       onDoubleClick: (event) => {},
       onContextMenu: (event) => {},
@@ -378,20 +387,21 @@ function AllRecordsTable() {
           </Label>
         </Typography>
         <Typography>
-          <div className={classes.recordQueryForm}>
-            <RecordQueryForm
-              //将子组件2_1.RecordQueryForm.jsx中的用户输入数据导出，用于设置GET请求（根据条件获取巡检结果记录列表）所带的参数
+          <div className={classes.allRecordsTableQueryForm}>
+            <AllRecordsTableQueryForm
+              //将子组件2_1.AllRecordsTableQueryForm.jsx中的用户输入数据导出，用于设置GET请求的参数和<Table>的状态
               exportData={(input) => {
-                //设置<Table>的状态（更新pagination的总条数、当前页码、每页行数、全部表数据、checkbox选中行的key数组））
+                //设置GET请求（根据条件获取巡检结果记录列表）所带的参数
+                // console.log("AllRecordsTableQueryForm output：", input);
+                setQueryConditions(input);
+                //设置<Table>的状态（设置当前页码为第1页、清空checkbox选中行的key数组）
                 setTableState((prev) => ({
                   total: prev.total,
-                  pageIndex: 1,//设置当前页码为第1页  //HJJ
+                  pageIndex: 1, //设置当前页码为第1页
                   pageSize: prev.pageSize,
                   tableData: prev.tableData,
-                  selectedRowKeys: [],
+                  selectedRowKeys: [], //清空checkbox选中行的key数组
                 }));
-                // console.log("RecordQueryForm output：", input);
-                setQueryConditions(input);
               }}
             />
           </div>

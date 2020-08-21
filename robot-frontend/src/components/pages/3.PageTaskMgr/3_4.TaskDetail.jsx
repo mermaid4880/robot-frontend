@@ -102,13 +102,15 @@ function TaskDetail(props) {
   const [detail, setDetail] = useState({});
 
   //———————————————————————————————————————————————useEffect
+  //当（父组件3_.TaskTableAndDetail.jsx传来的data发生变化时），设置显示的详细信息内容
   useEffect(() => {
     setDetail(initDetail(props.data));
   }, [props.data]);
 
+  //当（本组件加载完成时），添加监听刷新任务详细信息事件
   useEffect(() => {
     //————————————————————————————添加监听事件
-    emitter.addListener("taskDetail:", (message) => {
+    emitter.addListener("taskDetail", (message) => {
       //如果由2_1.TaskCalendar.jsx发来消息（显示的详细信息内容）
       // console.log("message", message);
       setDetail(message);

@@ -128,8 +128,10 @@ function TaskForm(props) {
     date: timeDeformat(input.startTime),
   });
 
+  //———————————————————————————————————————————————useEffect
+  //当用户输入内容input发生变化时，将其传给父组件
   useEffect(() => {
-    //————————————————————————————将input传给父组件
+    //将input传给父组件3_1_.AddOrEditTaskModal.jsx，用于设置父组件POST请求（新增任务）或PUT请求（修改任务）所带的参数
     props.exportData(input);
   }, [input]);
 

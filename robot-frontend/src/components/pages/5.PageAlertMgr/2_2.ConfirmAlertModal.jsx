@@ -33,20 +33,22 @@ function ConfirmAlertModal(props) {
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
 
-  //<Form.Radio>的选中状态（5种确认状态isDealed）
+  //<Form.Radio>的选中状态（参数isDealed的5种确认状态）
   const [radioState, setRadioState] = useState("");
 
-  //告警信息的id
+  //告警信息的ID
   const [alertId, setAlertId] = useState("");
 
   //———————————————————————————————————————————————useEffect
+  //当父组件2_.AlertTableAndDetail.jsx传来的告警信息ID发生变化时，设置告警信息的ID
   useEffect(() => {
-    setRadioState(props.alertIsDealed);
-  }, [props.alertIsDealed]);
+    setAlertId(props.data.alertId);
+  }, [props.data.alertId]);
 
+  //当父组件2_.AlertTableAndDetail.jsx传来的确认状态（5种参数isDealed）发生变化时，设置<Form.Radio>的选中状态（参数isDealed的5种确认状态）
   useEffect(() => {
-    setAlertId(props.alertId);
-  }, [props.alertId]);
+    setRadioState(props.data.alertIsDealed);
+  }, [props.data.alertIsDealed]);
 
   //———————————————————————————————————————————————其他函数
   //处理告警信息POST请求
@@ -57,7 +59,7 @@ function ConfirmAlertModal(props) {
     paramData.append("id", alertId.toString());
     paramData.append("isDealed", radioState.toString());
     //发送POST请求
-    postData("/systemAlarms/batch", paramData)
+    postData("detectionDatas/dealwarns", paramData)
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
@@ -100,16 +102,6 @@ function ConfirmAlertModal(props) {
       });
   }
 
-  //———————————————————————————————————————————————事件响应函数
-  //<Form>中一般组件变化事件响应函数
-  function handleChange(e, { value }, key) {
-    console.log("value", value, "key", key);
-    //设置用户输入内容
-    // setInput((prev) => {
-    //   return { ...prev, [key]: value };
-    // });
-  }
-
   return (
     <Modal
       className={classes.root}
@@ -120,7 +112,7 @@ function ConfirmAlertModal(props) {
       size={"tiny"}
       trigger={
         props.batch === true ? (
-          props.alertId === "" ? (
+          props.data.alertId === "" ? (
             <Button1
               disabled
               variant="contained"
@@ -165,7 +157,6 @@ function ConfirmAlertModal(props) {
               checked={radioState === "未确认"}
               onChange={(e, { value }) => {
                 setRadioState("未确认");
-                handleChange(e, { value }, "isDealed");
               }}
             />
           </Form.Group>
@@ -176,7 +167,6 @@ function ConfirmAlertModal(props) {
               checked={radioState === "现场确认无异常"}
               onChange={(e, { value }) => {
                 setRadioState("现场确认无异常");
-                handleChange(e, { value }, "isDealed");
               }}
             />
             <Form.Radio
@@ -185,7 +175,6 @@ function ConfirmAlertModal(props) {
               checked={radioState === "确认异常——已处理"}
               onChange={(e, { value }) => {
                 setRadioState("确认异常——已处理");
-                handleChange(e, { value }, "isDealed");
               }}
             />
           </Form.Group>
@@ -196,7 +185,6 @@ function ConfirmAlertModal(props) {
               checked={radioState === "确认异常——需要进一步跟踪"}
               onChange={(e, { value }) => {
                 setRadioState("确认异常——需要进一步跟踪");
-                handleChange(e, { value }, "isDealed");
               }}
             />
             <Form.Radio
@@ -205,7 +193,6 @@ function ConfirmAlertModal(props) {
               checked={radioState === "确认异常——在允许范围内"}
               onChange={(e, { value }) => {
                 setRadioState("确认异常——在允许范围内");
-                handleChange(e, { value }, "isDealed");
               }}
             />
           </Form.Group>

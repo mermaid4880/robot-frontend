@@ -217,10 +217,10 @@ function TaskCalendar() {
     handleTodayClick();
   }, []);
 
-  //当（监听到事件"updateCalendar:"）或（日历数据请求的时间段变化）时，重新添加监听事件、请求日历数据
+  //当（监听到事件"updateCalendar"）或（日历数据请求的时间段变化）时，重新添加监听事件、请求日历数据
   useEffect(() => {
     //————————————————————————————添加监听事件
-    emitter.addListener("updateCalendar:", () => {
+    emitter.addListener("updateCalendar", () => {
       //如果由3_1_.AddOrEditTaskModal.jsx、3_2.DeleteTaskModal.jsx、3_3.IssueTaskModal.jsx发来消息（新增、修改、删除、下发任务）
       setUpdate(!update);
     });
@@ -298,8 +298,8 @@ function TaskCalendar() {
     // console.log("event id:",arg.event.id);
     //根据日历event的id获取相应的单条任务信息
     const message = getTaskDetailById(arg.event.id, calendarState.taskList);
-    //发送事件到3_3.TaskDetail中（刷新任务详细信息）
-    message && emitter.emit("taskDetail:", message);
+    //发送事件到3_4.TaskDetail.jsx中（刷新任务详细信息）
+    message && emitter.emit("taskDetail", message);
   }
 
   return (

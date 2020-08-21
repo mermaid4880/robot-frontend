@@ -8,6 +8,7 @@ import Breadcrumb3 from "./1.Breadcrumb3.jsx";
 import TabTreeCalendar from "./2_.TabTreeCalendar#1.jsx";
 import TaskTableAndDetail from "./3_.TaskTableAndDetail.jsx";
 
+//———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     top: "0",
-    height: "900px",
+    height: "892px",
   },
   tabTreeCalendar: {
     top: "0",

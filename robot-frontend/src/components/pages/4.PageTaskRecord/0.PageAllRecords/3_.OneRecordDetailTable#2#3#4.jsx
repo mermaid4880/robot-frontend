@@ -9,9 +9,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faVideo as videoIcon } from "@fortawesome/free-solid-svg-icons";
 //elements
 import CheckRecordModal from "../../../elements/2.CheckRecordModal.jsx";
-import OneMeterHistoryModal from "../../../elements/3.OneMeterHistoryModal.jsx";
+import OneMeterHistoryModal from "../../../elements/3.OneMeterHistoryModal#4.jsx";
 import MediaModal from "../../../elements/4.MediaModal.jsx";
-import RecordDetailQueryForm from "./3_1.RecordDetailQueryForm.jsx";
+import OneRecordDetailTableQueryForm from "./3_1.OneRecordDetailTableQueryForm.jsx";
 import RelatedMetersModal from "./3_2.RelatedMetersModal#4.jsx";
 //functions
 import { getData } from "../../../../functions/requestDataFromAPI.js";
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
   label: {
     fontSize: 14,
   },
-  recordDetailQueryForm: {
+  oneRecordDetailTableQueryForm: {
     width: "1340px",
     margin: "8px 260px 0px 52px",
     display: "inline-block",
@@ -98,7 +98,7 @@ function getTableData(list) {
     newItem.checkInfo = item.checkInfo;
     return newItem;
   });
-  console.log("newList", newList);
+  // console.log("newList", newList);
   return newList;
 }
 
@@ -149,10 +149,9 @@ function OneRecordDetailTable() {
     checkInfo: "", //巡检审核信息
   });
 
-  //<Table>中被CheckBox选中的行对应的点位ID和巡检结果ID用","级联组成的字符串
+  //<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串
   const [idString, setIdString] = useState({
     resultIdString: "",
-    meterIdString: "",
   });
 
   //GET请求（按巡检记录ID和条件获取单条巡检记录详情列表）所带的参数
@@ -166,22 +165,22 @@ function OneRecordDetailTable() {
   });
 
   //———————————————————————————————————————————————useEffect
-  //当（本组件加载完成或GET请求所带的条件参数发生变化时），添加监听巡检记录ID变化事件、按巡检记录ID和条件获取单条巡检记录详情列表数据
+  //当（本组件加载完成、需要刷新或GET请求所带的条件参数发生变化时），添加监听巡检记录ID变化事件、按巡检记录ID和条件获取单条巡检记录详情列表数据
   useEffect(() => {
     //————————————————————————————添加监听事件
-    emitter.addListener("updateOneRecordDetailTable:", (message) => {
+    emitter.addListener("updateOneRecordDetailTable", (message) => {
       //如果由2_.AllRecordsTable.jsx发来的巡检记录ID发生了变化
       if (message !== recordId) {
         setRecordId(message);
         setUpdate(!update);
       }
     });
+    //如果存在巡检记录ID
     if (recordId) {
       //设置表格数据请求状态为正在请求
       setLoading(true);
-      //设置<Table>中被CheckBox选中的行对应的点位ID和巡检结果ID用","级联组成的字符串
+      //设置<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串
       setIdString({
-        meterIdString: "", //CTT
         resultIdString: "",
       });
       //————————————————————————————GET请求
@@ -203,7 +202,7 @@ function OneRecordDetailTable() {
       queryConditions.checkStatus &&
         paramData.append("checkStatus", queryConditions.checkStatus);
       //发送GET请求
-      getData("/detections/bytask", { params: paramData })
+      getData("detections/bytask", { params: paramData })
         .then((data) => {
           // console.log("get结果", data);
           if (data.success) {
@@ -276,7 +275,7 @@ function OneRecordDetailTable() {
       ellipsis: true,
     },
     {
-      title: "结果信息",
+      title: "结果详情",
       dataIndex: "mediaUrl",
       key: "mediaUrl",
       align: "center",
@@ -288,7 +287,7 @@ function OneRecordDetailTable() {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "可见光图片文件路径（一定有）",
-                  mediaUrl: rowData.mediaUrl.vlPath,
+                  mediaUrl: x.vlPath,
                 }}
               />
             </a>
@@ -300,7 +299,7 @@ function OneRecordDetailTable() {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "红外图片文件路径",
-                  mediaUrl: rowData.mediaUrl.irPath,
+                  mediaUrl: x.irPath,
                 }}
               />
             </a>
@@ -312,7 +311,7 @@ function OneRecordDetailTable() {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "识别结果图片路径",
-                  mediaUrl: rowData.mediaUrl.valuePath,
+                  mediaUrl: x.valuePath,
                 }}
               />
             </a>
@@ -324,7 +323,7 @@ function OneRecordDetailTable() {
                 mediaInfo={{
                   meterName: rowData.meterName,
                   mediaType: "音频文件路径",
-                  mediaUrl: rowData.mediaUrl.voicePath,
+                  mediaUrl: x.voicePath,
                 }}
               />
             </a>
@@ -332,7 +331,7 @@ function OneRecordDetailTable() {
           &nbsp;&nbsp;
           {x.videoPath && ( //视频文件路径
             <a
-              href={rowData.mediaUrl.videoPath}
+              href={x.videoPath}
               download="video"
               style={{ color: "#6C6C6C", textDecoration: "none" }}
             >
@@ -380,8 +379,8 @@ function OneRecordDetailTable() {
           <a>
             <OneMeterHistoryModal
               data={{
-                id: recordId, //CTT recordId可能换成resultId  通过resultId唯一确定一条巡检结果
                 meterId: rowData.meterId,
+                resultId: rowData.resultId,
               }}
             />
           </a>
@@ -435,32 +434,17 @@ function OneRecordDetailTable() {
         tableData: prev.tableData,
         selectedRowKeys: selectedRowKeys,
       }));
-      //获取<Table>中被CheckBox选中的行对应的点位ID和巡检结果ID用","级联组成的字符串
+      //获取<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串
       let resultIdString = "";
-      let meterIdString = "";
       let arrayResultID = [];
-      let arrayMeterID = [];
       selectedRows.forEach((item) => {
         arrayResultID.push(item.resultId);
-        arrayMeterID.push(item.meterId);
         resultIdString = arrayResultID.join(",");
-        meterIdString = arrayMeterID.join(",");
-        console.log(
-          "arrayResultID",
-          arrayResultID,
-          "arrayMeterID",
-          arrayMeterID
-        );
-        console.log(
-          "resultIdString",
-          resultIdString,
-          "meterIdString",
-          meterIdString
-        );
+        console.log("arrayResultID", arrayResultID);
+        console.log("resultIdString", resultIdString);
       });
-      //设置<Table>中被CheckBox选中的行对应的点位ID和巡检结果ID用","级联组成的字符串
+      //设置<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串
       setIdString({
-        meterIdString: meterIdString,
         resultIdString: resultIdString,
       });
     },
@@ -469,7 +453,7 @@ function OneRecordDetailTable() {
   //<Table>中pagination的配置描述
   const pagination = {
     //当前页数
-    current: tableState.pageIndex, //HJJ
+    current: tableState.pageIndex,
     //每页条数
     pageSize: tableState.pageSize,
     //指定每页可以显示多少条
@@ -518,7 +502,9 @@ function OneRecordDetailTable() {
       selectedRowKeys: [],
     }));
     //设置<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串为空
-    setIdString("");
+    setIdString({
+      resultIdString: "",
+    });
     //重新请求当前页巡检结果记录数据
     setUpdate(!update);
   }
@@ -546,22 +532,23 @@ function OneRecordDetailTable() {
           </Label>
         </Typography>
         <Typography>
-          <div className={classes.recordDetailQueryForm}>
-            <RecordDetailQueryForm
-              //将由2_.AllRecordsTable.jsx发来的巡检记录ID传递给子组件3_1.RecordDetailQueryForm.jsx，用于清空查询条件
+          <div className={classes.oneRecordDetailTableQueryForm}>
+            <OneRecordDetailTableQueryForm
+              //将由2_.AllRecordsTable.jsx发来的巡检记录ID传递给子组件3_1.OneRecordDetailTableQueryForm.jsx，用于清空子组件的查询条件
               recordId={recordId}
-              //将子组件3_1.RecordDetailQueryForm.jsx中的用户输入数据导出，用于设置GET请求（按巡检记录ID和条件获取单条巡检记录详情列表）所带的参数
+              //将子组件3_1.OneRecordDetailTableQueryForm.jsx中的用户输入数据导出，用于设置GET请求的参数和<Table>的状态
               exportData={(input) => {
-                //设置<Table>的状态（设置当前页码为第1页、每页行数、checkbox选中行的key数组）
+                //设置GET请求（按巡检记录ID和条件获取单条巡检记录详情列表）所带的参数
+                // console.log("OneRecordDetailTableQueryForm output：", input);
+                setQueryConditions(input);
+                //设置<Table>的状态（设置当前页码为第1页、清空checkbox选中行的key数组）
                 setTableState((prev) => ({
                   total: prev.total,
-                  pageIndex: 1, //HJJ
+                  pageIndex: 1, //设置当前页码为第1页
                   pageSize: prev.pageSize,
                   tableData: prev.tableData,
-                  selectedRowKeys: [],
+                  selectedRowKeys: [], //清空checkbox选中行的key数组
                 }));
-                console.log("RecordDetailQueryForm output：", input);
-                setQueryConditions(input);
               }}
             />
           </div>

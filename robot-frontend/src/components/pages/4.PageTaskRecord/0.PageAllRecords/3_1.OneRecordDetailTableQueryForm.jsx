@@ -64,7 +64,7 @@ function timeDeformat(convertedTime) {
   return time;
 }
 
-function RecordDetailQueryForm(props) {
+function OneRecordDetailTableQueryForm(props) {
   //———————————————————————————————————————————————useState
   //组件是否需要更新的状态
   const [update, setUpdate] = useState(false);
@@ -89,12 +89,12 @@ function RecordDetailQueryForm(props) {
 
   //<DatePicker>的状态
   const [datePicker1State, setDatePicker1State] = useState({
-    date: timeDeformat(input.startTime),
+    time: timeDeformat(input.startTime),
   });
 
   //<DatePicker>的状态
   const [datePicker2State, setDatePicker2State] = useState({
-    date: timeDeformat(input.endTime),
+    time: timeDeformat(input.endTime),
   });
 
   //———————————————————————————————————————————————useEffect
@@ -111,18 +111,18 @@ function RecordDetailQueryForm(props) {
     });
     //清空<DatePicker>的内容
     setDatePicker1State({
-      date: timeDeformat(""),
+      time: timeDeformat(""),
     });
     setDatePicker2State({
-      date: timeDeformat(""),
+      time: timeDeformat(""),
     });
     //设置在组件下个生命周期将清空的input传给父组件2_.AllRecordsTable.jsx（用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数）
     setUpdate(!update);
   }, [props.recordId]);
 
-  //当（input清空时）
+  //当（input清空时），将用户输入内容input传给父组件2_.AllRecordsTable.jsx
   useEffect(() => {
-    //将input传给父组件2_.AllRecordsTable.jsx（用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数）
+    //将input传给父组件2_.AllRecordsTable.jsx，用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数和父组件<Table>的状态
     props.exportData(input);
   }, [update]);
 
@@ -136,28 +136,26 @@ function RecordDetailQueryForm(props) {
     });
   }
 
-  //<Form>中告警开始时间<DatePicker>组件变化事件响应函数
-  function handleDatePicker1Change(date) {
+  //<Form>中检测时间的时间段起点<DatePicker>组件变化事件响应函数
+  function handleDatePicker1Change(time) {
     //设置<DatePicker>的状态
-    setDatePicker1State({ date: date });
+    setDatePicker1State({ time: time });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = date;
     let convertedTime = timeFormat(time);
-    // console.log("convertedDatePicker1Time", convertedTime);
+    console.log("convertedDatePicker1Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, startTime: convertedTime };
     });
   }
 
-  //<Form>中告警结束时间<DatePicker>组件变化事件响应函数
-  function handleDatePicker2Change(date) {
+  //<Form>中检测时间的时间段终点<DatePicker>组件变化事件响应函数
+  function handleDatePicker2Change(time) {
     //设置<DatePicker>的状态
-    setDatePicker2State({ date: date });
+    setDatePicker2State({ time: time });
     //转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12 08:00:00"
-    let time = date;
     let convertedTime = timeFormat(time);
-    // console.log("convertedDatePicker2Time", convertedTime);
+    console.log("convertedDatePicker2Time", convertedTime);
     //设置用户输入内容
     setInput((prev) => {
       return { ...prev, endTime: convertedTime };
@@ -200,7 +198,7 @@ function RecordDetailQueryForm(props) {
                 },
               ]}
               placeholder="时间段起点"
-              value={datePicker1State.date}
+              value={datePicker1State.time}
               onChange={handleDatePicker1Change}
             />
           </div>
@@ -238,7 +236,7 @@ function RecordDetailQueryForm(props) {
                 },
               ]}
               placeholder="时间段终点"
-              value={datePicker2State.date}
+              value={datePicker2State.time}
               onChange={handleDatePicker2Change}
             />
           </div>
@@ -281,7 +279,7 @@ function RecordDetailQueryForm(props) {
               // console.log("datePicker1State", datePicker1State);
               // console.log("datePicker2State", datePicker2State);
               // console.log("hello", input);
-              //将input传给父组件2_.AllRecordsTable.jsx（用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数）
+              //将input传给父组件2_.AllRecordsTable.jsx（用于设置父组件GET请求（根据条件获取巡检结果记录列表）所带的参数）和父组件<Table>的状态
               props.exportData(input);
             }}
           >
@@ -293,4 +291,4 @@ function RecordDetailQueryForm(props) {
   );
 }
 
-export default RecordDetailQueryForm;
+export default OneRecordDetailTableQueryForm;

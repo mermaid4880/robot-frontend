@@ -59,7 +59,7 @@ function TaskStatus() {
 
   useEffect(() => {
     //————————————————————————————GET请求
-    getData("/taskFinish/now/192.168.0.1")
+    getData("taskFinish/now/192.168.0.1")
       .then((data) => {
         console.log("get结果", data);
         if (data.success) {

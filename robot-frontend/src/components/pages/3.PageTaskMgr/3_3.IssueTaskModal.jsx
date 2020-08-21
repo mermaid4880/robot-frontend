@@ -53,8 +53,8 @@ function IssueTaskModal(props) {
           });
           //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
-          emitter.emit("updateCalendar:");
+          //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
+          emitter.emit("updateCalendar");
         } else {
           //关闭本modal
           setModalOpen(false);

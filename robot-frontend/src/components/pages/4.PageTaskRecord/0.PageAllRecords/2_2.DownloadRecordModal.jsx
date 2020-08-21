@@ -50,7 +50,7 @@ function DownloadRecordModal(props) {
     let paramData = new URLSearchParams();
     paramData.append("id", recordId.toString());
     //发送GET请求
-    getData("/report/bytask", { params: paramData })
+    getData("report/bytask", { params: paramData })
       .then((data) => {
         console.log("get结果", data);
         if (data.success) {

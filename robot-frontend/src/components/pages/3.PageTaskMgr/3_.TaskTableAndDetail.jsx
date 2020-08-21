@@ -17,14 +17,6 @@ import TaskDetail from "./3_4.TaskDetail.jsx";
 //functions
 import { getData } from "../../../functions/requestDataFromAPI.js";
 
-//———————————————————————————————————————————————全局函数
-//转换时间格式"2016-05-12 08:00:00"——>"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"
-function timeDeformat(convertedTime) {
-  convertedTime = convertedTime.replace(new RegExp(/-/gm), "/"); //将所有的'-'转为'/'即可（兼容IE）
-  let time = convertedTime === "" ? null : new Date(convertedTime);
-  return time;
-}
-
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -84,6 +76,14 @@ function getTableData(list) {
   });
   console.log("newList", newList);
   return newList;
+}
+
+//———————————————————————————————————————————————全局函数
+//转换时间格式"2016-05-12 08:00:00"——>"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"
+function timeDeformat(convertedTime) {
+  convertedTime = convertedTime.replace(new RegExp(/-/gm), "/"); //将所有的'-'转为'/'即可（兼容IE）
+  let time = convertedTime === "" ? null : new Date(convertedTime);
+  return time;
 }
 
 function TaskTableAndDetail() {
@@ -146,7 +146,7 @@ function TaskTableAndDetail() {
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    getData("/task/all")
+    getData("task/all")
       .then((data) => {
         console.log("get结果", data);
         if (data.success) {
@@ -442,16 +442,25 @@ function TaskTableAndDetail() {
 
   //<Table>中pagination的配置描述
   const pagination = {
-    pageIndex: tableState.pageIndex,
+    //当前页数
+    current: tableState.pageIndex,
+    //每页条数
     pageSize: tableState.pageSize,
+    //指定每页可以显示多少条
     pageSizeOptions: ["5", "10", "20", "50", "100"],
+    //页码改变的回调，参数是改变后的页码及每页条数
     onChange: (pageIndex, pageSize) =>
-      handleTablePaginationChange(pageIndex, pageSize, false), // 页码改变的回调
+      handleTablePaginationChange(pageIndex, pageSize, false),
+    //pageSize 变化的回调
     onShowSizeChange: (pageIndex, pageSize) =>
-      handleTablePaginationChange(pageIndex, pageSize, true), //pageSize 变化的回调
+      handleTablePaginationChange(pageIndex, pageSize, true),
+    //是否展示 pageSize 切换器，当 total 大于 50 时默认为 true
     showSizeChanger: false,
+    //数据总数
     total: tableState.tableData.length,
+    //用于显示数据总量和当前数据顺序
     showTotal: () => `共${tableState.tableData.length}条`,
+    //用于自定义页码的结构，可用于优化 SEO
     itemRender: itemRender,
   };
 

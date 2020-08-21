@@ -68,7 +68,7 @@ function UserTable() {
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    getData("/users")
+    getData("users")
       .then((data) => {
         console.log("get结果", data.success);
         if (data.success) {

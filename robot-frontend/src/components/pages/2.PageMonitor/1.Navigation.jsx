@@ -215,7 +215,7 @@ function Navigation(props) {
           </UncontrolledDropdown>
         </Nav>
         <NavbarText>
-          <Tooltip placement="bottom" title="查看设备告警信息">
+          <Tooltip placement="bottom" title="查看未确认的设备告警信息">
             <Link to={{ pathname: "/AlertMgr", query: { filter: "undealed" } }}>
               <Badge
                 style={{ marginRight: "10px" }}
@@ -223,7 +223,7 @@ function Navigation(props) {
                 color="secondary"
                 onClick={() => {
                   //发送事件到5.PageAlertMgr/2_.AlertTableAndDetail.jsx中（重新GET未处理告警信息列表并刷新组件）
-                  emitter.emit("thisPageGetUndealedAlertTable:");
+                  emitter.emit("updateAlertTable");
                 }}
               >
                 <NotificationsIcon fontSize="large" />

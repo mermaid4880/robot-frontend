@@ -443,10 +443,10 @@ function TreeSearch(props) {
   function handleTreeSelect(selectedKeys, e) {
     console.log("selectedKeys", selectedKeys);
     meterID = getMeterID(selectedKeys[0]);
-    console.log("taskID", meterID);
-    //发送事件到2_.OneMeterRecordsTableAndDetail中（根据点位ID获取记录巡检记录列表并刷新）
+    console.log("meterID", meterID);
+    //发送事件到4.PageTaskRecord/1.PageOneMeterRecords/2_.OneMeterRecordsTableAndDetail#2#3.jsx中（根据点位ID获取记录巡检记录列表并刷新）
     props.type === "insidePage" &&
-      emitter.emit("updateOneMeterRecordsTable:", meterID);
+      emitter.emit("updateOneMeterRecordsTable", meterID);
   }
 
   //———————————————————————————————————————————————画树

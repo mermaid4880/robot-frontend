@@ -33,22 +33,27 @@ function DeleteAlertModal(props) {
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
 
-  //告警信息的id
+  //告警信息的ID
   const [alertId, setAlertId] = useState("");
 
   //———————————————————————————————————————————————useEffect
+  //当父组件2_.AlertTableAndDetail.jsx传来的告警信息ID发生变化时，设置告警信息的ID
   useEffect(() => {
-    setAlertId(props.alertId);
-  }, [props.alertId]);
+    setAlertId(props.data.alertId);
+  }, [props.data.alertId]);
 
   //———————————————————————————————————————————————其他函数
   //删除告警信息DELETE请求
   function deleteAlertDELETE() {
     //————————————————————————————DELETE请求
-    // 用URLSearchParams来传递参数
-    let paramData = new URLSearchParams();
-    paramData.append("id", alertId.toString());
-    deleteData("systemAlarms/batch" + paramData)
+    //参数alertIdArray放在Body——raw——JSON里
+    var alertIdArray;
+    //如果是批量删除，将用","级联组成的告警信息ID字符串转为数字数组
+    if (props.batch) alertIdArray = alertId.split(",").map(Number);
+    //如果是单条删除，将数字格式的告警信息ID转为单元素数字数组
+    else alertIdArray = [alertId];
+    //发送DELETE请求
+    deleteData("detectionDatas/deletewarns", { data: alertIdArray })
       .then((data) => {
         console.log("delete结果", data);
         if (data.success) {
@@ -105,7 +110,7 @@ function DeleteAlertModal(props) {
       size={"tiny"}
       trigger={
         props.batch === true ? (
-          props.alertId === "" ? (
+          props.data.alertId === "" ? (
             <Button1
               disabled
               variant="contained"

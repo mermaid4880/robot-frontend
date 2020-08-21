@@ -8,6 +8,7 @@ import Breadcrumb4_1 from "./1.Breadcrumb4_1.jsx";
 import TreeSearch from "../../../elements/1.TreeSearch.jsx";
 import OneMeterRecordsTableAndDetail from "./2_.OneMeterRecordsTableAndDetail#2#3.jsx";
 
+//———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
@@ -24,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     top: "0",
-    height: "900px",
+    height: "892px",
   },
   tree: {
     top: "0",

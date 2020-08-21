@@ -72,8 +72,8 @@ function AddOrEditTaskModal(props) {
           });
           //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
-          emitter.emit("updateCalendar:");
+          //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
+          emitter.emit("updateCalendar");
         } else {
           //alert失败
           swal({
@@ -133,8 +133,8 @@ function AddOrEditTaskModal(props) {
           });
           //调用父组件函数（重新GET任务列表并刷新组件）
           props.updateParent();
-          //发送事件到2_1.TaskCalendar中（重新GET任务列表并刷新组件）
-          emitter.emit("updateCalendar:");
+          //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
+          emitter.emit("updateCalendar");
         } else {
           //alert失败
           swal({
@@ -199,11 +199,13 @@ function AddOrEditTaskModal(props) {
           <Header>编辑任务信息</Header>
           <div className="ui container" style={{ width: "678px" }}>
             <TaskForm
-              data={props.data} //将父组件传来的表格行数据传给子组件3_1_1.TaskForm#1.jsx
+              //将父组件传来的表格行数据传给子组件3_1_1.TaskForm#1.jsx
+              data={props.data}
+              //将子组件3_1_1.TaskForm#1.jsx中的用户输入数据导出，用于设置POST请求（新增任务）或PUT请求（修改任务）所带的参数
               exportData={(input) => {
-                console.log("TaskForm output：", input);
+                // console.log("TaskForm output：", input);
                 setBodyParams(input);
-              }} //将子组件3_1_1.TaskForm#1.jsx中的用户输入数据导出，用于设置POST新增任务或PUT修改任务请求的参数
+              }}
             />
           </div>
         </Modal.Description>

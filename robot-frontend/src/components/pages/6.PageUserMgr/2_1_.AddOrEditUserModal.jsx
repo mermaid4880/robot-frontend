@@ -143,7 +143,7 @@ function EditUserModal(props) {
     postParamData.append("accessIds", paramData.accessIds.toString());
     postParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送POST请求
-    postData("/users", postParamData)
+    postData("users", postParamData)
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
@@ -282,7 +282,7 @@ function EditUserModal(props) {
     putParamData.append("accessIds", paramData.accessIds.toString());
     putParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送PUT请求
-    putData("/users/" + props.data.id, putParamData)
+    putData("users/" + props.data.id, putParamData)
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {

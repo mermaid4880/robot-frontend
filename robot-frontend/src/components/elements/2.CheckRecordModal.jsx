@@ -221,7 +221,7 @@ function CheckRecordModal(props) {
             />
           </Form.Group>
         </Form>
-        <p>确认审核记录{"（ID=" + checkData.resultId + "）"}？</p>
+        <p>确认审核记录{"（巡检结果ID=" + checkData.resultId + "）"}？</p>
       </Modal.Content>
       <Modal.Actions>
         <Button
