@@ -12,16 +12,6 @@ const accessIdsOptions = [
 //———————————————————————————————————————————————全局函数
 //初始化<Form>中所有默认数据（用户输入内容）
 function initInput(data) {
-  // data = {
-  //   //点击的行数据
-  //   key: "1234",
-  //   id: "11bf48da2e4b458c9aa793812a214c74",
-  //   username: "zhang",
-  //   showname: "zhang",
-  //   accessIds: "1,2,3",
-  //   phoneNum: "phoneNum",
-  // };
-  console.log("data", data);
   let newInput = {
     id: data && data.id ? data.id : "",
     username: data && data.userName ? data.userName : "",
@@ -29,9 +19,8 @@ function initInput(data) {
     password: "",
     password_: "",
     accessIds: data && data.accessIds ? data.accessIds : "",
-    phoneNum: data && data.phoneNum ? data.phoneNum : "",
+    phoneNum: data && data.phoneNumber ? data.phoneNumber : "",
   };
-  // console.log("newInput", newInput);
   return newInput;
 }
 
@@ -63,7 +52,6 @@ function UserForm(props) {
         fluid
         label="姓名"
         placeholder="姓名"
-        // defaultValue={props.row.userName}
         value={input.username}
       />
       <Form.Input
@@ -71,7 +59,6 @@ function UserForm(props) {
         fluid
         label="显示姓名"
         placeholder="显示姓名"
-        // defaultValue={props.row.showName}
         value={input.showname}
       />
       <Form.Input
@@ -80,7 +67,6 @@ function UserForm(props) {
         label="密码"
         placeholder="修改密码"
         type="password"
-        // defaultValue="password"
       />
       <Form.Input
         onChange={(e, { value }) => handleChange(e, { value }, "password_")}
@@ -88,7 +74,6 @@ function UserForm(props) {
         label="确认密码"
         placeholder="确认修改密码"
         type="password"
-        // defaultValue="password"
       />
       <Form.Select
         onChange={(e, { value }) => handleChange(e, { value }, "accessIds")}
@@ -96,7 +81,6 @@ function UserForm(props) {
         label="权限"
         options={accessIdsOptions}
         placeholder="权限"
-        // defaultValue={props.row.accessIds}
         value={input.accessIds}
       />
       <Form.Input
@@ -104,7 +88,6 @@ function UserForm(props) {
         fluid
         label="手机号"
         placeholder="手机号"
-        // defaultValue={props.row.phoneNumber}
         value={input.phoneNum}
       />
       

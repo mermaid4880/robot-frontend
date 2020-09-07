@@ -204,7 +204,9 @@ function ConfirmAlertModal(props) {
         <Button
           content="取消"
           onClick={() => {
-            setRadioState(""); //清空Radio的记忆
+            //清空用户输入的所有记忆，设置为父组件传来的参数
+            setRadioState(props.data.alertIsDealed);
+            //关闭本modal
             setModalOpen(false);
           }}
         />

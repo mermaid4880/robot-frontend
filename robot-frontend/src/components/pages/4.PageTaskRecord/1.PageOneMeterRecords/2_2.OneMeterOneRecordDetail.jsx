@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { List, Label } from "semantic-ui-react";
 import { Grid } from "semantic-ui-react";
-import { Tooltip } from "antd";
+import { Tooltip, Spin } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faVideo as videoIcon } from "@fortawesome/free-solid-svg-icons";
 //elements
@@ -158,12 +158,10 @@ function OneMeterOneRecordDetail(props) {
   //显示的详细信息内容
   const [detail, setDetail] = useState({});
 
-  //———————————————————————————————————————————————useEffect
-  //当（父组件2_.OneMeterRecordsTableAndDetail#2#3.jsx传来的data发生变化时），设置显示的详细信息内容
-  useEffect(() => {
-    setDetail(initDetail(props.data));
-  }, [props.data]);
+  //<Loader>是否显示
+  const [loaderDisplay, setLoaderDisplay] = useState(true);
 
+  //———————————————————————————————————————————————useEffect
   //当（本组件加载完成时），添加监听清空详情事件
   useEffect(() => {
     //————————————————————————————添加监听事件
@@ -172,6 +170,36 @@ function OneMeterOneRecordDetail(props) {
       setDetail(initDetail({}));
     });
   }, []);
+
+  //当（父组件2_.OneMeterRecordsTableAndDetail#2#3.jsx传来的data发生变化时），设置显示的详细信息内容
+  useEffect(() => {
+    //设置显示的详细信息内容
+    setDetail(initDetail(props.data));
+  }, [props.data]);
+
+  //当（显示的详细信息内容发生变化时），如果<img>没有完成加载重新设置<Loader>显示
+  useEffect(() => {
+    //如果<img>没有完成加载重新设置<Loader>显示
+    var img = document.getElementById("img");
+    if (img && !img.complete) {
+      //设置<Loader>显示
+      setLoaderDisplay(true);
+    }
+  }, [detail]);
+
+  //当<Loader>是否显示发生变化时，添加定时器（轮询<img>的加载状态img.complete），如果<img>完成加载则设置<Loader>不显示并销毁定时器
+  useEffect(() => {
+    //添加定时器（轮询<img>的加载状态img.complete）
+    var timer = setInterval(function () {
+      var img = document.getElementById("img");
+      if (img && img.complete) {
+        //设置<Loader>不显示
+        setLoaderDisplay(false);
+        //销毁定时器
+        clearInterval(timer);
+      }
+    }, 200);
+  }, [loaderDisplay]);
 
   return (
     <Grid style={gridStyle} columns={3} divided>
@@ -325,11 +353,14 @@ function OneMeterOneRecordDetail(props) {
         </Grid.Column>
         <Grid.Column>
           {detail && detail.mediaUrl && detail.mediaUrl.vlPath && (
-            <img
-              style={imageStyle}
-              src={detail.mediaUrl.vlPath}
-              alt="巡检结果图片（可见光）"
-            />
+            <Spin size="large" tip="Loading..." spinning={loaderDisplay}>
+              <img
+                id="img"
+                style={imageStyle}
+                src={detail.mediaUrl.vlPath}
+                alt="巡检结果图片（可见光）"
+              />
+            </Spin>
           )}
         </Grid.Column>
       </Grid.Row>

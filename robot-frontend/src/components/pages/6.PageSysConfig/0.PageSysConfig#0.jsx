@@ -5,11 +5,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Loader, Dimmer } from "semantic-ui-react";
 //elements
 import Navigation from "../../elements/0.Navigation.jsx";
-import Breadcrumb3 from "./1.Breadcrumb3.jsx";
-import TabTreeCalendar from "./2_.TabTreeCalendar#1.jsx";
-import TaskTableAndDetail from "./3_.TaskTableAndDetail.jsx";
+import Breadcrumb6 from "./1.Breadcrumb6.jsx";
+import SysConfig from "./2_.SysConfig.jsx";
+import UserConfig from "./3_.UserConfig.jsx";
+import SysStatus from "./4_.SysStatus.jsx";
 
-//———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
@@ -26,19 +26,19 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     top: "0",
-    height: "892px",
+    height: "900px",
   },
-  tabTreeCalendar: {
+  sysConfig: {
     top: "0",
     height: "850px",
     padding: "0px 5px 0px 5px",
   },
   blankRow: {
-    height: "38px",
+    height: "37px",
   },
 }));
 
-function PageTaskMgr() {
+function PageSysConfig() {
   const classes = useStyles();
 
   //———————————————————————————————————————————————useState
@@ -68,16 +68,19 @@ function PageTaskMgr() {
       <Row className={classes.main}>
         <Col sm="12" md={{ size: 3, offset: 0 }}>
           <Row>
-            <Breadcrumb3 />
+            <Breadcrumb6 />
           </Row>
-          <Row className={classes.tabTreeCalendar}>
-            <TabTreeCalendar />
+          <Row className={classes.sysConfig}>
+            <SysConfig />
           </Row>
         </Col>
         <Col sm="12" md={{ size: 9, offset: 0 }}>
           <Row className={classes.blankRow}></Row>
           <Row>
-            <TaskTableAndDetail />
+            <UserConfig />
+          </Row>
+          <Row>
+            <SysStatus />
           </Row>
         </Col>
       </Row>
@@ -90,4 +93,4 @@ function PageTaskMgr() {
   );
 }
 
-export default PageTaskMgr;
+export default PageSysConfig;

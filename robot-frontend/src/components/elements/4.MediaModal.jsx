@@ -2,13 +2,13 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button, Modal } from "semantic-ui-react";
+import { Tooltip, Spin } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage as hdImageIcon } from "@fortawesome/free-regular-svg-icons";
 import { faImage as irImageIcon } from "@fortawesome/free-solid-svg-icons";
 import { faPhotoVideo as resultImageIcon } from "@fortawesome/free-solid-svg-icons";
 import { faVolumeUp as soundIcon } from "@fortawesome/free-solid-svg-icons";
 import { faVideo as videoIcon } from "@fortawesome/free-solid-svg-icons";
-import { Tooltip } from "antd";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -32,11 +32,28 @@ function MediaModal(props) {
   //由父组件传来的mediaInfo     eg.mediaInfo：{mediaType:"识别结果图片路径", mediaUrl:rowData.mediaUrl.valuePath}
   const [mediaInfo, setMediaInfo] = useState(props.mediaInfo);
 
+  //<Loader>是否显示
+  const [loaderDisplay, setLoaderDisplay] = useState(true);
+
   //———————————————————————————————————————————————useEffect
   //当（将由父组件3_.OneRecordDetailTable#2#3#4.jsx或3_2.RelatedMetersModal#4.jsx传递来的mediaInfo发生变化时），重新设置mediaInfo
   useEffect(() => {
     setMediaInfo(props.mediaInfo);
   }, [props.mediaInfo]);
+
+  //当<Loader>是否显示发生变化时，添加定时器（轮询<img>的加载状态img.complete），如果<img>完成加载则设置<Loader>不显示并销毁定时器
+  useEffect(() => {
+    //添加定时器（轮询<img>的加载状态img.complete）
+    var timer = setInterval(function () {
+      var img = document.getElementById(mediaInfo.mediaUrl);
+      if (img && img.complete) {
+        //设置<Loader>不显示
+        setLoaderDisplay(false);
+        //销毁定时器
+        clearInterval(timer);
+      }
+    }, 200);
+  }, [loaderDisplay]);
 
   //———————————————————————————————————————————————设置<Modal>用到的函数
   //根据不同的mediaType设置相应的触发本modal的小图标
@@ -102,20 +119,32 @@ function MediaModal(props) {
       case "红外图片文件路径":
       case "识别结果图片路径":
         return (
-          <img
+          <Spin
             style={{
               marginLeft: "83px",
               width: "932px",
               height: "524px",
             }}
-            src={mediaInfo.mediaUrl}
-            alt="巡检结果图片"
-          />
+            size="large"
+            tip="Loading..."
+            spinning={loaderDisplay}
+          >
+            <img
+              id={mediaInfo.mediaUrl ? mediaInfo.mediaUrl : "img"} //给图片添加id（用于获取图片加载状态）
+              style={{
+                marginLeft: "83px",
+                width: "932px",
+                height: "524px",
+              }}
+              src={mediaInfo.mediaUrl}
+              alt="巡检结果图片"
+            />
+          </Spin>
         );
       case "音频文件路径":
         return (
           <embed
-            id="soundEmbed"
+            id="sound"
             style={{
               margin: "auto",
             }}
@@ -160,10 +189,13 @@ function MediaModal(props) {
         <Button
           content="返回"
           onClick={() => {
+            //关闭本modal
             setModalOpen(false);
+            //设置<Loader>显示
+            setLoaderDisplay(true);
             //关闭Modal时停止播放音频
-            document.getElementById("soundEmbed") &&
-              document.getElementById("soundEmbed").stop();
+            document.getElementById("sound") &&
+              document.getElementById("sound").stop();
           }}
         />
       </Modal.Actions>

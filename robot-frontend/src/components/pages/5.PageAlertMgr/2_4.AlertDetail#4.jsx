@@ -1,8 +1,8 @@
 //packages
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { List, Label } from "semantic-ui-react";
 import { Grid } from "semantic-ui-react";
-import { Tooltip } from "antd";
+import { Tooltip, Spin } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faVideo as videoIcon } from "@fortawesome/free-solid-svg-icons";
 //elements
@@ -39,7 +39,7 @@ const contentStyle = {
 //图片
 const imageStyle = {
   width: "440px",
-  height: "259px",
+  height: "256px",
 };
 
 function AlertDetail(props) {
@@ -67,16 +67,47 @@ function AlertDetail(props) {
   //   },
   // };
 
+  //———————————————————————————————————————————————useState
+  //<Loader>是否显示
+  const [loaderDisplay, setLoaderDisplay] = useState(true);
+
+  //———————————————————————————————————————————————useEffect
+  //当（将由父组件2_.AlertTableAndDetail传递来的props.data.mediaUrl发生变化时），如果<img>没有完成加载重新设置<Loader>显示
+  useEffect(() => {
+    var img = document.getElementById(props.data.mediaUrl);
+    if (img && !img.complete) {
+      //设置<Loader>显示
+      setLoaderDisplay(true);
+    }
+  }, [props.data.mediaUrl]);
+
+  //当<Loader>是否显示发生变化时，添加定时器（轮询<img>的加载状态img.complete），如果<img>完成加载则设置<Loader>不显示并销毁定时器
+  useEffect(() => {
+    //添加定时器（轮询<img>的加载状态img.complete）
+    var timer = setInterval(function () {
+      var img = document.getElementById(props.data.mediaUrl);
+      if (img && img.complete) {
+        //设置<Loader>不显示
+        setLoaderDisplay(false);
+        //销毁定时器
+        clearInterval(timer);
+      }
+    }, 200);
+  }, [loaderDisplay]);
+
   return (
     <Grid style={gridStyle} columns={4} divided>
       <Grid.Row stretched>
         <Grid.Column>
           {props.data && props.data.mediaUrl && props.data.mediaUrl.vlPath && (
-            <img
-              style={imageStyle}
-              src={props.data.mediaUrl.vlPath}
-              alt="告警信息图片（可见光）"
-            />
+            <Spin size="large" tip="Loading..." spinning={loaderDisplay}>
+              <img
+                id={props.data.mediaUrl}
+                style={imageStyle}
+                src={props.data.mediaUrl.vlPath}
+                alt="告警信息图片（可见光）"
+              />
+            </Spin>
           )}
         </Grid.Column>
         <Grid.Column>
@@ -214,7 +245,7 @@ function AlertDetail(props) {
                     )}
                   </span>
                 )}
-              </div>            
+              </div>
             </List.Item>
           </List>
         </Grid.Column>

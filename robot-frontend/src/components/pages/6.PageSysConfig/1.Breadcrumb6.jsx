@@ -1,11 +1,10 @@
 //packages
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import Breadcrumbs from "@material-ui/core/Breadcrumbs";
-import Link from "@material-ui/core/Link";
+import Typography from "@material-ui/core/Typography";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faCogs, faUserCog } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faCogs } from "@fortawesome/free-solid-svg-icons";
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -27,13 +26,9 @@ function Breadcrumb6(props) {
         <FontAwesomeIcon icon={faHome} className={classes.icon} />
         智能巡检机器人系统
       </Typography>
-      <Link color="inherit" className={classes.link}>
+      <Typography color="inherit" className={classes.link}>
         <FontAwesomeIcon icon={faCogs} className={classes.icon} />
         系统配置
-      </Link>
-      <Typography color="inherit" className={classes.link}>
-        <FontAwesomeIcon icon={faUserCog} className={classes.icon} />
-        用户管理
       </Typography>
     </Breadcrumbs>
   );
