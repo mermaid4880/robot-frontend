@@ -7,11 +7,12 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import Navigation from "../../elements/0.Navigation.jsx";
 import Breadcrumb2 from "./1.Breadcrumb2.jsx";
 import TaskStatus from "./2.TaskStatus.jsx";
-import Map from "./3.Map.jsx";
-import TabInfo from "./4.TabInfo.jsx";
-import TabVideo from "./5_.TabVideo.jsx";
-import TabControl from "./6.TabControl.jsx";
-import HkwsCtrl from "./HkwsCtrl.jsx";
+import EnvironmentInfo from "./3.EnvironmentInfo.jsx";
+import Map from "./4.Map.jsx";
+import TabInfo from "./5.TabInfo.jsx";
+import TabVideo from "./6_.TabVideo.jsx";
+import ControlPanel from "./7.ControlPanel.jsx";
+// import TabControl from "./7.TabControl.jsx";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -30,12 +31,8 @@ const useStyles = makeStyles((theme) => ({
     height: "70px",
     padding: "0px",
   },
-  navBarCol: {
+  col: {
     padding: "0px",
-  },
-  main: {
-    top: "0",
-    height: "640px",
   },
 }));
 
@@ -63,7 +60,7 @@ function PageMonitor() {
   return (
     <Container className={classes.root} fluid={true}>
       <Row className={classes.navBarRow}>
-        <Col className={classes.navBarCol} sm="12" md={{ size: 12, offset: 0 }}>
+        <Col className={classes.col} sm="12" md={{ size: 12, offset: 0 }}>
           <Navigation
             activeDimmer={() => setDimmerActive(true)} //设置<Dimmer>为激活状态
             closeTabVideoIframe={() => tabVideoRef.current.destroyIframe()} //销毁兄弟组件<TabVideo>的iframe（调用<TabVideo>组件的函数）
@@ -74,22 +71,26 @@ function PageMonitor() {
         <Breadcrumb2 />
       </Row>
       <Row className={classes.main}>
-        <Col sm="12" md={{ size: 8, offset: 0 }}>
+        <Col className={classes.col} sm="12" md={{ size: 8, offset: 0 }}>
           <Row>
             <TaskStatus />
           </Row>
           <Row>
-            <Map />
+            <Col className={classes.col} sm={{ size: "auto", offset: 0 }}>
+              <EnvironmentInfo />
+            </Col>
+            <Col className={classes.col} sm={{ size: "9", offset: 0 }}>
+              <Map />
+            </Col>
           </Row>
           <Row>
             <TabInfo />
           </Row>
         </Col>
-        <Col sm="12" md={{ size: 4, offset: 0 }}>
+        <Col className={classes.col} sm="12" md={{ size: 4, offset: 0 }}>
           <Row>
             <TabVideo ref={tabVideoRef} />
           </Row>
-          <Row>{/* <VlcRtsp /> */}</Row>
           <Row>
             {/* <TabControl
               startTabVideoIframeRecord={() => {
@@ -99,7 +100,7 @@ function PageMonitor() {
                 tabVideoRef.current.stopRecord(); //调用<TabVideo>组件的函数
               }}
             /> */}
-            <HkwsCtrl />
+            <ControlPanel />
           </Row>
         </Col>
       </Row>

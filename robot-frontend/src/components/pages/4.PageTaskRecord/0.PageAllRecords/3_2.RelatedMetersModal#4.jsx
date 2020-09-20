@@ -12,8 +12,7 @@ import MediaModal from "../../../elements/4.MediaModal.jsx";
 //functions
 import { getData } from "../../../../functions/requestDataFromAPI.js";
 //images
-import ImageNotFound from "../../../../images/image_not_found.png";
-import ImageWaiting from "../../../../images/image_waiting.png";
+import imgWaiting from "../../../../images/public/等待是漫长的.png";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -422,7 +421,7 @@ function RelatedMetersModal(props) {
               {loading ? ( //Table数据正在请求
                 <img
                   className={classes.imageStyle}
-                  src={ImageWaiting}
+                  src={imgWaiting}
                   alt="加载中"
                 />
               ) : (

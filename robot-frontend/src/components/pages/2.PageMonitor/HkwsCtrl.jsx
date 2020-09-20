@@ -1,9 +1,10 @@
 //packages
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Icon } from "semantic-ui-react";
 import { Button as ButtonAli } from "antd";
 import { Button as ButtonSemantic } from "semantic-ui-react";
-import Button from "@material-ui/core/Button";
+//import Button from "@material-ui/core/Button";
+import { Toast } from "primereact/toast";
 import { Tooltip } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,21 +16,53 @@ import {
   faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 //images
+import imgLuxiang1 from "../../../images/control/lx1.png";
+import imgLuxiang2 from "../../../images/control/lx2.png";
+import imgLuyin1 from "../../../images/control/ly1.png";
+import imgLuyin2 from "../../../images/control/ly2.png";
+import imgZhuatu1 from "../../../images/control/zp1.png";
+import imgZhuatu2 from "../../../images/control/zp2.png";
+import imgDuijiang1 from "../../../images/control/yydj1.png";
+import imgDuijiang2 from "../../../images/control/yydj2.png";
+import imgZhaoming1 from "../../../images/control/jqrkz1.png";
+import imgZhaoming2 from "../../../images/control/jqrkz2.png";
+import imgYushua1 from "../../../images/control/jqrkz1.png";
+import imgYushua2 from "../../../images/control/jqrkz2.png";
+import imgFangdieluo1 from "../../../images/control/jqrkz1.png";
+import imgFangdieluo2 from "../../../images/control/jqrkz2.png";
+import imgQianbizhang1 from "../../../images/control/jqrkz1.png";
+import imgQianbizhang2 from "../../../images/control/jqrkz2.png";
+import imgHoubizhang1 from "../../../images/control/jqrkz1.png";
+import imgHoubizhang2 from "../../../images/control/jqrkz2.png";
+import imgZidongmoshi from "../../../images/control/rwms1.png";
+import imgShoudongmoshi from "../../../images/control/rwms2.png";
 import imgRadar from "../../../images/control/leida.png";
 import imgCheti from "../../../images/control/cheti_00.png";
-import imgChetiA from "../../../images/control/cheti_a1.png";
-import imgChetiD from "../../../images/control/cheti_d1.png";
-import imgChetiW from "../../../images/control/cheti_w1.png";
-import imgChetiS from "../../../images/control/cheti_s1.png";
+import imgChetiAUp from "../../../images/control/cheti_a1.png";
+import imgChetiADown from "../../../images/control/cheti_a2.png";
+import imgChetiDUp from "../../../images/control/cheti_d1.png";
+import imgChetiDDown from "../../../images/control/cheti_d2.png";
+import imgChetiWUp from "../../../images/control/cheti_w1.png";
+import imgChetiWDown from "../../../images/control/cheti_w2.png";
+import imgChetiSUp from "../../../images/control/cheti_s1.png";
+import imgChetiSDown from "../../../images/control/cheti_s2.png";
 import imgYuntai from "../../../images/control/yuntai_00.png";
-import imgYuntaiUp from "../../../images/control/yuntai_shang1.png";
-import imgYuntaiRight from "../../../images/control/yuntai_you1.png";
-import imgYuntaiDown from "../../../images/control/yuntai_xia1.png";
-import imgYuntaiLeft from "../../../images/control/yuntai_zuo1.png";
-import imgYuntaiBianbei1 from "../../../images/control/yuntai_bianbei+1.png";
-import imgYuntaiBianbei2 from "../../../images/control/yuntai_bianbei-1.png";
-import imgYuntaiJiaoju1 from "../../../images/control/yuntai_1.png";
-import imgYuntaiJiaoju2 from "../../../images/control/yuntai_-1.png";
+import imgYuntaiUpUp from "../../../images/control/yuntai_shang1.png";
+import imgYuntaiUpDown from "../../../images/control/yuntai_shang2.png";
+import imgYuntaiRightUp from "../../../images/control/yuntai_you1.png";
+import imgYuntaiRightDown from "../../../images/control/yuntai_you2.png";
+import imgYuntaiDownUp from "../../../images/control/yuntai_xia1.png";
+import imgYuntaiDownDown from "../../../images/control/yuntai_xia2.png";
+import imgYuntaiLeftUp from "../../../images/control/yuntai_zuo1.png";
+import imgYuntaiLeftDown from "../../../images/control/yuntai_zuo2.png";
+import imgYuntaiBianbei1Up from "../../../images/control/yuntai_bianbei+1.png";
+import imgYuntaiBianbei1Down from "../../../images/control/yuntai_bianbei+2.png";
+import imgYuntaiBianbei2Up from "../../../images/control/yuntai_bianbei-1.png";
+import imgYuntaiBianbei2Down from "../../../images/control/yuntai_bianbei-2.png";
+import imgYuntaiJiaoju1Up from "../../../images/control/yuntai_+1.png";
+import imgYuntaiJiaoju1Down from "../../../images/control/yuntai_+2.png";
+import imgYuntaiJiaoju2Up from "../../../images/control/yuntai_-1.png";
+import imgYuntaiJiaoju2Down from "../../../images/control/yuntai_-2.png";
 
 import { makeStyles } from "@material-ui/core/styles";
 import {
@@ -49,9 +82,9 @@ import { postData } from "../../../functions/requestDataFromAPI.js";
 const useStyles = makeStyles({
   root: {
     // width: "100%",
-    marginLeft: "30px",
+    marginLeft: "0px",
     marginTop: "20px",
-    width: "600px",
+    width: "620px",
     height: "80px",
     overflow: "hidden",
   },
@@ -142,62 +175,279 @@ const useStyles = makeStyles({
 
 function HkwsCtrl() {
   const classes = useStyles();
+  //———————————————————————————————————————————————useState
+  //控件按钮的显示状态
+  const [buttonStatus, setButtonStatus] = useState({
+    imgChetiA: imgChetiAUp,
+    imgChetiD: imgChetiDUp,
+    imgChetiW: imgChetiWUp,
+    imgChetiS: imgChetiSUp,
+    imgYuntaiUp: imgYuntaiUpUp,
+    imgYuntaiRight: imgYuntaiRightUp,
+    imgYuntaiDown: imgYuntaiDownUp,
+    imgYuntaiLeft: imgYuntaiLeftUp,
+    imgYuntaiBianbei1: imgYuntaiBianbei1Up,
+    imgYuntaiBianbei2: imgYuntaiBianbei2Up,
+    imgYuntaiJiaoju1: imgYuntaiJiaoju1Up,
+    imgYuntaiJiaoju2: imgYuntaiJiaoju2Up,
+    imgLuxiang: imgLuxiang1,
+    imgLuyin: imgLuyin1,
+    imgZhuatu: imgZhuatu1,
+    imgDuijiang: imgDuijiang1,
+    imgZhaoming: imgZhaoming1,
+    imgYushua: imgYushua1,
+    imgFangdieluo: imgFangdieluo1,
+    imgQianbizhang: imgQianbizhang1,
+    imgHoubizhang: imgHoubizhang1,
+    imgKongzhimoshi: imgZidongmoshi,
+  });
 
   function Control(operation) {
     postData("control/" + operation).then((data) => {
       console.log("post结果", data);
       // alert(operation);
-      alert(data.detail);
+      // alert(data.detail);
+      this.toast.show({
+        severity: "error",
+        summary: "Error Message",
+        detail: data.detail,
+        life: 3000,
+      });
     });
   }
 
   return (
     <div>
+      <Toast ref={(el) => (this.toast = el)} position="top-center" />
       <div className={classes.root}>
-        {/* <ButtonAli type="primary" size="large" onClick={HkwsStart}>
-        开始播放
-      </ButtonAli> */}
-        {/* <Button variant="contained">
-        开始播放
-      </Button> */}
         <div>
-          <Tooltip placement="bottom" title="开始播放">
-            <ButtonSemantic
-              content="开始播放"
-              primary
-              size="large"
-              onClick={HkwsStart}
-            >
-              <FontAwesomeIcon icon={faPlay} />
-            </ButtonSemantic>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgLuxiang === imgLuxiang1 ? "开始录像" : "停止录像"
+            }
+          >
+            <a>
+              <img
+                alt="录像"
+                src={buttonStatus.imgLuxiang}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgLuxiang === imgLuxiang1
+                      ? { ...prev, imgLuxiang: imgLuxiang2 }
+                      : { ...prev, imgLuxiang: imgLuxiang1 };
+                  });
+                }}
+              />
+            </a>
           </Tooltip>
-          <Tooltip placement="bottom" title="停止播放">
-            <ButtonSemantic
-              content="停止播放"
-              primary
-              size="large"
-              onClick={HkwsStop}
-            >
-              <FontAwesomeIcon icon={faStop} />
-            </ButtonSemantic>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgLuyin === imgLuyin1 ? "开始录音" : "停止录音"
+            }
+          >
+            <a>
+              <img
+                alt="录音"
+                src={buttonStatus.imgLuyin}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgLuyin === imgLuyin1
+                      ? { ...prev, imgLuyin: imgLuyin2 }
+                      : { ...prev, imgLuyin: imgLuyin1 };
+                  });
+                }}
+              />
+            </a>
           </Tooltip>
-          <Tooltip placement="bottom" title="开始录像">
-            <ButtonSemantic
-              content="开始录像"
-              primary
-              size="large"
-              onClick={HkwsStartRecord}
-            >
-              <FontAwesomeIcon icon={faVideo} />
-            </ButtonSemantic>
+          <Tooltip placement="bottom" title="抓图">
+            <a>
+              <img
+                alt="抓图"
+                src={buttonStatus.imgZhuatu}
+                onMouseDown={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return { ...prev, imgZhuatu: imgZhuatu2 };
+                  });
+                }}
+                onMouseUp={() => {
+                  setButtonStatus((prev) => {
+                    return { ...prev, imgZhuatu: imgZhuatu1 };
+                  });
+                }}
+              />
+            </a>
           </Tooltip>
-          <Tooltip placement="bottom" title="停止录像">
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgDuijiang === imgDuijiang1
+                ? "开始对讲"
+                : "停止对讲"
+            }
+          >
+            <a>
+              <img
+                alt="对讲"
+                src={buttonStatus.imgDuijiang}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgDuijiang === imgDuijiang1
+                      ? { ...prev, imgDuijiang: imgDuijiang2 }
+                      : { ...prev, imgDuijiang: imgDuijiang1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgZhaoming === imgZhaoming1
+                ? "打开照明灯"
+                : "关闭照明灯"
+            }
+          >
+            <a>
+              <img
+                alt="照明灯"
+                src={buttonStatus.imgZhaoming}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgZhaoming === imgZhaoming1
+                      ? { ...prev, imgZhaoming: imgZhaoming2 }
+                      : { ...prev, imgZhaoming: imgZhaoming1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgYushua === imgYushua1 ? "打开雨刷" : "关闭雨刷"
+            }
+          >
+            <a>
+              <img
+                alt="雨刷"
+                src={buttonStatus.imgYushua}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgYushua === imgYushua1
+                      ? { ...prev, imgYushua: imgYushua2 }
+                      : { ...prev, imgYushua: imgYushua1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgFangdieluo === imgFangdieluo1
+                ? "打开防跌落"
+                : "关闭防跌落"
+            }
+          >
+            <a>
+              <img
+                src={buttonStatus.imgFangdieluo}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgFangdieluo === imgFangdieluo1
+                      ? { ...prev, ["imgFangdieluo"]: imgFangdieluo2 }
+                      : { ...prev, ["imgFangdieluo"]: imgFangdieluo1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgQianbizhang === imgQianbizhang1
+                ? "打开前避障"
+                : "关闭前避障"
+            }
+          >
+            <a>
+              <img
+                src={buttonStatus.imgQianbizhang}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgQianbizhang === imgQianbizhang1
+                      ? { ...prev, ["imgQianbizhang"]: imgQianbizhang2 }
+                      : { ...prev, ["imgQianbizhang"]: imgQianbizhang1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgHoubizhang === imgHoubizhang1
+                ? "打开后避障"
+                : "关闭后避障"
+            }
+          >
+            <a>
+              <img
+                alt="后避障"
+                src={buttonStatus.imgHoubizhang}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgHoubizhang === imgHoubizhang1
+                      ? { ...prev, "imgHoubizhang": imgHoubizhang2 }
+                      : { ...prev, "imgHoubizhang": imgHoubizhang1 };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+          <Tooltip
+            placement="bottom"
+            title={
+              buttonStatus.imgKongzhimoshi === imgZidongmoshi
+                ? "切换为手动模式"
+                : "切换为自动模式"
+            }
+          >
+            <a>
+              <img
+                alt="机器人控制模式"
+                src={buttonStatus.imgKongzhimoshi}
+                onClick={() => {
+                  // HkwsStartRecord();
+                  setButtonStatus((prev) => {
+                    return buttonStatus.imgKongzhimoshi === imgZidongmoshi
+                      ? { ...prev, "imgKongzhimoshi": imgShoudongmoshi }
+                      : { ...prev, "imgKongzhimoshi": imgZidongmoshi };
+                  });
+                }}
+              />
+            </a>
+          </Tooltip>
+
+          {/* <Tooltip placement="bottom" title="停止录像">
             <ButtonSemantic
               content="停止录像"
               primary
               size="large"
               onClick={HkwsStopRecord}
             >
+              停止录像
               <FontAwesomeIcon icon={faStop} />
             </ButtonSemantic>
           </Tooltip>
@@ -208,6 +458,7 @@ function HkwsCtrl() {
               size="large"
               onClick={HkwsStartVoiceTalk}
             >
+              开始对讲
               <FontAwesomeIcon icon={faMicrophone} />
             </ButtonSemantic>
           </Tooltip>
@@ -218,7 +469,28 @@ function HkwsCtrl() {
               size="large"
               onClick={HkwsStopVoiceTalk}
             >
+              停止对讲
               <FontAwesomeIcon icon={faMicrophoneSlash} />
+            </ButtonSemantic>
+          </Tooltip>
+          <Tooltip placement="bottom" title="打开照明灯">
+            <ButtonSemantic
+              content="打开照明灯"
+              primary
+              size="large"
+              onClick={() => alert("打开照明灯")}
+            >
+              打开照明灯
+            </ButtonSemantic>
+          </Tooltip>
+          <Tooltip placement="bottom" title="关闭照明灯">
+            <ButtonSemantic
+              content="关闭照明灯"
+              primary
+              size="large"
+              onClick={() => alert("关闭照明灯")}
+            >
+              关闭照明灯
             </ButtonSemantic>
           </Tooltip>
           <Tooltip placement="bottom" title="抓图">
@@ -230,13 +502,10 @@ function HkwsCtrl() {
             >
               <FontAwesomeIcon icon={faCamera} />
             </ButtonSemantic>
-          </Tooltip>
+          </Tooltip> */}
           {/* </div> */}
 
           {/* <div> */}
-
-
-
         </div>
         {/* <ButtonSemantic compact icon onClick={HkwsStart} size="massive">
         <Icon name="play" />
@@ -269,38 +538,74 @@ function HkwsCtrl() {
         <img src={imgCheti} />
         <a>
           <img
-            src={imgChetiA}
+            src={buttonStatus.imgChetiA}
             className={classes.chetiA}
-            onMouseDown={() => Control("robot-motion?operation=left&speed=200")}
-            onMouseUp={() => Control("robot-motion?operation=stop&speed=200")}
+            onMouseDown={() => {
+              Control("robot-motion?operation=left&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiA"]: imgChetiADown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("robot-motion?operation=stop&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiA"]: imgChetiAUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgChetiD}
+            src={buttonStatus.imgChetiD}
             className={classes.chetiD}
-            onMouseDown={() =>
-              Control("robot-motion?operation=right&speed=200")
-            }
-            onMouseUp={() => Control("robot-motion?operation=stop&speed=200")}
+            onMouseDown={() => {
+              Control("robot-motion?operation=right&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiD"]: imgChetiDDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("robot-motion?operation=stop&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiD"]: imgChetiDUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgChetiW}
+            src={buttonStatus.imgChetiW}
             className={classes.chetiW}
-            onMouseDown={() =>
-              Control("robot-motion?operation=ahead&speed=200")
-            }
-            onMouseUp={() => Control("robot-motion?operation=stop&speed=200")}
+            onMouseDown={() => {
+              Control("robot-motion?operation=ahead&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiW"]: imgChetiWDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("robot-motion?operation=stop&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiW"]: imgChetiWUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgChetiS}
+            src={buttonStatus.imgChetiS}
             className={classes.chetiS}
-            onMouseDown={() => Control("robot-motion?operation=back&speed=200")}
-            onMouseUp={() => Control("robot-motion?operation=stop&speed=200")}
+            onMouseDown={() => {
+              Control("robot-motion?operation=back&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiS"]: imgChetiSDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("robot-motion?operation=stop&speed=200");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgChetiS"]: imgChetiSUp };
+              });
+            }}
           />
         </a>
       </div>
@@ -308,66 +613,152 @@ function HkwsCtrl() {
         <img src={imgYuntai} />
         <a>
           <img
-            src={imgYuntaiUp}
+            src={buttonStatus.imgYuntaiUp}
             className={classes.yuntaiUp}
-            onMouseDown={() => Control("ptz/up")}
-            onMouseUp={() => Control("ptz/stop")}
+            onMouseDown={() => {
+              Control("ptz/up");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiUp"]: imgYuntaiUpDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("ptz/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiUp"]: imgYuntaiUpUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiRight}
+            src={buttonStatus.imgYuntaiRight}
             className={classes.yuntaiRight}
-            onMouseDown={() => Control("ptz/right")}
-            onMouseUp={() => Control("ptz/stop")}
+            onMouseDown={() => {
+              Control("ptz/right");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiRight"]: imgYuntaiRightDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("ptz/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiRight"]: imgYuntaiRightUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiDown}
+            src={buttonStatus.imgYuntaiDown}
             className={classes.yuntaiDown}
-            onMouseDown={() => Control("ptz/down")}
-            onMouseUp={() => Control("ptz/stop")}
+            onMouseDown={() => {
+              Control("ptz/down");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiDown"]: imgYuntaiDownDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("ptz/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiDown"]: imgYuntaiDownUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiLeft}
+            src={buttonStatus.imgYuntaiLeft}
             className={classes.yuntaiLeft}
-            onMouseDown={() => Control("ptz/left")}
-            onMouseUp={() => Control("ptz/stop")}
+            onMouseDown={() => {
+              Control("ptz/left");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiLeft"]: imgYuntaiLeftDown };
+              });
+            }}
+            onMouseUp={() => {
+              Control("ptz/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiLeft"]: imgYuntaiLeftUp };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiBianbei1}
+            src={buttonStatus.imgYuntaiBianbei1}
             className={classes.yuntaiBianbei1}
-            onMouseDown={() => Control("vl/zoom/in")}
-            onMouseUp={() => Control("vl/zoom/stop")}
+            onMouseDown={() => {
+              Control("vl/zoom/in");
+              setButtonStatus((prev) => {
+                return {
+                  ...prev,
+                  ["imgYuntaiBianbei1"]: imgYuntaiBianbei1Down,
+                };
+              });
+            }}
+            onMouseUp={() => {
+              Control("vl/zoom/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiBianbei1"]: imgYuntaiBianbei1Up };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiBianbei2}
+            src={buttonStatus.imgYuntaiBianbei2}
             className={classes.yuntaiBianbei2}
-            onMouseDown={() => Control("vl/zoom/out")}
-            onMouseUp={() => Control("vl/zoom/stop")}
+            onMouseDown={() => {
+              Control("vl/zoom/out");
+              setButtonStatus((prev) => {
+                return {
+                  ...prev,
+                  ["imgYuntaiBianbei2"]: imgYuntaiBianbei2Down,
+                };
+              });
+            }}
+            onMouseUp={() => {
+              Control("vl/zoom/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiBianbei2"]: imgYuntaiBianbei2Up };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiJiaoju1}
+            src={buttonStatus.imgYuntaiJiaoju1}
             className={classes.yuntaiJiaoju1}
-            onMouseDown={() => Control("vl/focus/in")}
-            onMouseUp={() => Control("vl/focus/stop")}
+            onMouseDown={() => {
+              Control("vl/focus/in");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiJiaoju1"]: imgYuntaiJiaoju1Down };
+              });
+            }}
+            onMouseUp={() => {
+              Control("vl/focus/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiJiaoju1"]: imgYuntaiJiaoju1Up };
+              });
+            }}
           />
         </a>
         <a>
           <img
-            src={imgYuntaiJiaoju2}
+            src={buttonStatus.imgYuntaiJiaoju2}
             className={classes.yuntaiJiaoju2}
-            onMouseDown={() => Control("vl/focus/out")}
-            onMouseUp={() => Control("vl/focus/stop")}
+            onMouseDown={() => {
+              Control("vl/focus/out");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiJiaoju2"]: imgYuntaiJiaoju2Down };
+              });
+            }}
+            onMouseUp={() => {
+              Control("vl/focus/stop");
+              setButtonStatus((prev) => {
+                return { ...prev, ["imgYuntaiJiaoju2"]: imgYuntaiJiaoju2Up };
+              });
+            }}
           />
         </a>
       </div>

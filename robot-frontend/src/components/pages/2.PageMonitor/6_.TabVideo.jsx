@@ -12,9 +12,9 @@ import { VideoCameraTwoTone, VideoCameraOutlined } from "@ant-design/icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faImage, faVideo } from "@fortawesome/free-solid-svg-icons";
 import { faImage as faImageRegular } from "@fortawesome/free-regular-svg-icons";
-import tabStyle from "./5_.TabVideo.css"; //自定义theme
+import tabStyle from "./6_.TabVideo.css"; //自定义theme
 //elements
-import VlcRtsp from "./5_1.VlcRtsp.jsx";
+import VlcRtsp from "./6_1.VlcRtsp.jsx";
 //functions
 import emitter from "../../../functions/events.js";
 
@@ -23,7 +23,7 @@ import {} from "react";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
   root: {
-    top: "0",
+    marginLeft: "1.3rem",
     width: "630px",
     height: "325px",
   },

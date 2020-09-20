@@ -11,7 +11,8 @@ const useStyles = makeStyles({
   root: {
     marginLeft: "0.5rem",
     marginTop: "0.5rem",
-    width: 1250
+    width: 1040,
+    height:495,
   }
 });
 
@@ -25,7 +26,7 @@ function Map() {
 
   function handleClick() {
     // setColor(Konva.Util.getRandomColor());
-    if (pos.x >= 1256 || pos.y >= 310) {
+    if (pos.x >= 1040 || pos.y >= 310) {
       setPos({ x: 10, y: 10 });
     } else {
       setPos({ x: pos.x + 5, y: pos.y + 2 });
@@ -36,10 +37,10 @@ function Map() {
 
   return (
     <Paper className={classes.root}>
-      <Stage width={1250} height={320}>
+      <Stage width={1000} height={475}>
         <Layer>
           <Text text="Try click on rect" />
-          <Image x={10} y={10} width={1256} height={310} image={mapImage} />
+          <Image x={10} y={10} width={990} height={310} image={mapImage} />
         </Layer>
         <Layer>
           <Image

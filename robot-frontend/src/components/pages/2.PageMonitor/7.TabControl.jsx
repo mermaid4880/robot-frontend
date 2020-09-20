@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Tabs, Select, Space } from "antd";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome, faVideo } from "@fortawesome/free-solid-svg-icons";
-import tabStyle from "./5_.TabVideo.css"; //自定义theme
+import tabStyle from "./6_.TabVideo.css"; //自定义theme
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({

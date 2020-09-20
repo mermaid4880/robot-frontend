@@ -87,7 +87,7 @@ function Navigation(props) {
   //当组件加载完成后，开启定时器（刷新系统时间time）、创建mqtt连接、订阅mqtt消息（设备告警条数）、定义mqtt消息处理函数（设备告警条数）
   useEffect(() => {
     //————————————————————————————开启定时器（每秒刷新系统时间time）
-    let timerID = setInterval(function updateTime() {
+    let intervalID = setInterval(function updateTime() {
       const newTime = new Date().toLocaleString();
       setTime(newTime);
     }, 1000);
@@ -117,7 +117,7 @@ function Navigation(props) {
       client.unsubscribe("testtopic");
       client.end();
       //————————————————————————————销毁定时器（每秒刷新系统时间time）
-      clearInterval(timerID);
+      clearInterval(intervalID);
     };
   }, []);
 

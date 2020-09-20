@@ -9,7 +9,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 //elements
-import HkwsIR from "../src/components/pages/2.PageMonitor/5_3.HkwsIR.jsx";
+import HkwsIR from "../src/components/pages/2.PageMonitor/6_3.HkwsIR.jsx";
 
 ReactDOM.render(
   <HkwsIR cameraIP="192.168.1.40" />,

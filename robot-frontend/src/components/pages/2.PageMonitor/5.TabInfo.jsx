@@ -17,17 +17,16 @@ import connect from "mqtt"; //mqtt
 //———————————————————————————————————————————————css
 //root
 const rootStyle = {
-  marginLeft: "0.5rem",
+  marginLeft: "1.8rem",
   marginTop: "0.5rem",
-  height: 300,
-  width: 1250,
-  backgroundColor: "#f9f7f7",
+  height: 215,
+  width: 1265,
 };
 //<Segment>
 const segmentStyle = {
   padding: "2px",
   zIndex: 1000,
-  height: "260px",
+  height: "175px",
   overflow: "auto",
   // backgroundColor: "green"
 };

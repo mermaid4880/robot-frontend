@@ -16,7 +16,8 @@ import zh_CN from "antd/lib/locale-provider/zh_CN";
 
 import "semantic-ui-css/semantic.min.css";
 
-import "primereact/resources/themes/nova-light/theme.css";
+// import "primereact/resources/themes/nova-light/theme.css";//primereact原来的版本
+import "primereact/resources/themes/saga-blue/theme.css";//primereact@5.0.0-rc.2版本
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 

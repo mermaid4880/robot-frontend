@@ -15,8 +15,8 @@ import MediaModal from "../elements/4.MediaModal.jsx";
 //functions
 import { getData } from "../../functions/requestDataFromAPI.js";
 //images
-import ImageNotFound from "../../images/image_not_found.png";
-import ImageWaiting from "../../images/image_waiting.png";
+import imgNotFound from "../../images/public/没有找到符合条件的结果.png";
+import imgWaiting from "../../images/public/等待是漫长的.png";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//———————————————————————————————————————————————Chart
+//———————————————————————————————————————————————BizCharts
 //用于获取chart实例的变量（可以通过组件的onGetG2Instance方法获取到g2的chart实例）
 var chart;
 
@@ -526,7 +526,7 @@ function OneMeterHistoryModal(props) {
                 {loading ? ( //Chart数据正在请求
                   <img
                     className={classes.imageStyle}
-                    src={ImageWaiting}
+                    src={imgWaiting}
                     alt="加载中"
                   />
                 ) : chartState.chartData.length ? ( //Chart数据请求完成，Chart数据不为空
@@ -648,7 +648,7 @@ function OneMeterHistoryModal(props) {
                   //Chart数据请求完成，Chart数据为空
                   <img
                     className={classes.imageStyle}
-                    src={ImageNotFound}
+                    src={imgNotFound}
                     alt="没有找到符合条件的结果"
                   />
                 )}
