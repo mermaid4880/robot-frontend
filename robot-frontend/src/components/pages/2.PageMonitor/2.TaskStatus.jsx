@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Label as Label1 } from "semantic-ui-react";
-import { Typography, Card, CardContent } from "@material-ui/core";
+import { Typography, Card, CardContent } from "@material-ui/core"; 
 import { PieChart, Pie, Cell } from "recharts";
 import { Tooltip } from "antd";
 import { Toast } from "primereact/toast";
@@ -55,7 +55,7 @@ const pieChartText = {
   wordBreak: "break-all",
 };
 //标题的展示区域
-const TitleAreaStyle = {
+const titleAreaStyle = {
   position: "absolute",
   display: "flex",
   width: "700px",
@@ -64,7 +64,7 @@ const TitleAreaStyle = {
   verticalAlign: "center",
 };
 //每条标题的展示区域
-const TitleContainerStyle = {
+const titleContainerStyle = {
   width: "600px",
   height: "30px",
   paddingBottom: "0.1rem",
@@ -72,8 +72,8 @@ const TitleContainerStyle = {
   overflow: "hidden",
   alignItems: "center",
 };
-//数据的展示区域
-const ItemsAreaStyle = {
+//百分比数据的展示区域
+const itemsAreaStyle = {
   position: "relative",
   display: "flex",
   width: "600px",
@@ -81,8 +81,8 @@ const ItemsAreaStyle = {
   padding: "10px 0px 5px 0px",
   verticalAlign: "center",
 };
-//每条数据的展示区域
-const ItemContainerStyle = {
+//每条百分比数据的展示区域
+const itemContainerStyle = {
   width: "270px",
   height: "30px",
   paddingBottom: "0.1rem",
@@ -91,10 +91,10 @@ const ItemContainerStyle = {
   alignItems: "center",
 };
 //每个按钮的区域
-const ButtonStyle = {
+const buttonStyle = {
   position: "relative",
   display: "flex",
-  width: "85px",
+  width: "70px",
   margin: "18px 0px 0px 0px",
   padding: "10px 0px 5px 0px",
   verticalAlign: "center",
@@ -164,8 +164,6 @@ function getPieData(realtimeTaskInfo) {
 }
 
 function TaskStatus() {
-  // const classes = useStyles();
-
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
@@ -274,8 +272,8 @@ function TaskStatus() {
   //获取相应的按钮组件（根据按钮名称）
   function getButtonDiv(buttonName) {
     return (
-      <div style={ButtonStyle}>
-        <Tooltip placement="bottom" title={buttonName}>
+      <div style={buttonStyle}>
+        <Tooltip placement="top" title={buttonName}>
           <a>
             <img
               alt={buttonName}
@@ -453,8 +451,8 @@ function TaskStatus() {
           </Pie>
         </PieChart>
         {/* 标题（任务名称 + 检测内容） */}
-        <div style={TitleAreaStyle}>
-          <div style={TitleContainerStyle}>
+        <div style={titleAreaStyle}>
+          <div style={titleContainerStyle}>
             <div style={getItemDotStyle("#363636")} />
             <Typography style={{ whiteSpace: "nowrap" }}>
               &nbsp;
@@ -467,9 +465,9 @@ function TaskStatus() {
           </div>
         </div>
         {/* 各条完成百分比（根据pieData得到） */}
-        <div style={ItemsAreaStyle}>
+        <div style={itemsAreaStyle}>
           {pieData.map(({ name, value, color }) => (
-            <div key={color} style={ItemContainerStyle}>
+            <div key={color} style={itemContainerStyle}>
               <div style={getItemDotStyle(color)} />
               <Typography style={{ whiteSpace: "nowrap" }}>
                 &nbsp;{name}&nbsp;
@@ -480,51 +478,11 @@ function TaskStatus() {
             </div>
           ))}
         </div>
+        {/* 各个按钮 */}
         {getButtonDiv("暂停任务")}
         {getButtonDiv("继续任务")}
         {getButtonDiv("终止任务")}
         {getButtonDiv("一键返航")}
-        {/* <div style={ButtonStyle}>
-          <Tooltip placement="bottom" title="暂停任务">
-            <a>
-              <img
-                alt="暂停任务"
-                src={buttonStatus.imgTaskSuspend}
-                onMouseDown={() => {
-                  // HkwsStartRecord();
-                  setButtonStatus((prev) => {
-                    return { ...prev, imgTaskSuspend: imgTaskSuspend_DOWN };
-                  });
-                }}
-                onMouseUp={() => {
-                  setButtonStatus((prev) => {
-                    return { ...prev, imgTaskSuspend: imgTaskSuspend_UP };
-                  });
-                }}
-              />
-            </a>
-          </Tooltip>
-        </div>
-        <div style={ButtonStyle}>
-          <Tooltip placement="bottom" title="继续任务">
-            <a>
-              <img
-                alt="继续任务"
-                src={buttonStatus.imgTaskResume}
-                onMouseDown={() => {
-                  setButtonStatus((prev) => {
-                    return { ...prev, imgTaskResume: imgTaskResume_DOWN };
-                  });
-                }}
-                onMouseUp={() => {
-                  setButtonStatus((prev) => {
-                    return { ...prev, imgTaskResume: imgTaskResume_UP };
-                  });
-                }}
-              />
-            </a>
-          </Tooltip>
-        </div> */}
       </CardContent>
     </Card>
   );

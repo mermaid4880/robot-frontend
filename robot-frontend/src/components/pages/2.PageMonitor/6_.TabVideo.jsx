@@ -1,30 +1,17 @@
-import React, {
-  useState,
-  useEffect,
-  useImperativeHandle,
-  forwardRef,
-} from "react"; //需要引入useImperativeHandle,forwardRef，用于使其父组件获取本组件节点
+//packages
+import React, { useState, useImperativeHandle, forwardRef } from "react"; //需要引入useImperativeHandle,forwardRef，用于使其父组件获取本组件节点
 import { makeStyles } from "@material-ui/core/styles";
-import PhotoCameraIcon from "@material-ui/icons/PhotoCamera";
-import MonochromePhotosIcon from "@material-ui/icons/MonochromePhotos";
-import { Tabs, Select, Space } from "antd";
-import { VideoCameraTwoTone, VideoCameraOutlined } from "@ant-design/icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faImage, faVideo } from "@fortawesome/free-solid-svg-icons";
-import { faImage as faImageRegular } from "@fortawesome/free-regular-svg-icons";
+import { Tabs } from "antd";
 import tabStyle from "./6_.TabVideo.css"; //自定义theme
 //elements
 import VlcRtsp from "./6_1.VlcRtsp.jsx";
-//functions
-import emitter from "../../../functions/events.js";
-
-import {} from "react";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
   root: {
     marginLeft: "1.3rem",
-    width: "630px",
+    // width: "630px",//3个tab
+    width: "613px",
     height: "325px",
   },
   vlcVideo: {
@@ -55,32 +42,43 @@ const TabVideo = forwardRef((props, ref) => {
       console.log("当前激活Tab Index", activeTabIndex);
       if (activeTabIndex === "1") {
         postMessageToIframe("iframeHD", 20);
-        postMessageToIframe("iframeIR", 0);
       } else if (activeTabIndex === "2") {
         postMessageToIframe("iframeHD", 0);
-        postMessageToIframe("iframeIR", 0);
-      } else if (activeTabIndex === "3") {
-        postMessageToIframe("iframeIR", 20);
-        postMessageToIframe("iframeHD", 0);
       }
+      // if (activeTabIndex === "1") {
+      //   postMessageToIframe("iframeHD", 20);
+      //   postMessageToIframe("iframeIR", 0);
+      // } else if (activeTabIndex === "2") {
+      //   postMessageToIframe("iframeHD", 0);
+      //   postMessageToIframe("iframeIR", 0);
+      // } else if (activeTabIndex === "3") {
+      //   postMessageToIframe("iframeIR", 20);
+      //   postMessageToIframe("iframeHD", 0);
+      // }
     },
     //开始录像
     startRecord: () => {
       console.log("当前激活Tab Index", activeTabIndex);
       if (activeTabIndex === "1") {
         postMessageToIframe("iframeHD", 4);
-      } else if (activeTabIndex === "3") {
-        postMessageToIframe("iframeIR", 4);
       }
+      // if (activeTabIndex === "1") {
+      //   postMessageToIframe("iframeHD", 4);
+      // } else if (activeTabIndex === "3") {
+      //   postMessageToIframe("iframeIR", 4);
+      // }
     },
     //停止录像
     stopRecord: () => {
       console.log("当前激活Tab Index", activeTabIndex);
       if (activeTabIndex === "1") {
         postMessageToIframe("iframeHD", 5);
-      } else if (activeTabIndex === "3") {
-        postMessageToIframe("iframeIR", 5);
       }
+      // if (activeTabIndex === "1") {
+      //   postMessageToIframe("iframeHD", 5);
+      // } else if (activeTabIndex === "3") {
+      //   postMessageToIframe("iframeIR", 5);
+      // }
     },
   }));
 
@@ -98,15 +96,20 @@ const TabVideo = forwardRef((props, ref) => {
     console.log(key);
     setActiveTabIndex(key);
     if (key === "1") {
-      postMessageToIframe("iframeIR", 2);
       postMessageToIframe("iframeHD", 1);
     } else if (key === "2") {
       postMessageToIframe("iframeHD", 2);
-      postMessageToIframe("iframeIR", 2);
-    } else if (key === "3") {
-      postMessageToIframe("iframeHD", 2);
-      postMessageToIframe("iframeIR", 1);
     }
+    // if (key === "1") {
+    //   postMessageToIframe("iframeIR", 2);
+    //   postMessageToIframe("iframeHD", 1);
+    // } else if (key === "2") {
+    //   postMessageToIframe("iframeHD", 2);
+    //   postMessageToIframe("iframeIR", 2);
+    // } else if (key === "3") {
+    //   postMessageToIframe("iframeHD", 2);
+    //   postMessageToIframe("iframeIR", 1);
+    // }
   }
 
   return (
@@ -117,14 +120,7 @@ const TabVideo = forwardRef((props, ref) => {
       style={tabStyle}
       onChange={handleTabsChange}
     >
-      <TabPane
-        // className={classes.video}
-        // tab="HD"
-        // tab={<FontAwesomeIcon icon={faImage} className={classes.icon} />}
-        // tab={<VideoCameraTwoTone />}
-        tab="HD"
-        key="1"
-      >
+      <TabPane key="1" tab="&nbsp;&nbsp;&nbsp;HD">
         <iframe
           id="iframeHD"
           title="高清视频"
@@ -138,16 +134,10 @@ const TabVideo = forwardRef((props, ref) => {
           src="./videoHD.html"
         />
       </TabPane>
-      <TabPane
-        //tab={<FontAwesomeIcon icon={faImageRegular} className={classes.icon} />}
-        className={classes.vlcVideo}
-        // tab={<VideoCameraOutlined />}
-        tab="IR"
-        key="2"
-      >
+      <TabPane className={classes.vlcVideo} key="2" tab="&nbsp;&nbsp;&nbsp;IR">
         <VlcRtsp display={true} />
       </TabPane>
-      <TabPane tab="Tab 3" key="3">
+      {/* <TabPane tab="Tab 3" key="3">
         <iframe
           id="iframeIR"
           title="红外视频"
@@ -158,7 +148,7 @@ const TabVideo = forwardRef((props, ref) => {
           }}
           src="./videoIR.html"
         />
-      </TabPane>
+      </TabPane> */}
     </Tabs>
   );
 });

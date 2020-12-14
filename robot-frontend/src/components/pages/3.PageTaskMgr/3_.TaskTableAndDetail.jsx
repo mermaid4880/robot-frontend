@@ -49,7 +49,7 @@ function getTableData(list) {
       taskDescription: "", //任务描述
       createTime: "", //任务创建时间
       endAction: "", //结束动作【"自动充电"  "原地待命"】
-      type: "", //任务类型【"例行巡检"  "自定义巡检"  "特殊巡检"】
+      type: "", //任务类型【"1"-全面巡检、"2"-例行巡检、"3"-专项巡检、"4"-特殊巡检、"5"-自定义巡检】
       createUserId: "", //创建任务UserId
       meters: "", //点位信息
       status: "", //任务执行状态【"等待执行"  "执行完成"  "正在执行"  "中途终止"  "任务超期"】
@@ -64,7 +64,23 @@ function getTableData(list) {
     newItem.taskDescription = item.taskDescription;
     newItem.createTime = item.createTime;
     newItem.endAction = item.endAction;
-    newItem.type = item.type;
+    switch (item.type) {
+      case "1":
+        newItem.type = "全面巡检";
+        break;
+      case "2":
+        newItem.type = "例行巡检";
+        break;
+      case "3":
+        newItem.type = "专项巡检";
+        break;
+      case "4":
+        newItem.type = "特殊巡检";
+        break;
+      case "5":
+        newItem.type = "自定义巡检";
+        break;
+    }
     newItem.createUserId = item.createUserId;
     newItem.meters = item.meters;
     newItem.status = item.status;
@@ -120,7 +136,7 @@ function TaskTableAndDetail() {
     taskDescription: "", //任务描述
     createTime: "", //任务创建时间
     endAction: "", //结束动作【"自动充电"  "原地待命"】
-    type: "", //任务类型【"例行巡检"  "自定义巡检"  "特殊巡检"】
+    type: "", //任务类型【"全面巡检" "例行巡检" "专项巡检" "特殊巡检" "自定义巡检"】
     createUserId: "", //创建任务UserId
     meters: "", //点位信息
     status: "", //任务执行状态【"等待执行"  "执行完成"  "正在执行"  "中途终止"  "任务超期"】
@@ -320,6 +336,7 @@ function TaskTableAndDetail() {
       dataIndex: "id",
       align: "center",
       width: 100,
+      ellipsis: true,
     },
     {
       title: "任务名称",

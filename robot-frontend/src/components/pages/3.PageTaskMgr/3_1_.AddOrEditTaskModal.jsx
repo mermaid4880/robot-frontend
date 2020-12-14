@@ -49,7 +49,23 @@ function AddOrEditTaskModal(props) {
     BodyParams.append("taskDescription", bodyParams.taskDescription.toString());
     BodyParams.append("createTime", bodyParams.createTime.toString());
     BodyParams.append("endAction", bodyParams.endAction.toString());
-    BodyParams.append("type", bodyParams.type.toString());
+    switch (bodyParams.type) {
+      case "全面巡检":
+        BodyParams.append("type", "1");
+        break;
+      case "例行巡检":
+        BodyParams.append("type", "2");
+        break;
+      case "专项巡检":
+        BodyParams.append("type", "3");
+        break;
+      case "特殊巡检":
+        BodyParams.append("type", "4");
+        break;
+      case "自定义巡检":
+        BodyParams.append("type", "5");
+        break;
+    }
     BodyParams.append("meters", bodyParams.meters.toString());
     BodyParams.append("mode", bodyParams.mode.toString());
     BodyParams.append("startTime", bodyParams.startTime.toString());
@@ -110,7 +126,23 @@ function AddOrEditTaskModal(props) {
     BodyParams.append("taskDescription", bodyParams.taskDescription.toString());
     BodyParams.append("createTime", bodyParams.createTime.toString());
     BodyParams.append("endAction", bodyParams.endAction.toString());
-    BodyParams.append("type", bodyParams.type.toString());
+    switch (bodyParams.type) {
+      case "全面巡检":
+        BodyParams.append("type", "1");
+        break;
+      case "例行巡检":
+        BodyParams.append("type", "2");
+        break;
+      case "专项巡检":
+        BodyParams.append("type", "3");
+        break;
+      case "特殊巡检":
+        BodyParams.append("type", "4");
+        break;
+      case "自定义巡检":
+        BodyParams.append("type", "5");
+        break;
+    }    
     BodyParams.append("meters", bodyParams.meters.toString());
     BodyParams.append("mode", bodyParams.mode.toString());
     BodyParams.append("startTime", bodyParams.startTime.toString());

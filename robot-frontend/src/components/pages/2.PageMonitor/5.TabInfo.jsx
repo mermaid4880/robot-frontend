@@ -1,3 +1,5 @@
+//configuration
+import { mqttUrl } from "../../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import {
@@ -18,7 +20,7 @@ import connect from "mqtt"; //mqtt
 //root
 const rootStyle = {
   marginLeft: "1.8rem",
-  marginTop: "0.5rem",
+  marginTop: "2px",
   height: 215,
   width: 1265,
 };
@@ -62,7 +64,16 @@ const abnormalMessageStyle = {
   backgroundColor: "#ffecc7",
   fontFamily: "Arial,Microsoft YaHei,黑体,宋体,sans-serif",
 };
-//点位名称<div>
+//系统告警信息
+const systemAlarmMessageStyle = {
+  padding: "7px 20px 7px 20px",
+  whiteSpace: "pre-wrap",
+  wordBreak: "break-all",
+  overflow: "hidden",
+  backgroundColor: "#fcdada",
+  fontFamily: "Arial,Microsoft YaHei,黑体,宋体,sans-serif",
+};
+//实时信息——点位名称<div>
 const span1Style = {
   float: "left",
   marginRight: "10px",
@@ -73,8 +84,19 @@ const span1Style = {
   overflow: "hidden",
   textAlign: "left",
 };
-//其他<div>
+//系统告警信息——告警信息<div>
 const span2Style = {
+  float: "left",
+  marginRight: "10px",
+  width: "60%",
+  height: "20px",
+  whiteSpace: "normal",
+  wordBreak: "break-all",
+  overflow: "hidden",
+  textAlign: "left",
+};
+//实时信息和系统告警信息——其他一般<div>
+const span3Style = {
   float: "left",
   marginRight: "10px",
   width: "15%",
@@ -105,7 +127,7 @@ function TabTable() {
   //———————————————————————————————————————————————useEffect
   useEffect(() => {
     //创建mqtt连接
-    const client = connect("ws://polargarden.xyz:8083/mqtt");
+    const client = connect(mqttUrl);
     //订阅主题
     client.on("connect", function () {
       //（实时信息）
@@ -115,7 +137,7 @@ function TabTable() {
         }
       });
       //（系统告警信息）
-      client.subscribe("testtopic", function (err) {
+      client.subscribe("robotSystemAlarm", function (err) {
         if (!err) {
           client.publish("presence", "Hello mqtt");
         }
@@ -129,7 +151,7 @@ function TabTable() {
         // console.log("message", message);
         // console.log("message.toString()", message.toString());
         message && addRealtimeInfoMessage(message.toString());
-      } else if (topic === "testtopic") {
+      } else if (topic === "robotSystemAlarm") {
         //（系统告警信息）
         // console.log("typeof message", typeof message);
         // console.log("message", message);
@@ -142,7 +164,7 @@ function TabTable() {
     return () => {
       console.log("实时消息client.end");
       client.unsubscribe("robot/taskmidle/detectInfo");
-      client.unsubscribe("testtopic");
+      client.unsubscribe("robotSystemAlarm");
       client.end();
     };
   }, []);
@@ -163,49 +185,65 @@ function TabTable() {
       }
 
       if (stringData.indexOf("异常") > -1)
-        //异常信息
+        //实时信息——异常信息
         return (
           <div key={index} style={abnormalMessageStyle}>
             {array.map((item, index) => {
-              if (item.key === "点位名称")
+              if (item.key === "设备名称")
                 return (
                   <div style={span1Style}>{item.key + "：" + item.value}</div>
                 );
               else
                 return (
+                  <div style={span3Style}>{item.key + "：" + item.value}</div>
+                );
+            })}
+          </div>
+        );
+      else if (stringData.indexOf("告警") > -1)
+        //系统告警信息——告警信息
+        return (
+          <div key={index} style={systemAlarmMessageStyle}>
+            {array.map((item, index) => {
+              if (item.key === "信息")
+                return (
                   <div style={span2Style}>{item.key + "：" + item.value}</div>
+                );
+              else
+                return (
+                  <div style={span3Style}>{item.key + "：" + item.value}</div>
                 );
             })}
           </div>
         );
       else if (index === 0)
-        //第一条信息
+        //实时信息——第一条信息
         return (
           <div key={index} style={firstMessageStyle}>
             {array.map((item, index) => {
-              if (item.key === "点位名称")
+              if (item.key === "设备名称")
                 return (
                   <div style={span1Style}>{item.key + "：" + item.value}</div>
                 );
               else
                 return (
-                  <div style={span2Style}>{item.key + "：" + item.value}</div>
+                  <div style={span3Style}>{item.key + "：" + item.value}</div>
                 );
             })}
           </div>
         );
-      //正常信息
+      //实时信息——正常信息
       else
         return (
           <div key={index} style={normalMessageStyle}>
             {array.map((item, index) => {
-              if (item.key === "点位名称")
+              if (item.key === "设备名称")
                 return (
                   <div style={span1Style}>{item.key + "：" + item.value}</div>
                 );
               else
                 return (
-                  <div style={span2Style}>{item.key + "：" + item.value}</div>
+                  <div style={span3Style}>{item.key + "：" + item.value}</div>
                 );
             })}
           </div>
@@ -229,7 +267,7 @@ function TabTable() {
 
   //添加一条信息到实时信息Tab中
   function addRealtimeInfoMessage(message) {
-    console.log("addRealtimeInfoMessage", typeof message);
+    // console.log("addRealtimeInfoMessage", typeof message);
     setRealtimeInfo((prev) => ({
       messageArray: [
         `${message}`,
@@ -247,7 +285,7 @@ function TabTable() {
 
   //添加一条信息到系统告警Tab中
   function addSystemAlarmInfoMessage(message) {
-    console.log("addSystemAlarmInfoMessage", typeof message);
+    // console.log("addSystemAlarmInfoMessage", typeof message);
     setSystemAlarmInfo((prev) => ({
       messageArray: [
         `${message}`,
@@ -325,9 +363,9 @@ function TabTable() {
             <Col sm="12">
               <Segment secondary style={segmentStyle}>
                 <pre style={preStyle}>
-                  {/* {systemAlarmInfo.messageArray.map(
+                  {systemAlarmInfo.messageArray.map(
                     (e, i) => parseMessageToDiv(e, i) //将每条string格式的mqtt消息转换为<div>
-                  )} */}
+                  )}
                 </pre>
               </Segment>
             </Col>

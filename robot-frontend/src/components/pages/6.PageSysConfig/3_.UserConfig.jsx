@@ -11,14 +11,10 @@ import UserTable from "./3_1_.UserTable.jsx";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
+    height: "413px",
     width: "100%",
-    height: "840px",
-  },
-
-  taskDetail: {
-    height: "403px",
-    width: "100%",
-    margin: "10px 15px 7.5px 0px",
+    marginLeft: "0.5rem",
+    marginRight: "1rem",
   },
   label: {
     fontSize: 14,
@@ -28,11 +24,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function TaskTableAndDetail() {
+function UserConfig() {
   const classes = useStyles();
  
   return (
-    <Card className={classes.taskDetail} raised> 
+    <Card className={classes.root} raised> 
       <CardContent>
         <Typography className={classes.label} color="textSecondary">
           <Label color="teal" ribbon>
@@ -46,4 +42,4 @@ function TaskTableAndDetail() {
   );
 }
 
-export default TaskTableAndDetail;
+export default UserConfig;

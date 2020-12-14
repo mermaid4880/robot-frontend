@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
   main: {
     top: "0",
-    height: "900px",
+    height: "892px",
   },
   sysConfig: {
     top: "0",
@@ -70,7 +70,7 @@ function PageSysConfig() {
           <Row>
             <Breadcrumb6 />
           </Row>
-          <Row className={classes.sysConfig}>
+          <Row >
             <SysConfig />
           </Row>
         </Col>

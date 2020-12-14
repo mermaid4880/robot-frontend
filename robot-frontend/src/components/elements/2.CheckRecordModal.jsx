@@ -60,14 +60,19 @@ function CheckRecordModal(props) {
   //———————————————————————————————————————————————其他函数
   //审核单条巡检结果（按巡检结果ID）PUT请求
   function checkResultPUT() {
+    // console.log("checkData", checkData);
     //————————————————————————————PUT请求
     // 用URLSearchParams来传递参数
     let BodyParams = new URLSearchParams();
-    BodyParams.append("resultId", checkData.resultId.toString());
-    props.batch === false &&
+    checkData.resultId &&
+      BodyParams.append("resultId", checkData.resultId.toString());
+    checkData.value &&
+      props.batch === false &&
       BodyParams.append("value", checkData.value.toString());
-    BodyParams.append("checkStatus", checkData.checkStatus.toString());
-    BodyParams.append("checkInfo", checkData.checkInfo.toString());
+    checkData.checkStatus &&
+      BodyParams.append("checkStatus", checkData.checkStatus.toString());
+    checkData.checkInfo &&
+      BodyParams.append("checkInfo", checkData.checkInfo.toString());
     //发送PUT请求
     putData(
       props.batch === false

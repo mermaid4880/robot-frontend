@@ -1,3 +1,5 @@
+//configuration
+import { HDCameraIP, IRCameraIP } from "../../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import { Paper } from "@material-ui/core";
@@ -40,9 +42,9 @@ function HkwsHD(props) {
     );
 
     console.log("props.cameraIP", props.cameraIP);
-    if (props.cameraIP == "192.168.1.65")
+    if (props.cameraIP == HDCameraIP)
       el = window.parent.parent.document.getElementById("iframeHD");
-    else if (props.cameraIP == "192.168.1.40")
+    else if (props.cameraIP == IRCameraIP)
       el = window.parent.parent.document.getElementById("iframeIR");
     console.log("el", el);
     var iframe = el.contentWindow;
@@ -77,7 +79,7 @@ function HkwsHD(props) {
     if (event.data === 1) {
       console.log("我是iframeHD，我收到了：1");
       hkwsInit(576, 324); //初始化HKWS
-      hkwsLoginAndStart(props.cameraIP); //登录并开始预览（设备IP）
+      hkwsLoginAndStart(props.cameraIP, props.userName, props.password); //登录并开始预览（设备IP）
     }
     //停止预览并登出
     else if (event.data === 2) {
@@ -125,7 +127,7 @@ function HkwsHD(props) {
   useEffect(() => {
     //初始化海康并开始播放
     hkwsInit(576, 324);
-    hkwsLoginAndStart(props.cameraIP);
+    hkwsLoginAndStart(props.cameraIP, props.userName, props.password);
 
     //添加监听message事件
     window.addEventListener("message", eventHandler, false);

@@ -6,11 +6,13 @@ import { DatePicker } from "rsuite";
 import TreeSearch from "../../elements/1.TreeSearch.jsx";
 
 //———————————————————————————————————————————————Form.Select
-//任务类型【"例行巡检"  "自定义巡检"  "特殊巡检"】
+//任务类型【"1"-全面巡检、"2"-例行巡检、"3"-专项巡检、"4"-特殊巡检、"5"-自定义巡检】
 const taskTypeOptions = [
+  { key: "全面巡检", text: "全面巡检", value: "全面巡检" },
   { key: "例行巡检", text: "例行巡检", value: "例行巡检" },
-  { key: "自定义巡检", text: "自定义巡检", value: "自定义巡检" },
+  { key: "专项巡检", text: "专项巡检", value: "专项巡检" },
   { key: "特殊巡检", text: "特殊巡检", value: "特殊巡检" },
+  { key: "自定义巡检", text: "自定义巡检", value: "自定义巡检" },
 ];
 //结束动作【"自动充电"  "原地待命"】
 const endActionOptions = [

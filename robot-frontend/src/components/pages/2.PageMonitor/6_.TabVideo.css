@@ -14,16 +14,17 @@
   
   } */
 
-  .ant-tabs-nav .ant-tabs-tab-active {
-    color: #3f72af;
-    font-weight: 500;
-    outline: none;
-    outline-color: initial;
-    outline-style: none;
-    outline-width: initial;
+.ant-tabs-nav .ant-tabs-tab-active {
+  color: #3f72af;
+  font-weight: 500;
+  outline: none;
+  outline-color: initial;
+  outline-style: none;
+  outline-width: initial;
 }
 
-.ant-tabs .ant-tabs-left-bar .ant-tabs-tab, .ant-tabs .ant-tabs-right-bar .ant-tabs-tab {
+.ant-tabs .ant-tabs-left-bar .ant-tabs-tab,
+.ant-tabs .ant-tabs-right-bar .ant-tabs-tab {
   margin: 0 0 16px 0;
   padding: 2px 6px;
   text-align: center;

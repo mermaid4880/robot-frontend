@@ -1,11 +1,9 @@
+//configuration
+import { httpUrl as baseUrl } from "../configuration/config.js";
+//packages
 import axios from "axios";
 import Promise from "promise";
 import cookie from "react-cookies";
-
-// const baseUrl = "http://127.0.0.1:8080/";
-// const baseUrl = "http://112.126.66.90:8082/";//郑凯
-// const baseUrl = "http://192.168.8.137:8082/"; //局域网
-const baseUrl = "http://103.149.26.221:8082/"; //风奇
 
 //————————————————————————————从cookie里获取token
 function getTokenConfig() {
@@ -25,8 +23,8 @@ function getData(url, config) {
     axios
       .get(baseUrl + url, { ...getTokenConfig(), ...config })
       .then((response) => {
-        console.log("[getData] response is", response);
-        console.log("[getData] response.data is", response.data);
+        // console.log("[getData] response is", response);
+        // console.log("[getData] response.data is", response.data);
         resolve(response.data); // fulfilled
       })
       .catch((error) => {
@@ -48,8 +46,8 @@ function postData(url, data, config) {
     axios
       .post(baseUrl + url, data, { ...getTokenConfig(), ...config })
       .then((response) => {
-        console.log("[postData] response is", response);
-        console.log("[postData] response.data is", response.data);
+        // console.log("[postData] response is", response);
+        // console.log("[postData] response.data is", response.data);
         resolve(response.data); // fulfilled
       })
       .catch((error) => {
@@ -72,8 +70,8 @@ function putData(url, data, config) {
     axios
       .put(baseUrl + url, data, { ...getTokenConfig(), ...config })
       .then((response) => {
-        console.log("[putData] response is", response);
-        console.log("[putData] response.data is", response.data);
+        // console.log("[putData] response is", response);
+        // console.log("[putData] response.data is", response.data);
         resolve(response.data); // fulfilled
       })
       .catch((error) => {
@@ -89,8 +87,8 @@ function deleteData(url, config) {
     axios
       .delete(baseUrl + url, { ...getTokenConfig(), ...config })
       .then((response) => {
-        console.log("[deleteData] response is", response);
-        console.log("[deleteData] response.data is", response.data);
+        // console.log("[deleteData] response is", response);
+        // console.log("[deleteData] response.data is", response.data);
         resolve(response.data); // fulfilled
       })
       .catch((error) => {

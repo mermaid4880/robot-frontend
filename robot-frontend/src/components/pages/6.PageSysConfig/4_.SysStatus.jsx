@@ -1,3 +1,5 @@
+//configuration
+import { mqttUrl } from "../../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import {
@@ -18,22 +20,20 @@ import connect from "mqtt"; //mqtt
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
+    height: "420px",
     width: "100%",
-    height: "840px",
-  },
-  taskList: {
-    height: "515px",
-  },
-  taskDetail: {
-    height: "410px",
-    width: "100%",
-    margin: "7.5px 15px 10px 0px",
+    marginLeft: "0.5rem",
+    marginTop: "0.5rem",
+    marginRight: "1rem",
   },
   label: {
     fontSize: 14,
   },
   blankRow: {
     height: "15px",
+  },
+  taskList: {
+    height: "515px",
   },
 }));
 const gridStyle = {
@@ -68,16 +68,16 @@ function SysStatus() {
   const [activeTab, setActiveTab] = useState("1");
   //系统状态栏内容的状态
   const [systemStatus, setSystemStatus] = useState({});
-  
+
   //———————————————————————————————————————————————useEffect
   useEffect(() => {
     //创建mqtt连接
-    const client = connect("ws://polargarden.xyz:8083/mqtt");
+    const client = connect(mqttUrl);
     //订阅主题
     client.on("connect", function () {
       client.subscribe("robotStatus", function (err) {
         if (!err) {
-       //client.publish("robotStatus", "Hello mqtt");
+          //client.publish("robotStatus", "Hello mqtt");
         }
       });
     });
@@ -103,7 +103,7 @@ function SysStatus() {
   };
 
   return (
-    <Card className={classes.taskDetail} raised>
+    <Card className={classes.root} raised>
       <CardContent>
         <Typography className={classes.label} color="textSecondary">
           <Label color="teal" ribbon>
@@ -137,7 +137,6 @@ function SysStatus() {
           <TabPane tabId="1">
             <Row>
               <Col sm="12" className={classes.row}>
-                {/* <Row className={classes.blankRow}></Row> */}
                 <Grid style={gridStyle} columns={4} divided>
                   <Grid.Row stretched>
                     <Grid.Column>
@@ -188,9 +187,7 @@ function SysStatus() {
                           <Label style={labelStyle} horizontal>
                             真实坐标点
                           </Label>
-                          <div style={contentStyle}>
-                          {systemStatus.realNum}
-                          </div>
+                          <div style={contentStyle}>{systemStatus.realNum}</div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
@@ -212,9 +209,7 @@ function SysStatus() {
                           <Label style={labelStyle} horizontal>
                             角度
                           </Label>
-                          <div style={contentStyle}>
-                          {systemStatus.angle}
-                          </div>
+                          <div style={contentStyle}>{systemStatus.angle}</div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
@@ -230,9 +225,7 @@ function SysStatus() {
                           <Label style={labelStyle} horizontal>
                             电压
                           </Label>
-                          <div style={contentStyle}>
-                          {systemStatus.voltage}
-                          </div>
+                          <div style={contentStyle}>{systemStatus.voltage}</div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>

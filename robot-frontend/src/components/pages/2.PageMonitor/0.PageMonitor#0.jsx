@@ -7,12 +7,12 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import Navigation from "../../elements/0.Navigation.jsx";
 import Breadcrumb2 from "./1.Breadcrumb2.jsx";
 import TaskStatus from "./2.TaskStatus.jsx";
-import EnvironmentInfo from "./3.EnvironmentInfo.jsx";
-import Map from "./4.Map.jsx";
+import IndoorEnvironmentInfo from "./3.IndoorEnvironmentInfo.jsx";
+// import OutdoorEnvironmentInfo from "./3.OutdoorEnvironmentInfo.jsx";
+import Map from "./4_.Map.jsx";
 import TabInfo from "./5.TabInfo.jsx";
 import TabVideo from "./6_.TabVideo.jsx";
-import ControlPanel from "./7.ControlPanel.jsx";
-// import TabControl from "./7.TabControl.jsx";
+import ControlPanel from "./7_.ControlPanel.jsx";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
@@ -77,7 +77,8 @@ function PageMonitor() {
           </Row>
           <Row>
             <Col className={classes.col} sm={{ size: "auto", offset: 0 }}>
-              <EnvironmentInfo />
+              <IndoorEnvironmentInfo />
+              {/* <OutdoorEnvironmentInfo /> */}
             </Col>
             <Col className={classes.col} sm={{ size: "9", offset: 0 }}>
               <Map />

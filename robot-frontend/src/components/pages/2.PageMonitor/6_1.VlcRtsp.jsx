@@ -1,3 +1,5 @@
+//configuration
+import { rtspAddress } from "../../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
@@ -51,16 +53,8 @@ function VlcRtsp(props) {
           }
         }}
       >
-        <param
-          name="mrl"
-          // value="rtsp://admin:zngdzx613@192.168.1.40:554/h264/ch01/main/av_stream" //海康
-          value="rtsp://888888:888888@192.168.1.29:8554/stream1"
-        />
-        <param
-          name="src"
-          // value="rtsp://admin:zngdzx613@192.168.1.64:554/h264/ch01/main/av_stream" //海康
-          value="rtsp://888888:888888@192.168.1.29:8554/stream1"
-        />
+        <param name="mrl" value={rtspAddress} />
+        <param name="src" value={rtspAddress} />
         <param name="allowfullscreen" value="True" />
         <param name="autoloop" value="False" />
         <param name="autoplay" value="True" />

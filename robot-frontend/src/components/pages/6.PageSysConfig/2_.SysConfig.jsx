@@ -31,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     height: "850px",
-    padding: "0px 5px 5px 5px",
+    marginLeft: "1.8rem"
   },
   modal: {
     width: "100%",
@@ -42,8 +42,8 @@ const useStyles = makeStyles((theme) => ({
   },
   robot: {
     width: "100%",
-    height: "830px",
-    margin: "10px 10px 10px 10px",
+    height: "840px",
+    marginLeft: "1rem"
   },
   user: {
     height: "425px",

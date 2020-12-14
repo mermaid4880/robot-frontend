@@ -1,3 +1,9 @@
+//configuration
+import {
+  HDCameraIP,
+  HDUserName,
+  HDPassword,
+} from "../src/configuration/config.js";
 //???
 import "core-js/es/map";
 import "core-js/es/set";
@@ -7,11 +13,10 @@ import "raf/polyfill";
 //packages
 import React from "react";
 import ReactDOM from "react-dom";
-
 //elements
 import HkwsHD from "../src/components/pages/2.PageMonitor/6_2.HkwsHD.jsx";
 
 ReactDOM.render(
-  <HkwsHD cameraIP="192.168.1.65" />,
+  <HkwsHD cameraIP={HDCameraIP} userName={HDUserName} password={HDPassword} />,
   document.getElementById("videoHD")
 );

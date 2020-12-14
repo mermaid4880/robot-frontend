@@ -2229,8 +2229,8 @@ function encodeString(str) {
 //全局变量
 var IP = ""; //设备IP
 const Port = "80"; //端口号
-const Username = "admin"; //用户名
-const Password = "zngdzx613"; //密码
+var Username = "admin"; //用户名
+var Password = "zngdzx613"; //密码
 
 //初始化插件、设置本地配置、设置窗口分割数（窗口宽度，窗口高度）
 function hkwsInit(width, height) {
@@ -2293,7 +2293,7 @@ function hkwsInit(width, height) {
   });
 
   //设置本地配置
-  var recordPath = "D:\\RECORD"; //HJJ
+  var recordPath = "D:\\RECORD";
   var arrXml = [],
     szInfo = "";
 
@@ -2327,8 +2327,11 @@ function hkwsInit(width, height) {
 }
 
 //登录并开始预览（设备IP）
-function hkwsLoginAndStart(cameraIP) {
+function hkwsLoginAndStart(cameraIP, userName, password) {
   IP = cameraIP;
+  Username = userName;
+  Password = password;
+
   var iProtocol = 1, // protocol 1：http, 2:https
     szIP = IP,
     szPort = Port,

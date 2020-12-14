@@ -1,3 +1,5 @@
+//configuration
+import { mqttUrl } from "../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
@@ -41,6 +43,7 @@ import { connect } from "mqtt";
 import cookie from "react-cookies";
 //functions
 import emitter from "../../functions/events.js";
+import { getData } from "../../functions/requestDataFromAPI.js";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
@@ -58,6 +61,32 @@ const useStyles = makeStyles({
   },
 });
 
+//———————————————————————————————————————————————Data
+// "Charging": 0,                                    是否正在充电【0-否、1-是】
+// "BatteryAlert": 0,                                电量报警【0-否、1-是】
+// "power": 50,                                      电量百分比【0~100】
+// "BatteryUnknown": 1,                              电量未知【0-否、1-是】
+
+//获取电池信息数据（电池信息）
+function getBatteryInfo(data) {
+  var newData = {
+    //电池信息
+    Charging: 0, //是否正在充电【0-否、1-是】
+    BatteryAlert: 0, //电量报警【0-否、1-是】
+    power: 50, //电量百分比【0~100】
+    BatteryUnknown: 1, //电量未知【0-否、1-是】
+  };
+
+  //电池信息
+  newData.Charging = data.Charging;
+  newData.BatteryAlert = data.BatteryAlert;
+  newData.power = data.power;
+  newData.BatteryUnknown = data.BatteryUnknown;
+
+  // console.log("newData", newData);
+  return newData;
+}
+
 function Navigation(props) {
   const classes = useStyles();
 
@@ -65,14 +94,22 @@ function Navigation(props) {
   const history = useHistory();
 
   //———————————————————————————————————————————————useState
+  //本组件是否需要更新的状态
+  const [update, setUpdate] = useState(false);
+
   //当前系统时间
   const [time, setTime] = useState(new Date().toLocaleString());
 
   //<Badge>中设备告警信息的条数
   const [alertCount, setAlertCount] = useState(0);
 
-  //机器人电量
-  const [battery, setBattery] = useState(-1);
+  //机器人电量信息
+  const [batteryInfo, setBatteryInfo] = useState({
+    Charging: 0, //是否正在充电【0-否、1-是】
+    BatteryAlert: 0, //电量报警【0-否、1-是】
+    power: 50, //电量百分比【0~100】
+    BatteryUnknown: 1, //电量未知【0-否、1-是】
+  });
 
   //页面跳转路径
   const [jumpPath, setJumpPath] = useState("/");
@@ -83,8 +120,47 @@ function Navigation(props) {
   //页面跳转状态
   const [jump, setJump] = useState(false);
 
+  //———————————————————————————————————————————————Timer
+  //开启定时器（重新获取电池信息、刷新组件）
+  var timerID = setTimeout(() => {
+    setUpdate(!update);
+  }, 5000);
+
   //———————————————————————————————————————————————useEffect
-  //当组件加载完成后，开启定时器（刷新系统时间time）、创建mqtt连接、订阅mqtt消息（设备告警条数）、定义mqtt消息处理函数（设备告警条数）
+  //当（本组件销毁时），销毁定时器（重新获取电池信息、刷新组件）
+  useEffect(() => {
+    //当组件销毁时，销毁定时器（重新获取电池信息、刷新组件）
+    return () => {
+      clearTimeout(timerID);
+    };
+  }, []);
+
+  //当（本组件加载完成或需要更新时），GET请求获取电池信息
+  useEffect(() => {
+    //————————————————————————————GET请求
+    getData("robots/power")
+      .then((data) => {
+        // console.log("get结果", data);
+        if (data.success) {
+          var result = data.data;
+          // console.log("result", result);
+          //获取电池信息
+          const batteryInfo = getBatteryInfo(result);
+          //设置电池信息
+          setBatteryInfo(batteryInfo);
+        } else {
+          alert(data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+  }, [update]);
+
+  //当本组件加载完成后，开启定时器（刷新系统时间time）、创建mqtt连接、订阅mqtt消息（设备告警条数）、定义mqtt消息处理函数（设备告警条数）
   useEffect(() => {
     //————————————————————————————开启定时器（每秒刷新系统时间time）
     let intervalID = setInterval(function updateTime() {
@@ -93,10 +169,10 @@ function Navigation(props) {
     }, 1000);
     //————————————————————————————mqtt
     //创建mqtt连接
-    const client = connect("ws://127.0.0.1:8083/mqtt");
+    const client = connect(mqttUrl);
     //订阅mqtt消息（设备告警条数）
     client.on("connect", function () {
-      client.subscribe("testtopic", function (err) {
+      client.subscribe("robotDeviceAlarm", function (err) {
         if (!err) {
           // console.log("订阅成功！");
         }
@@ -110,11 +186,11 @@ function Navigation(props) {
       message && parseAlertCount(message.toString());
     });
 
-    //当组件销毁时，退订mqtt消息（设备告警条数）、关闭mqtt连接、销毁定时器（刷新系统时间time）
+    //当本组件销毁时，退订mqtt消息（设备告警条数）、关闭mqtt连接、销毁定时器（刷新系统时间time）
     return () => {
       //————————————————————————————退订mqtt消息（设备告警条数）、关闭mqtt连接
       // console.log("导航栏client.end");
-      client.unsubscribe("testtopic");
+      client.unsubscribe("robotDeviceAlarm");
       client.end();
       //————————————————————————————销毁定时器（每秒刷新系统时间time）
       clearInterval(intervalID);
@@ -156,18 +232,24 @@ function Navigation(props) {
     }
   }
 
-  //设置电池图标（根据电量和是否充电状态）
-  function setBatteryIcon(battery, isCharging) {
-    var tooltipTitle = "电量" + battery + "%";
+  //设置电池图标（根据电池信息）
+  function setBatteryIcon(batteryInfo) {
+    var tooltipTitle = "电量" + batteryInfo.power + "%";
 
-    if (battery == -1) {
+    if (batteryInfo.BatteryAlert == 1) {
+      return (
+        <Tooltip placement="bottom" title="电量报警">
+          <BatteryAlert fontSize="large" />
+        </Tooltip>
+      );
+    } else if (batteryInfo.BatteryUnknown == 1) {
       return (
         <Tooltip placement="bottom" title="电量未知">
           <BatteryUnknown fontSize="large" />
         </Tooltip>
       );
-    } else if (battery >= 0 && battery <= 20) {
-      return isCharging ? (
+    } else if (batteryInfo.power >= 0 && batteryInfo.power <= 20) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging20 fontSize="large" />
         </Tooltip>
@@ -176,8 +258,8 @@ function Navigation(props) {
           <Battery20 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery > 20 && battery <= 30) {
-      return isCharging ? (
+    } else if (batteryInfo.power > 20 && batteryInfo.power <= 30) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging30 fontSize="large" />
         </Tooltip>
@@ -186,8 +268,8 @@ function Navigation(props) {
           <Battery30 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery > 30 && battery <= 50) {
-      return isCharging ? (
+    } else if (batteryInfo.power > 30 && batteryInfo.power <= 50) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging50 fontSize="large" />
         </Tooltip>
@@ -196,8 +278,8 @@ function Navigation(props) {
           <Battery50 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery > 50 && battery <= 60) {
-      return isCharging ? (
+    } else if (batteryInfo.power > 50 && batteryInfo.power <= 60) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging60 fontSize="large" />
         </Tooltip>
@@ -206,8 +288,8 @@ function Navigation(props) {
           <Battery60 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery > 60 && battery <= 80) {
-      return isCharging ? (
+    } else if (batteryInfo.power > 60 && batteryInfo.power <= 80) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging80 fontSize="large" />
         </Tooltip>
@@ -216,8 +298,8 @@ function Navigation(props) {
           <Battery80 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery > 80 && battery < 100) {
-      return isCharging ? (
+    } else if (batteryInfo.power > 80 && batteryInfo.power < 100) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryCharging90 fontSize="large" />
         </Tooltip>
@@ -226,8 +308,8 @@ function Navigation(props) {
           <Battery90 fontSize="large" />
         </Tooltip>
       );
-    } else if (battery == 100) {
-      return isCharging ? (
+    } else if (batteryInfo.power == 100) {
+      return batteryInfo.Charging ? (
         <Tooltip placement="bottom" title={tooltipTitle} color="primary">
           <BatteryChargingFull fontSize="large" />
         </Tooltip>
@@ -317,7 +399,7 @@ function Navigation(props) {
           </Tooltip>
         </NavbarText>
         <NavbarText>
-          <NavLink>&nbsp;{setBatteryIcon(battery, true)}&nbsp;</NavLink>
+          <NavLink>&nbsp;{setBatteryIcon(batteryInfo)}&nbsp;</NavLink>
         </NavbarText>
         <NavbarText>
           <Tooltip placement="bottom" title="查看未确认的设备告警信息">
