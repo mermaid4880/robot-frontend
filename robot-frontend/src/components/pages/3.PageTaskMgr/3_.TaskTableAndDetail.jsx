@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import { Typography, Paper, Card, CardContent } from "@material-ui/core";
+import { Typography, Card, CardContent } from "@material-ui/core";
 import { Spin, Table, Input, Button, Tooltip, Space, DatePicker } from "antd";
 import { SearchOutlined, FilterFilled } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
@@ -20,14 +20,18 @@ import { getData } from "../../../functions/requestDataFromAPI.js";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
-    height: "840px",
+    marginLeft: "1px",
+    padding: "0px 0px 0px 0px",
+    width: "1428px",
+    height: "847px",
   },
   taskList: {
-    height: "515px",
+    margin: "0px 0px 6px 0px",
+    height: "510px",
   },
   taskDetail: {
-    height: "335px",
+    margin: "0px 0px 0px 0px",
+    height: "330px",
   },
   label: {
     fontSize: 14,
@@ -368,7 +372,7 @@ function TaskTableAndDetail() {
         { text: "定期执行", value: "定期执行" },
         { text: "周期执行", value: "周期执行" },
       ],
-      onFilter: (value, record) => record["checkStatus"].includes(value),
+      onFilter: (value, record) => record["mode"].includes(value),
       filterIcon: (filtered) => (
         <Tooltip title="按条件筛选">
           <FilterFilled style={{ color: filtered ? "#1890ff" : undefined }} />
@@ -537,8 +541,8 @@ function TaskTableAndDetail() {
   }
 
   return (
-    <Paper className={classes.root} elevation="3">
-      <Card className={classes.taskList} raised>
+    <div className={classes.root}>
+      <Card className={classes.taskList} elevation="10" raised>
         <CardContent>
           <Typography className={classes.label} color="textSecondary">
             <Label color="teal" ribbon>
@@ -562,7 +566,7 @@ function TaskTableAndDetail() {
               columns={columns}
               dataSource={tableState.tableData}
               pagination={pagination}
-              scroll={{ y: 320 }}
+              scroll={{ y: 305 }}
               onRow={handleTableRowClick}
               rowSelection={{
                 //表格行是否可选择，配置项
@@ -573,7 +577,7 @@ function TaskTableAndDetail() {
           </Spin>
         </CardContent>
       </Card>
-      <Card className={classes.taskDetail} raised>
+      <Card className={classes.taskDetail} elevation="10" raised>
         <CardContent>
           <Typography className={classes.label} color="textSecondary">
             <Label color="teal" ribbon>
@@ -583,7 +587,7 @@ function TaskTableAndDetail() {
           <TaskDetail data={rowData} />
         </CardContent>
       </Card>
-    </Paper>
+    </div>
   );
 }
 

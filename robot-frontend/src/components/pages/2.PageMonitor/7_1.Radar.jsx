@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import {
   G2,
@@ -45,7 +45,7 @@ function Radar() {
   //开启定时器（重新获取雷达图的实时信息、刷新组件）
   var timerID = setTimeout(() => {
     setUpdate(!update);
-  }, 1500);
+  }, 5000);
 
   //———————————————————————————————————————————————useEffect
   //当（本组件销毁时），销毁定时器（重新获取雷达图的实时信息、刷新组件）
@@ -74,22 +74,24 @@ function Radar() {
           history.push("/");
         }
       });
-      // console.log("useEffect");
+    // console.log("useEffect");
   }, [update]);
-  
 
   function setData(data) {
-    // console.log("setRadarData", data);
     var temp = [];
     data.forEach((item, index) => {
-      temp.push({
-        angle: index,
-        radius: item,
-      });
+      //console.log("item--------------------", item);
+      if (index % 2 === 0) {
+        temp.push({
+          angle: (index / 360) * 400,
+          radius: parseFloat(item),
+        });
+      }
     });
     setRadarData(temp);
-    // console.log("radarData", radarData);
   }
+
+  const ws = useRef(null);
 
   return (
     <div className={classes.root}>
@@ -102,7 +104,7 @@ function Radar() {
           itemTpl='<li data-index={index} style="margin-bottom:4px;"><span style="background-color:{color};" class="g2-tooltip-marker"></span>{name}<br/>{value}</li>'
         /> */}
         <Coord type="polar" />
-        <Axis name="angle" label={null} tickLine={null}/>
+        <Axis name="angle" label={null} tickLine={null} />
         <Axis name="radius" label={null} />
         <Geom
           type="point"
@@ -110,14 +112,14 @@ function Radar() {
           opacity={0.65}
           shape="circle"
           size={2}
-          tooltip={[
-            "angle*radius",
-            (angle, radius) => {
-              return {
-                value: angle + "(度), " + radius + "(m)",
-              };
-            },
-          ]}
+          // tooltip={[
+          //   "angle*radius",
+          //   (angle, radius) => {
+          //     return {
+          //       value: angle + "(度), " + radius + "(m)",
+          //     };
+          //   },
+          // ]}
         />
       </Chart>
     </div>

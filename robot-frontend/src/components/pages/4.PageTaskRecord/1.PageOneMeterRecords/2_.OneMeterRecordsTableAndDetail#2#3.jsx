@@ -17,11 +17,11 @@ import emitter from "../../../../functions/events.js";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
+    width: "1430px",
     height: "850px",
   },
   oneMeterRecordsTable: {
-    height: "510px",
+    height: "508px",
   },
   tableTitle: {
     width: "1000px",
@@ -42,8 +42,8 @@ const useStyles = makeStyles((theme) => ({
     verticalAlign: "bottom",
   },
   oneMeterOneRecordDetail: {
-    height: "335px",
-    marginTop: "3px",
+    marginTop: "6px",
+    height: "330px",
   },
   detailTitle: {
     width: "1000px",
@@ -512,7 +512,7 @@ function OneMeterRecordsTableAndDetail() {
   }
 
   return (
-    <Paper className={classes.root} elevation="3">
+    <div className={classes.root}>
       <Card className={classes.oneMeterRecordsTable} raised>
         <CardContent>
           <Typography className={classes.label} color="textSecondary">
@@ -610,7 +610,7 @@ function OneMeterRecordsTableAndDetail() {
           <OneMeterOneRecordDetail data={rowData} />
         </CardContent>
       </Card>
-    </Paper>
+    </div>
   );
 }
 

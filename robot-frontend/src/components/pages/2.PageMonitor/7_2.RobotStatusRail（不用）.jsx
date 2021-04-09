@@ -34,7 +34,7 @@ const Space = {
   height: 8,
 };
 
-function RobotStatus() {
+function RobotStatusRail() {
   const classes = useStyles();
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
@@ -232,4 +232,4 @@ function RobotStatus() {
     </div>
   );
 }
-export default RobotStatus;
+export default RobotStatusRail;

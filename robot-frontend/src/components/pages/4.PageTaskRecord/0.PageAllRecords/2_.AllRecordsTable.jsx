@@ -17,23 +17,23 @@ import emitter from "../../../../functions/events.js";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
+    margin: "0px 10px 0px 10px",
     width: "100%",
     height: "410px",
-    marginBottom: "4px",
     overflow: "auto",
   },
   label: {
     fontSize: 14,
   },
   allRecordsTableQueryForm: {
-    width: "1500px",
     margin: "8px 100px 0px 52px",
+    width: "1500px",
     display: "inline-block",
   },
   downloadRecordModal: {
+    marginBottom: "20px",
     width: "180px",
     display: "inline-block",
-    marginBottom: "20px",
     verticalAlign: "bottom",
   },
 }));

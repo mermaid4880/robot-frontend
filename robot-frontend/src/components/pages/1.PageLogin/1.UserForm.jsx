@@ -87,8 +87,10 @@ function UserForm() {
           //secure: true,
           //httpOnly: true,
         });
-        history.push("/Monitor");
         setText("正在登录，请稍后");
+        setTimeout(() => {
+          history.push("/Monitor");
+        }, 10);
       } else {
         setText("用户名或密码错误！");
         console.log(isAccess);
@@ -122,7 +124,7 @@ function UserForm() {
         {isAccess ? (
           <FormText className={classes.text} color="muted">
             {text}
-            <Spinner color="info" size="sm" />
+            {/* <Spinner color="info" size="sm" /> */}
           </FormText>
         ) : (
           <FormText className={classes.text} color="muted">

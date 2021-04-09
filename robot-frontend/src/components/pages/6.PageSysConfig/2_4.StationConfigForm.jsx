@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Form } from "semantic-ui-react";
 import swal from "sweetalert";
 //functions
@@ -17,6 +18,9 @@ function initInput(data) {
 }
 
 function StationConfigForm(props) {
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //用户输入内容
   const [input, setInput] = useState(initInput());
@@ -43,7 +47,7 @@ function StationConfigForm(props) {
         title: "修改站所配置失败",
         text: "以上内容为必填消息，均不能为空",
         icon: "warning",
-        timer: 1500,
+        timer: 3000,
         buttons: false,
       });
       return;
@@ -74,11 +78,25 @@ function StationConfigForm(props) {
           title: "站所配置失败",
           text: data.detail,
           icon: "error",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
       }
-    });
+    })
+    .catch((error) => {
+      //如果鉴权失败，跳转至登录页
+      if (error.response.status === 401) {
+        history.push("/");
+      }
+      //alert失败
+      swal({
+        title: "站所配置失败",
+        text: error.toString(),
+        icon: "error",
+        timer: 3000,
+        buttons: false,
+      });
+    });;
   }
   return (
     <Form>

@@ -1,5 +1,7 @@
+//configuration
+import { mqttUrl } from "../../../configuration/config.js";
 //packages
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TabContent,
   TabPane,
@@ -10,14 +12,9 @@ import {
   Col,
 } from "reactstrap";
 import classnames from "classnames";
-import { Paper, Switch } from "@material-ui/core";
+import { Paper } from "@material-ui/core";
 import { Label, Segment } from "semantic-ui-react";
-import { Alert } from "rsuite";
-//functions
-import {
-  initWebsocket,
-  destroyWebsocket,
-} from "../../../functions/websockets.js";
+import connect from "mqtt"; //mqtt
 
 //———————————————————————————————————————————————css
 //root
@@ -111,9 +108,6 @@ const span3Style = {
 };
 
 function TabTable() {
-  //———————————————————————————————————————————————useRef
-  const ws = useRef(null); //存放websocket对象的ref
-
   //———————————————————————————————————————————————useState
   //Tab中当前激活的<NavItem>标签的状态
   const [activeTab, setActiveTab] = useState("1");
@@ -124,71 +118,59 @@ function TabTable() {
     messageCount: 0,
   });
 
-  //系统告警信息Tab中内容的状态
+  //系统告警Tab中内容的状态
   const [systemAlarmInfo, setSystemAlarmInfo] = useState({
-    messageArray: [],
-    messageCount: 0,
-  });
-
-  //软件调试信息Tab中内容的状态
-  const [softwareInfo, setSoftwareInfo] = useState({
     messageArray: [],
     messageCount: 0,
   });
 
   //———————————————————————————————————————————————useEffect
   useEffect(() => {
-    //————————————————————————————websocket
-    //初始化websocket
-    ws.current = initWebsocket("group2");
-    //接收websocket消息
-    recvWebsocketRecMsg(ws.current);
+    //创建mqtt连接
+    const client = connect(mqttUrl);
+    //订阅主题
+    client.on("connect", function () {
+      //（实时信息）
+      client.subscribe("robot/taskmidle/detectInfo", function (err) {
+        if (!err) {
+          client.publish("presence", "Hello mqtt");
+        }
+      });
+      //（系统告警信息）
+      client.subscribe("robotSystemAlarm", function (err) {
+        if (!err) {
+          client.publish("presence", "Hello mqtt");
+        }
+      });
+    });
+    //处理mqtt消息
+    client.on("message", function (topic, message) {
+      if (topic === "robot/taskmidle/detectInfo") {
+        //（实时信息）
+        // console.log("typeof message", typeof message);
+        // console.log("message", message);
+        // console.log("message.toString()", message.toString());
+        message && addRealtimeInfoMessage(message.toString());
+      } else if (topic === "robotSystemAlarm") {
+        //（系统告警信息）
+        // console.log("typeof message", typeof message);
+        // console.log("message", message);
+        // console.log("message.toString()", message.toString());
+        message && addSystemAlarmInfoMessage(message.toString());
+      }
+    });
 
-    //组件销毁时
+    //组件销毁时取消主题订阅并关闭mqtt连接
     return () => {
-      //————————————————————————————websocket
-      //销毁websocket
-      destroyWebsocket(ws.current, "group2");
+      console.log("实时消息client.end");
+      client.unsubscribe("robot/taskmidle/detectInfo");
+      client.unsubscribe("robotSystemAlarm");
+      client.end();
     };
   }, []);
 
-  //———————————————————————————————————————————————其他函数（websocket相关）
-  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
-  function recvWebsocketRecMsg(ws) {
-    try {
-      //——————设置接收消息处理函数
-      ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("detectInfo")) {
-          // ws.current.send("received");
-          let messageDetectInfo = JSON.parse(msg.toString()).detectInfo;
-          // console.log("event", event.data.toString());
-          messageDetectInfo &&
-            addRealtimeInfoMessage(JSON.stringify(messageDetectInfo));
-        }
-        if (JSON.parse(msg.toString()).hasOwnProperty("systemAlarm")) {
-          // ws.current.send("received");
-          let messageSystemAlarm = JSON.parse(msg.toString()).systemAlarm;
-          messageSystemAlarm &&
-            addSystemAlarmInfoMessage(JSON.stringify(messageSystemAlarm));
-        }
-        if (JSON.parse(msg.toString()).hasOwnProperty("softwareInfo")) {
-          // ws.current.send("received");
-          let messageSoftwareInfo = JSON.parse(msg.toString()).softwareInfo;
-          messageSoftwareInfo &&
-            addSoftwareInfoMessage(JSON.stringify(messageSoftwareInfo));
-        }
-      };
-    } catch (ex) {
-      //——————设置接收消息异常处理
-      //rsuite Alert异常：接收消息
-      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
-    }
-  }
-
   //———————————————————————————————————————————————全局函数
-  //将收到的一条string格式的websocket消息转换为<div>
+  //将收到的一条string格式的mqtt消息转换为<div>
   function parseMessageToDiv(stringData, index) {
     if (typeof stringData !== "string") {
       return;
@@ -296,33 +278,15 @@ function TabTable() {
     }));
   }
 
-  //清空系统告警信息Tab中的内容
+  //清空系统告警Tab中的内容
   function clearSystemAlarmInfoMessage() {
     setSystemAlarmInfo((prev) => ({ messageArray: [], messageCount: 0 }));
   }
 
-  //添加一条信息到系统告警信息Tab中
+  //添加一条信息到系统告警Tab中
   function addSystemAlarmInfoMessage(message) {
     // console.log("addSystemAlarmInfoMessage", typeof message);
     setSystemAlarmInfo((prev) => ({
-      messageArray: [
-        `${message}`,
-        // `${new Date().toLocaleTimeString()}: ${message}`,
-        ...prev.messageArray,
-      ].slice(0, 50),
-      messageCount: prev.messageCount + 1,
-    }));
-  }
-
-  //清空软件调试信息Tab中的内容
-  function clearSoftwareInfoMessage() {
-    setSoftwareInfo((prev) => ({ messageArray: [], messageCount: 0 }));
-  }
-
-  //添加一条信息到软件调试信息Tab中
-  function addSoftwareInfoMessage(message) {
-    // console.log("addSoftwareInfoMessage", typeof message);
-    setSoftwareInfo((prev) => ({
       messageArray: [
         `${message}`,
         // `${new Date().toLocaleTimeString()}: ${message}`,
@@ -342,12 +306,7 @@ function TabTable() {
               toggleTab("1");
             }}
           >
-            实时信息{" "}
-            <Label circular>
-              {realtimeInfo.messageCount > 99
-                ? "99+"
-                : realtimeInfo.messageCount}
-            </Label>
+            实时信息 <Label circular>{realtimeInfo.messageCount}</Label>
           </NavLink>
         </NavItem>
         <NavItem>
@@ -357,11 +316,9 @@ function TabTable() {
               toggleTab("2");
             }}
           >
-            系统告警信息
+            系统告警信息{" "}
             <Label circular color={systemAlarmInfo.messageCount && "orange"}>
-              {systemAlarmInfo.messageCount > 99
-                ? "99+"
-                : systemAlarmInfo.messageCount}
+              {systemAlarmInfo.messageCount}
             </Label>
           </NavLink>
         </NavItem>
@@ -372,30 +329,15 @@ function TabTable() {
               toggleTab("3");
             }}
           >
-            软件调试信息{" "}
-            <Label circular>
-              {softwareInfo.messageCount > 99
-                ? "99+"
-                : softwareInfo.messageCount}
-            </Label>
+            软件调试信息
           </NavLink>
         </NavItem>
         <NavItem style={{ marginLeft: "750px" }}>
           <NavLink
             onClick={() => {
-              switch (activeTab) {
-                case "1":
-                  clearRealtimeInfoMessage();
-                  break;
-                case "2":
-                  clearSystemAlarmInfoMessage();
-                  break;
-                case "3":
-                  clearSoftwareInfoMessage();
-                  break;
-                default:
-                  break;
-              }
+              activeTab === "1"
+                ? clearRealtimeInfoMessage()
+                : activeTab === "2" && clearSystemAlarmInfoMessage();
             }}
           >
             清空窗口
@@ -409,7 +351,7 @@ function TabTable() {
               <Segment secondary style={segmentStyle}>
                 <pre style={preStyle}>
                   {realtimeInfo.messageArray.map(
-                    (e, i) => parseMessageToDiv(e, i) //将每条string格式的websocket消息转换为<div>
+                    (e, i) => parseMessageToDiv(e, i) //将每条string格式的mqtt消息转换为<div>
                   )}
                 </pre>
               </Segment>
@@ -422,7 +364,7 @@ function TabTable() {
               <Segment secondary style={segmentStyle}>
                 <pre style={preStyle}>
                   {systemAlarmInfo.messageArray.map(
-                    (e, i) => parseMessageToDiv(e, i) //将每条string格式的websocket消息转换为<div>
+                    (e, i) => parseMessageToDiv(e, i) //将每条string格式的mqtt消息转换为<div>
                   )}
                 </pre>
               </Segment>
@@ -431,15 +373,7 @@ function TabTable() {
         </TabPane>
         <TabPane tabId="3">
           <Row>
-            <Col sm="12">
-              <Segment secondary style={segmentStyle}>
-                <pre style={preStyle}>
-                  {softwareInfo.messageArray.map(
-                    (e, i) => parseMessageToDiv(e, i) //将每条string格式的websocket消息转换为<div>
-                  )}
-                </pre>
-              </Segment>
-            </Col>
+            <Col sm="12">表2</Col>
           </Row>
         </TabPane>
       </TabContent>

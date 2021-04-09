@@ -13,7 +13,6 @@ import OneRecordDetailTable from "./3_.OneRecordDetailTable#2#3#4.jsx";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
-    width: "1920px",
     height: "962px",
   },
   navBarRow: {
@@ -23,16 +22,6 @@ const useStyles = makeStyles((theme) => ({
   },
   navBarCol: {
     padding: "0px",
-  },
-  allRecordsTable: {
-    top: "0",
-    height: "410px",
-    padding: "0px 8px 0px 8px",
-  },
-  oneRecordDetailTable: {
-    top: "0",
-    height: "410px",
-    padding: "0px 8px 0px 8px",
   },
 }));
 
@@ -66,10 +55,10 @@ function PageAllRecords() {
       <Row>
         <Breadcrumb4_0 />
       </Row>
-      <Row className={classes.allRecordsTable}>
+      <Row>
         <AllRecordsTable />
       </Row>
-      <Row className={classes.oneRecordDetailTable}>
+      <Row>
         <OneRecordDetailTable />
       </Row>
       <Dimmer active={dimmerActive} page>

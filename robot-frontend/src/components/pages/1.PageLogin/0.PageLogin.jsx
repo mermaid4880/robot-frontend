@@ -13,8 +13,8 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: "0",
     width: "100%",
-    //height: "937px",
-    height: "1080px",
+    height: "962px",
+    // height: "1080px",
     backgroundImage: `url(${ImageBackground})`,
   },
   row1: {

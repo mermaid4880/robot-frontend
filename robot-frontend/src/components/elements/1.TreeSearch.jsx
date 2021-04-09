@@ -1,6 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom"; 
+import { useHistory } from "react-router-dom";
 import { Collapse, Tree, Input, Checkbox, Tooltip, Row, Col } from "antd";
 import { makeStyles } from "@material-ui/core/styles";
 //functions
@@ -9,15 +9,18 @@ import emitter from "../../functions/events.js";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
+  //本组件在  任务管理——Tab 中的root样式
+  rootInsideTab: {
+    width: "100%",
+    height: "798px",
+    backgroundColor: "#fafafa",
+  },
+  //本组件在  任务管理——新增任务或编辑任务 中的root样式
   rootInsideForm: {
     width: "100%",
     backgroundColor: "#fafafa",
   },
-  rootInsideTab: {
-    width: "100%",
-    height: "805px",
-    backgroundColor: "#fafafa",
-  },
+  //本组件在  巡检记录——点位巡检记录 中的root样式
   rootInsidePage: {
     width: "100%",
     height: "847px",
@@ -26,17 +29,25 @@ const useStyles = makeStyles({
   checkboxGroup: {
     width: "100%",
   },
+  //<Tree>组件在  任务管理——Tab 中筛选条件选项卡展开时的样式
   treeSmallInsideTab: {
-    height: "533px", //搜索框高度：40px
+    height: "522px", //搜索框高度：40px
+    overflow: "auto",
   },
+  //<Tree>组件在  任务管理——Tab 中筛选条件选项卡折叠时的样式
   treeBigInsideTab: {
-    height: "635px", //搜索框高度：40px
+    height: "630px", //搜索框高度：40px
+    overflow: "auto",
   },
+  //<Tree>组件在  巡检记录——点位巡检记录 中筛选条件选项卡展开时的样式
   treeSmallInsidePage: {
-    height: "575px", //搜索框高度：40px
+    height: "569px", //搜索框高度：40px
+    overflow: "auto",
   },
+  //<Tree>组件在  巡检记录——点位巡检记录 中筛选条件选项卡折叠时的样式
   treeBigInsidePage: {
     height: "677px", //搜索框高度：40px
+    overflow: "auto",
   },
 });
 

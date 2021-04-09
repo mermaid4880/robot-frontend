@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Label, List, Grid, Form } from "semantic-ui-react";
 import swal from "sweetalert";
 //functions
@@ -58,6 +59,9 @@ function initInput(data) {
 }
 
 function SensorConfigForm(props) {
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //用户输入内容
   const [input, setInput] = useState({});
@@ -91,7 +95,7 @@ function SensorConfigForm(props) {
             title: "修改可见光配置失败",
             text: "以上内容为必填消息，均不能为空",
             icon: "warning",
-            timer: 1500,
+            timer: 3000,
             buttons: false,
           });
           return;
@@ -102,7 +106,7 @@ function SensorConfigForm(props) {
               title: "修改可见光配置失败",
               text: "前后密码不一致",
               icon: "warning",
-              timer: 1500,
+              timer: 3000,
               buttons: false,
             });
             return;
@@ -120,30 +124,45 @@ function SensorConfigForm(props) {
         vlPutParamData.append("vlFocusMode", input.vlFocusMode.toString());
 
         //发送PUT请求
-        putData("/robots/robotupdate", vlPutParamData).then((data) => {
-          console.log("post结果", data);
-          if (data.success) {
-            //alert成功
-            swal({
-              title: "可见光配置成功",
-              text: "                 ",
-              icon: "success",
-              timer: 3000,
-              buttons: false,
-            });
-            //调用父组件函数（重新GET配置列表并刷新）
-            props.updateParent();
-          } else {
+        putData("/robots/robotupdate", vlPutParamData)
+          .then((data) => {
+            console.log("post结果", data);
+            if (data.success) {
+              //alert成功
+              swal({
+                title: "可见光配置成功",
+                text: "                 ",
+                icon: "success",
+                timer: 3000,
+                buttons: false,
+              });
+              //调用父组件函数（重新GET配置列表并刷新）
+              props.updateParent();
+            } else {
+              //alert失败
+              swal({
+                title: "可见光配置失败",
+                text: data.detail,
+                icon: "error",
+                timer: 3000,
+                buttons: false,
+              });
+            }
+          })
+          .catch((error) => {
+            //如果鉴权失败，跳转至登录页
+            if (error.response.status === 401) {
+              history.push("/");
+            }
             //alert失败
             swal({
               title: "可见光配置失败",
-              text: data.detail,
+              text: error.toString(),
               icon: "error",
-              timer: 1500,
+              timer: 3000,
               buttons: false,
             });
-          }
-        });
+          });
         break;
       }
       case "ir": {
@@ -157,7 +176,7 @@ function SensorConfigForm(props) {
             title: "修改红外配置失败",
             text: "以上内容为必填消息，均不能为空",
             icon: "warning",
-            timer: 1500,
+            timer: 3000,
             buttons: false,
           });
           return;
@@ -168,7 +187,7 @@ function SensorConfigForm(props) {
               title: "修改红外配置失败",
               text: "前后密码不一致",
               icon: "warning",
-              timer: 1500,
+              timer: 3000,
               buttons: false,
             });
             return;
@@ -185,30 +204,45 @@ function SensorConfigForm(props) {
         }
 
         //发送PUT请求
-        putData("/robots/robotupdate", irPutParamData).then((data) => {
-          console.log("post结果", data);
-          if (data.success) {
-            //alert成功
-            swal({
-              title: "红外配置成功",
-              text: "                 ",
-              icon: "success",
-              timer: 3000,
-              buttons: false,
-            });
-            //调用父组件函数（重新GET配置列表并刷新）
-            props.updateParent();
-          } else {
+        putData("/robots/robotupdate", irPutParamData)
+          .then((data) => {
+            console.log("post结果", data);
+            if (data.success) {
+              //alert成功
+              swal({
+                title: "红外配置成功",
+                text: "                 ",
+                icon: "success",
+                timer: 3000,
+                buttons: false,
+              });
+              //调用父组件函数（重新GET配置列表并刷新）
+              props.updateParent();
+            } else {
+              //alert失败
+              swal({
+                title: "红外配置失败",
+                text: data.detail,
+                icon: "error",
+                timer: 3000,
+                buttons: false,
+              });
+            }
+          })
+          .catch((error) => {
+            //如果鉴权失败，跳转至登录页
+            if (error.response.status === 401) {
+              history.push("/");
+            }
             //alert失败
             swal({
               title: "红外配置失败",
-              text: data.detail,
+              text: error.toString(),
               icon: "error",
-              timer: 1500,
+              timer: 3000,
               buttons: false,
             });
-          }
-        });
+          });
         break;
       }
       case "pd": {
@@ -218,7 +252,7 @@ function SensorConfigForm(props) {
             title: "修改局放配置失败",
             text: "以上内容为必填消息，均不能为空",
             icon: "warning",
-            timer: 1500,
+            timer: 3000,
             buttons: false,
           });
           return;
@@ -230,30 +264,45 @@ function SensorConfigForm(props) {
         irPutParamData.append("pdPort", input.pdPort.toString());
 
         //发送PUT请求
-        putData("/robots/robotupdate", irPutParamData).then((data) => {
-          console.log("post结果", data);
-          if (data.success) {
-            //alert成功
-            swal({
-              title: "局放配置成功",
-              text: "                 ",
-              icon: "success",
-              timer: 3000,
-              buttons: false,
-            });
-            //调用父组件函数（重新GET配置列表并刷新）
-            props.updateParent();
-          } else {
+        putData("/robots/robotupdate", irPutParamData)
+          .then((data) => {
+            console.log("post结果", data);
+            if (data.success) {
+              //alert成功
+              swal({
+                title: "局放配置成功",
+                text: "                 ",
+                icon: "success",
+                timer: 3000,
+                buttons: false,
+              });
+              //调用父组件函数（重新GET配置列表并刷新）
+              props.updateParent();
+            } else {
+              //alert失败
+              swal({
+                title: "局放配置失败",
+                text: data.detail,
+                icon: "error",
+                timer: 3000,
+                buttons: false,
+              });
+            }
+          })
+          .catch((error) => {
+            //如果鉴权失败，跳转至登录页
+            if (error.response.status === 401) {
+              history.push("/");
+            }
             //alert失败
             swal({
               title: "局放配置失败",
-              text: data.detail,
+              text: error.toString(),
               icon: "error",
-              timer: 1500,
+              timer: 3000,
               buttons: false,
             });
-          }
-        });
+          });
         break;
       }
       default:

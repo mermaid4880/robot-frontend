@@ -21,9 +21,8 @@ import emitter from "../../../../functions/events.js";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    height: "440px",
-    marginTop: "2px",
-    marginBottom: "4px",
+    height: "430px",
+    margin: "7px 10px 0px 10px",
     overflow: "auto",
   },
   label: {
@@ -576,7 +575,7 @@ function OneRecordDetailTable() {
             columns={columns}
             dataSource={tableState.tableData}
             pagination={pagination}
-            scroll={{ y: 188 }}
+            scroll={{ y: 181 }}
             onRow={handleTableRowClick}
             rowSelection={{
               //表格行是否可选择，配置项

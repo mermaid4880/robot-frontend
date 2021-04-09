@@ -1,5 +1,7 @@
+//configuration
+import { mqttUrl } from "../../configuration/config.js";
 //packages
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Paper } from "@material-ui/core";
 import Badge from "@material-ui/core/Badge";
@@ -37,11 +39,12 @@ import {
   NavbarText,
 } from "reactstrap";
 import { Tooltip } from "antd";
+import { connect } from "mqtt";
 import cookie from "react-cookies";
-import { Alert } from "rsuite";
 //functions
 import emitter from "../../functions/events.js";
-import { initWebsocket, destroyWebsocket } from "../../functions/websockets.js";
+import { getData } from "../../functions/requestDataFromAPI.js";
+
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
   root: {
@@ -86,15 +89,13 @@ function getBatteryInfo(data) {
 
 function Navigation(props) {
   const classes = useStyles();
-  //———————————————————————————————————————————————useRef
-  const ws = useRef(null); //存放websocket对象的ref
 
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
   //———————————————————————————————————————————————useState
-  // //本组件是否需要更新的状态
-  // const [update, setUpdate] = useState(false);
+  //本组件是否需要更新的状态
+  const [update, setUpdate] = useState(false);
 
   //当前系统时间
   const [time, setTime] = useState(new Date().toLocaleString());
@@ -119,6 +120,46 @@ function Navigation(props) {
   //页面跳转状态
   const [jump, setJump] = useState(false);
 
+  //———————————————————————————————————————————————Timer
+  //开启定时器（重新获取电池信息、刷新组件）
+  var timerID = setTimeout(() => {
+    setUpdate(!update);
+  }, 5000);
+
+  //———————————————————————————————————————————————useEffect
+  //当（本组件销毁时），销毁定时器（重新获取电池信息、刷新组件）
+  useEffect(() => {
+    //当组件销毁时，销毁定时器（重新获取电池信息、刷新组件）
+    return () => {
+      clearTimeout(timerID);
+    };
+  }, []);
+
+  //当（本组件加载完成或需要更新时），GET请求获取电池信息
+  useEffect(() => {
+    //————————————————————————————GET请求
+    getData("robots/power")
+      .then((data) => {
+        // console.log("get结果", data);
+        if (data.success) {
+          var result = data.data;
+          // console.log("result", result);
+          //获取电池信息
+          const batteryInfo = getBatteryInfo(result);
+          //设置电池信息
+          setBatteryInfo(batteryInfo);
+        } else {
+          alert(data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+  }, [update]);
+
   //当本组件加载完成后，开启定时器（刷新系统时间time）、创建mqtt连接、订阅mqtt消息（设备告警条数）、定义mqtt消息处理函数（设备告警条数）
   useEffect(() => {
     //————————————————————————————开启定时器（每秒刷新系统时间time）
@@ -126,54 +167,35 @@ function Navigation(props) {
       const newTime = new Date().toLocaleString();
       setTime(newTime);
     }, 1000);
+    //————————————————————————————mqtt
+    //创建mqtt连接
+    const client = connect(mqttUrl);
+    //订阅mqtt消息（设备告警条数）
+    client.on("connect", function () {
+      client.subscribe("robotDeviceAlarm", function (err) {
+        if (!err) {
+          // console.log("订阅成功！");
+        }
+      });
+    });
+    //定义mqtt消息处理函数（设备告警条数）
+    client.on("message", function (topic, message) {
+      // console.log(typeof message);
+      // console.log(message);
+      // console.log(message.toString());
+      message && parseAlertCount(message.toString());
+    });
 
-    //————————————————————————————websocket
-    //初始化websocket
-    ws.current = initWebsocket("group1");
-    //接收websocket消息
-    recvWebsocketRecMsg(ws.current);
-
-    //当本组件销毁时，销毁websocket、销毁定时器（刷新系统时间time）
+    //当本组件销毁时，退订mqtt消息（设备告警条数）、关闭mqtt连接、销毁定时器（刷新系统时间time）
     return () => {
-      //————————————————————————————websocket
-      //销毁websocket
-      destroyWebsocket(ws.current, "group1");
-
+      //————————————————————————————退订mqtt消息（设备告警条数）、关闭mqtt连接
+      // console.log("导航栏client.end");
+      client.unsubscribe("robotDeviceAlarm");
+      client.end();
       //————————————————————————————销毁定时器（每秒刷新系统时间time）
       clearInterval(intervalID);
-
-      //————————————————————————————关闭所有rsuite Alert
-      Alert.closeAll()
     };
   }, []);
-
-  //———————————————————————————————————————————————其他函数（websocket相关）
-  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
-  function recvWebsocketRecMsg(ws) {
-    try {
-      //——————设置接收消息处理函数
-      ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("batteryInfo")) {
-          let messageBatteryInfo = JSON.parse(msg.toString()).batteryInfo;
-          const batteryInfo = getBatteryInfo(messageBatteryInfo);
-          //设置电池信息
-          setBatteryInfo(batteryInfo);
-        }
-        if (JSON.parse(msg.toString()).hasOwnProperty("robotDeviceAlarm")) {
-          let messageRobotDeviceAlarm = JSON.parse(msg.toString())
-            .robotDeviceAlarm;
-          messageRobotDeviceAlarm &&
-            parseAlertCount(JSON.stringify(messageRobotDeviceAlarm));
-        }
-      };
-    } catch (ex) {
-      //——————设置接收消息异常处理
-      //rsuite Alert异常：接收消息
-      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
-    }
-  }
 
   //——————————————页面跳转
   useEffect(() => {
@@ -214,16 +236,16 @@ function Navigation(props) {
   function setBatteryIcon(batteryInfo) {
     var tooltipTitle = "电量" + batteryInfo.power + "%";
 
-    if (batteryInfo.BatteryUnknown == 1) {
-      return (
-        <Tooltip placement="bottom" title="电量未知">
-          <BatteryUnknown fontSize="large" />
-        </Tooltip>
-      );
-    } else if (batteryInfo.BatteryAlert == 1) {
+    if (batteryInfo.BatteryAlert == 1) {
       return (
         <Tooltip placement="bottom" title="电量报警">
           <BatteryAlert fontSize="large" />
+        </Tooltip>
+      );
+    } else if (batteryInfo.BatteryUnknown == 1) {
+      return (
+        <Tooltip placement="bottom" title="电量未知">
+          <BatteryUnknown fontSize="large" />
         </Tooltip>
       );
     } else if (batteryInfo.power >= 0 && batteryInfo.power <= 20) {

@@ -17,11 +17,13 @@ import emitter from "../../../functions/events.js";
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   alertTable: {
-    height: "520px",
-    marginBottom: "4px",
+    margin: "0px 10px 0px 10px",
+    width: "100%",
+    height: "510px",
     overflow: "auto",
   },
   alertDetail: {
+    margin: "6px 10px 0px 10px",
     width: "100%",
     height: "330px",
   },

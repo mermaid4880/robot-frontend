@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Table, Spin } from "antd";
 //elements
 import AddOrEditUserModal from "./3_1_1_.AddOrEditUserModal.jsx";
@@ -34,6 +35,9 @@ function getTableData(list) {
 }
 
 function UserTable() {
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+  
   //———————————————————————————————————————————————useState
   //表格数据是否正在请求的状态
   const [loading, setLoading] = useState(false);
@@ -64,29 +68,36 @@ function UserTable() {
     //设置表格数据请求状态为正在请求
     setLoading(true);
     //————————————————————————————GET请求
-    getData("/users").then((data) => {
-      console.log("get结果", data.success);
-      if (data.success) {
-        var result = data.data;
-        console.log("result", result);
-        //获取表数据
-        const tableData = getTableData(result);
-        //设置<Table>的状态
-        setTableState((prev) => ({
-          pageIndex: prev.pageIndex,
-          pageSize: prev.pageSize,
-          tableData: tableData,
-          pageData: tableData.slice(
-            (prev.pageIndex - 1) * prev.pageSize,
-            prev.pageIndex * prev.pageSize
-          ),
-        }));
-        //设置表格数据请求状态为完成
-        setLoading(false);
-      } else {
-        alert(data.data.detail);
-      }
-    });
+    getData("/users")
+      .then((data) => {
+        console.log("get结果", data.success);
+        if (data.success) {
+          var result = data.data;
+          console.log("result", result);
+          //获取表数据
+          const tableData = getTableData(result);
+          //设置<Table>的状态
+          setTableState((prev) => ({
+            pageIndex: prev.pageIndex,
+            pageSize: prev.pageSize,
+            tableData: tableData,
+            pageData: tableData.slice(
+              (prev.pageIndex - 1) * prev.pageSize,
+              prev.pageIndex * prev.pageSize
+            ),
+          }));
+          //设置表格数据请求状态为完成
+          setLoading(false);
+        } else {
+          alert(data.data.detail);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
   }, [update]);
 
   //———————————————————————————————————————————————设置<Table>用到的变量

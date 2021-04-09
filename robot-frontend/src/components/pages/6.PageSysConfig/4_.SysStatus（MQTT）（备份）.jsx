@@ -1,5 +1,7 @@
+//configuration
+import { mqttUrl } from "../../../configuration/config.js";
 //packages
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   TabContent,
   TabPane,
@@ -9,34 +11,31 @@ import {
   Row,
   Col,
 } from "reactstrap";
-import { Alert } from "rsuite";
 import classnames from "classnames";
 import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Card, CardContent } from "@material-ui/core";
 import { Label, List, Grid } from "semantic-ui-react";
-//functions
-import {
-  initWebsocket,
-  destroyWebsocket,
-} from "../../../functions/websockets.js";
+import connect from "mqtt"; //mqtt
 
 //———————————————————————————————————————————————css
-const root = {
-  height: "420px",
-  width: "100%",
-  marginLeft: "0.5rem",
-  marginTop: "0.5rem",
-  marginRight: "1rem",
-};
-
-const label = {
-  fontSize: 14,
-};
-
-const blankRow = {
-  height: "15px",
-};
-
+const useStyles = makeStyles((theme) => ({
+  root: {
+    height: "420px",
+    width: "100%",
+    marginLeft: "0.5rem",
+    marginTop: "0.5rem",
+    marginRight: "1rem",
+  },
+  label: {
+    fontSize: 14,
+  },
+  blankRow: {
+    height: "15px",
+  },
+  taskList: {
+    height: "515px",
+  },
+}));
 const gridStyle = {
   margin: "0.5rem 0 0 1rem",
   height: "270px",
@@ -62,51 +61,40 @@ const contentStyle = {
   display: "inline-block",
   verticalAlign: "center",
 };
-
 function SysStatus() {
-  //———————————————————————————————————————————————useRef
-  const ws = useRef(null); //存放websocket对象的ref
-
+  const classes = useStyles();
   //———————————————————————————————————————————————useState
   //Tab中当前激活的<NavItem>标签的状态
   const [activeTab, setActiveTab] = useState("1");
   //系统状态栏内容的状态
   const [systemStatus, setSystemStatus] = useState({});
+
   //———————————————————————————————————————————————useEffect
   useEffect(() => {
-    //————————————————————————————websocket
-    //初始化websocket
-    ws.current = initWebsocket("group3");
-    //接收websocket消息
-    recvWebsocketRecMsg(ws.current);
-    //组件销毁时断开websocket连接
+    //创建mqtt连接
+    const client = connect(mqttUrl);
+    //订阅主题
+    client.on("connect", function () {
+      client.subscribe("robotStatus", function (err) {
+        if (!err) {
+          //client.publish("robotStatus", "Hello mqtt");
+        }
+      });
+    });
+    //处理mqtt消息
+    client.on("message", function (topic, message) {
+      // console.log("message", message.toString());
+      let json = JSON.parse(message.toString());
+      setSystemStatus(json);
+      //console.log((new Date()).valueOf());
+    });
+
+    //组件销毁时取消主题订阅并关闭mqtt连接
     return () => {
-      //————————————————————————————websocket
-      //销毁websocket
-      destroyWebsocket(ws.current, "group3");
+      client.unsubscribe("robotStatus");
+      client.end();
     };
   }, []);
-
-  //———————————————————————————————————————————————其他函数（websocket相关）
-  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
-  function recvWebsocketRecMsg(ws) {
-    try {
-      //——————设置接收消息处理函数
-      ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("robotStatus")) {
-          // ws.current.send("received");
-          let json = JSON.parse(msg.toString()).robotStatus;
-          setSystemStatus(json);
-        }
-      };
-    } catch (ex) {
-      //——————设置接收消息异常处理
-      //rsuite Alert异常：接收消息
-      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
-    }
-  }
 
   //———————————————————————————————————————————————事件响应函数
   //Tab中<NavItem>的点击事件响应函数（切换Tab）
@@ -115,13 +103,13 @@ function SysStatus() {
   };
 
   return (
-    <Card style={root} raised>
+    <Card className={classes.root} raised>
       <CardContent>
-        <Typography style={label} color="textSecondary">
+        <Typography className={classes.label} color="textSecondary">
           <Label color="teal" ribbon>
             系统状态
           </Label>
-          <Row style={blankRow}></Row>
+          <Row className={classes.blankRow}></Row>
         </Typography>
         <Nav tabs>
           <NavItem>
@@ -148,7 +136,7 @@ function SysStatus() {
         <TabContent activeTab={activeTab}>
           <TabPane tabId="1">
             <Row>
-              <Col sm="12">
+              <Col sm="12" className={classes.row}>
                 <Grid style={gridStyle} columns={4} divided>
                   <Grid.Row stretched>
                     <Grid.Column>
@@ -197,15 +185,17 @@ function SysStatus() {
                       <List divided>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            位置坐标X
+                            真实坐标点
                           </Label>
-                          <div style={contentStyle}>{systemStatus.X}</div>
+                          <div style={contentStyle}>{systemStatus.realNum}</div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            位置坐标Y
+                            真实偏移
                           </Label>
-                          <div style={contentStyle}>{systemStatus.Y}</div>
+                          <div style={contentStyle}>
+                            {systemStatus.realPose}
+                          </div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
@@ -223,7 +213,7 @@ function SysStatus() {
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            补光灯状态
+                            开灯关灯状态
                           </Label>
                           <div style={contentStyle}>{systemStatus.light}</div>
                         </List.Item>
@@ -247,26 +237,26 @@ function SysStatus() {
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            温度
+                            左侧障碍物
                           </Label>
                           <div style={contentStyle}>
-                            {systemStatus.temperature}
+                            {systemStatus.coreLeftObstacleFlag}
                           </div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            左速度
+                            右侧障碍物
                           </Label>
                           <div style={contentStyle}>
-                            {systemStatus.leftVelocity}
+                            {systemStatus.coreRightObstacleFlag}
                           </div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            右速度
+                            下方障碍物
                           </Label>
                           <div style={contentStyle}>
-                            {systemStatus.rightVelocity}
+                            {systemStatus.coreBelowObstacleFlag}
                           </div>
                         </List.Item>
                       </List>
@@ -297,9 +287,11 @@ function SysStatus() {
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
-                            机器人ID
+                            任务模式
                           </Label>
-                          <div style={contentStyle}>{systemStatus.robotId}</div>
+                          <div style={contentStyle}>
+                            {systemStatus.taskWorkMode}
+                          </div>
                         </List.Item>
                       </List>
                     </Grid.Column>
@@ -310,8 +302,8 @@ function SysStatus() {
           </TabPane>
           <TabPane tabId="2">
             <Row>
-              <Col sm="12">
-                <Grid style={gridStyle} columns={3} divided>
+              <Col sm="12" className={classes.row}>
+                <Grid style={gridStyle} columns={2} divided>
                   <Grid.Row stretched>
                     <Grid.Column>
                       <List divided>
@@ -375,13 +367,7 @@ function SysStatus() {
                           <Label style={labelStyle} horizontal>
                             相机变倍值
                           </Label>
-                          <div style={contentStyle}>{systemStatus.zoomPos}</div>
-                        </List.Item>
-                        <List.Item style={listItemStyle}>
-                          <Label style={labelStyle} horizontal>
-                            相机焦距值
-                          </Label>
-                          <div style={contentStyle}>{systemStatus.focus}</div>
+                          <div style={contentStyle}>{systemStatus.zoomVal}</div>
                         </List.Item>
                         <List.Item style={listItemStyle}>
                           <Label style={labelStyle} horizontal>
@@ -389,42 +375,6 @@ function SysStatus() {
                           </Label>
                           <div style={contentStyle}>
                             {systemStatus.pdStatus}
-                          </div>
-                        </List.Item>
-                      </List>
-                    </Grid.Column>
-                    <Grid.Column>
-                      <List divided>
-                        <List.Item style={listItemStyle}>
-                          <Label style={labelStyle} horizontal>
-                            激光雷达状态
-                          </Label>
-                          <div style={contentStyle}>
-                            {systemStatus.liDarStatus}
-                          </div>
-                        </List.Item>
-                        <List.Item style={listItemStyle}>
-                          <Label style={labelStyle} horizontal>
-                            电池状态
-                          </Label>
-                          <div style={contentStyle}>
-                            {systemStatus.batteryStatus}
-                          </div>
-                        </List.Item>
-                        <List.Item style={listItemStyle}>
-                          <Label style={labelStyle} horizontal>
-                            IMU状态
-                          </Label>
-                          <div style={contentStyle}>
-                            {systemStatus.IMUStatus}
-                          </div>
-                        </List.Item>
-                        <List.Item style={listItemStyle}>
-                          <Label style={labelStyle} horizontal>
-                            驱动状态
-                          </Label>
-                          <div style={contentStyle}>
-                            {systemStatus.driverStatus}
                           </div>
                         </List.Item>
                       </List>

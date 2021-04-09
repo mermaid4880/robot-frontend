@@ -137,7 +137,7 @@ const TabVideo = forwardRef((props, ref) => {
       <TabPane className={classes.vlcVideo} key="2" tab="&nbsp;&nbsp;&nbsp;IR">
         <VlcRtsp display={true} />
       </TabPane>
-      {/* <TabPane tab="Tab 3" key="3">
+      {/* <TabPane tab="&nbsp;&nbsp;&nbsp;IR" key="2">
         <iframe
           id="iframeIR"
           title="红外视频"

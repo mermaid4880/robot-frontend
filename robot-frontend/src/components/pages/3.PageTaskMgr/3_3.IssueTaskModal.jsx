@@ -41,8 +41,6 @@ function IssueTaskModal(props) {
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
-          //关闭本modal
-          setModalOpen(false);
           //alert成功
           swal({
             title: "下发任务成功",
@@ -56,8 +54,6 @@ function IssueTaskModal(props) {
           //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar");
         } else {
-          //关闭本modal
-          setModalOpen(false);
           //alert失败
           swal({
             title: "下发任务失败",
@@ -69,8 +65,6 @@ function IssueTaskModal(props) {
         }
       })
       .catch((error) => {
-        //关闭本modal
-        setModalOpen(false);
         //如果鉴权失败，跳转至登录页
         if (error.response.status === 401) {
           history.push("/");
@@ -105,7 +99,16 @@ function IssueTaskModal(props) {
         <p>确认下发该任务？</p>
       </Modal.Content>
       <Modal.Actions>
-        <Button primary content="确认下发" onClick={() => issueTaskPOST()} />
+        <Button
+          primary
+          content="确认下发"
+          onClick={() => {
+            //关闭本modal
+            setModalOpen(false);
+            //下发任务POST请求
+            issueTaskPOST();
+          }}
+        />
         <Button content="取消下发" onClick={() => setModalOpen(false)} />
       </Modal.Actions>
     </Modal>

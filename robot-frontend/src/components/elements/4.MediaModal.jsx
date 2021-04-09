@@ -36,7 +36,7 @@ function MediaModal(props) {
   const [loaderDisplay, setLoaderDisplay] = useState(true);
 
   //———————————————————————————————————————————————useEffect
-  //当（将由父组件3_.OneRecordDetailTable#2#3#4.jsx或3_2.RelatedMetersModal#4.jsx传递来的mediaInfo发生变化时），重新设置mediaInfo
+  //当（由父组件3_.OneRecordDetailTable#2#3#4.jsx或3_2.RelatedMetersModal#4.jsx传递来的mediaInfo发生变化时），重新设置mediaInfo
   useEffect(() => {
     setMediaInfo(props.mediaInfo);
   }, [props.mediaInfo]);

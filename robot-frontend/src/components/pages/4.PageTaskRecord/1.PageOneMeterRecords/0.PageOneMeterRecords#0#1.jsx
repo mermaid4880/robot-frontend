@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "reactstrap";
 import { makeStyles } from "@material-ui/core/styles";
+import { Card } from "@material-ui/core";
 import { Loader, Dimmer } from "semantic-ui-react";
 //elements
 import Navigation from "../../../elements/0.Navigation.jsx";
@@ -24,20 +25,13 @@ const useStyles = makeStyles((theme) => ({
   navBarCol: {
     padding: "0px",
   },
-  main: {
-    top: "0",
-    height: "892px",
-  },
-  tree: {
-    top: "0",
-    height: "850px",
-    padding: "0px 5px 0px 5px",
+  treeCard: {
+    marginLeft: "10px",
+    width: "465px",
+    height: "845px",
   },
   blankRow: {
     height: "38px",
-  },
-  oneMeterRecordsTableAndDetail: {
-    width: "1433px",
   },
 }));
 
@@ -68,18 +62,20 @@ function PageOneMeterRecords() {
           />
         </Col>
       </Row>
-      <Row className={classes.main}>
+      <Row>
         <Col sm="12" md={{ size: 3, offset: 0 }}>
           <Row>
             <Breadcrumb4_1 />
           </Row>
-          <Row className={classes.tree}>
-            <TreeSearch type={"insidePage"} />
+          <Row>
+            <Card className={classes.treeCard} elevation="10" raised>
+              <TreeSearch type={"insidePage"} />
+            </Card>
           </Row>
         </Col>
         <Col sm="12" md={{ size: 9, offset: 0 }}>
           <Row className={classes.blankRow}></Row>
-          <Row className={classes.oneMeterRecordsTableAndDetail}>
+          <Row>
             <OneMeterRecordsTableAndDetail />
           </Row>
         </Col>

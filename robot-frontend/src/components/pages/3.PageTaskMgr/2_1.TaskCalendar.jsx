@@ -33,43 +33,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-//———————————————————————————————————————————————FullCalendar（https://fullcalendar.io/）
-//Premium Plugins
-const plugins = [
-  bootstrapPlugin,
-  dayGridPlugin,
-  timeGridPlugin,
-  listPlugin,
-  momentPlugin,
-  interactionPlugin,
-];
-//Toolbar的header设置（包含的view）
-const header = {
-  left: "myPrevButton,myTodayButton,myNextButton", //自定义
-  center: "title",
-  right: "dayGridMonth,listMonth",
-};
-//Toolbar的buttonText设置
-const buttonText = {
-  month: "月",
-  list: "任务",
-};
-//Views
-const views = {
-  // name of view
-  dayGridMonth: {
-    titleFormat: "YYYY/MM/DD",
-    eventLimit: 5, // adjust to 5 only for timeGridWeek/timeGridDay
-    eventLimitText: "more", //Determines the text of the link created by the eventLimit setting.
-    eventLimitClick: "list", //Determines the action taken when the user clicks on a “more” link created by the eventLimit option.
-  },
-  // name of view
-  listMonth: {
-    titleFormat: "YYYY/MM/DD",
-  },
-};
-
 //———————————————————————————————————————————————全局函数
+//转换时间格式"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"——>"2016-05-12"
+function timeFormat(time) {
+  if (!time) return ""; //如果time是null返回空字符串""
+  var yy = time.getFullYear();
+  var mm = time.getMonth() + 1;
+  var dd = time.getDate();
+  if (mm < 10) {
+    mm = "0" + mm;
+  }
+  if (dd < 10) {
+    dd = "0" + dd;
+  }
+  let convertedDate = yy + "-" + mm + "-" + dd;
+  // console.log("convertedDate", convertedDate);
+  return convertedDate;
+}
+
 //转换时间格式"2016-05-12 08:00:00"——>"Thu May 12 2016 08:00:00 GMT+0800 (中国标准时间)"
 function timeDeformat(convertedTime) {
   convertedTime = convertedTime.replace(new RegExp(/-/gm), "/"); //将所有的'-'转为'/'即可（为了兼容IE）
@@ -78,11 +59,25 @@ function timeDeformat(convertedTime) {
   return time;
 }
 
+//调整23点以后的时间"2016-05-12 23:01:00"——>"2016-05-12 23:59:59"
+function timeAdjust(time) {
+  let adjustedTime = time.substring(0, 11) + "23:59:59";
+  // console.log("adjustedTime", adjustedTime);
+  return adjustedTime;
+}
+
 //将日历title"2020/07/01 – 2020/07/31"——>{startTime: "2020-07-01 00:00:00", endTime: "2020-07-31 23:59:59"}
+//或
+//将日历title"2020/07/01"——>{startTime: "2020-07-01 00:00:00", endTime: "2020-07-01 23:59:59"}
 function getTimeRange(title) {
-  const timeRange = {
+  let timeRange = {
     startTime: dateTransform(title.substring(0, 10), "00:00:00"),
-    endTime: dateTransform(title.substring(13, 23), "23:59:59"),
+    endTime: dateTransform(
+      title.substring(13, 23)
+        ? title.substring(13, 23)
+        : title.substring(0, 10),
+      "23:59:59"
+    ),
   };
   // console.log("timeRange", timeRange);
   return timeRange;
@@ -155,7 +150,10 @@ function generateCalendarEvents(list) {
       newEvent.id = item.id;
       newEvent.title = item.taskName;
       newEvent.start = timeDeformat(item.startTime);
-      newEvent.end = null;
+      newEvent.end = //如果任务开始时间超过23点，则设置任务结束时间为23:59:59
+        item.startTime.substring(11, 13) === "23"
+          ? timeAdjust(item.startTime)
+          : null;
       newEvent.backgroundColor =
         item.isStart === "启用" ? "#b0eacd" : "#fbf4f9";
       events.push(newEvent);
@@ -197,6 +195,9 @@ function TaskCalendar() {
     ],
     taskList: [], //全部任务数据
   });
+
+  //日历Toolbar中自定义按钮myToday显示的文字（“本月”或“今天”）
+  const [myTodayText, setMyTodayText] = useState("本月");
 
   //日历数据请求的时间段
   const [timeRange, setTimeRange] = useState({
@@ -262,8 +263,73 @@ function TaskCalendar() {
       });
   }, [update, timeRange]);
 
+  //———————————————————————————————————————————————设置<FullCalendar>用到的变量（https://fullcalendar.io/）
+  //———————————————————————————插件
+  //Premium Plugins
+  const plugins = [
+    bootstrapPlugin,
+    dayGridPlugin,
+    timeGridPlugin,
+    listPlugin,
+    momentPlugin,
+    interactionPlugin,
+  ];
+  //———————————————————————————Toolbar
+  //Toolbar的header设置（包含的view）
+  const header = {
+    left: "myPrev,myToday,myNext", //自定义
+    center: "title",
+    right: "myDayGridMonth,myListMonth",
+  };
+  //Toolbar的buttonText设置（对应的view的按钮显示文字）
+  const buttonText = {
+    myDayGridMonth: "月",
+    myListMonth: "任务",
+  };
+  //Toolbar里的自定义按钮
+  const customButtons = {
+    myPrev: {
+      text: "<",
+      click: handlePrevClick,
+    },
+    myToday: {
+      text: myTodayText,
+      click: handleTodayClick,
+    },
+    myNext: {
+      text: ">",
+      click: handleNextClick,
+    },
+    myDayGridMonth: {
+      text: "月",
+      click: handleDayGridMonthClick,
+    },
+    myListMonth: {
+      text: "任务",
+      click: handleListMonthClick,
+    },
+  };
+  //———————————————————————————Views
+  //Views
+  const views = {
+    // name of view     月——天——任务
+    dayGridMonth: {
+      titleFormat: "YYYY/MM/DD",
+      eventLimit: 5, // adjust to 5 only for timeGridWeek/timeGridDay
+      eventLimitText: "more", //Determines the text of the link created by the eventLimit setting.
+    },
+    // name of view     月——任务列表
+    listMonth: {
+      titleFormat: "YYYY/MM/DD",
+    },
+    // name of view     天——任务列表
+    listDay: {
+      titleFormat: "YYYY/MM/DD",
+    },
+  };
+
   //———————————————————————————————————————————————事件响应函数
-  //myPrevButton（<）点击事件响应函数
+  //myPrev（<）点击事件响应函数
   function handlePrevClick() {
     //调用<FullCalendar>组件自带的prev函数
     calendarComponentRef.current.getApi().prev();
@@ -273,7 +339,7 @@ function TaskCalendar() {
     );
   }
 
-  //myTodayButton（本月）点击事件响应函数
+  //myToday（本月）或（今天）点击事件响应函数
   function handleTodayClick() {
     //调用<FullCalendar>组件自带的today函数
     calendarComponentRef.current.getApi().today();
@@ -283,7 +349,7 @@ function TaskCalendar() {
     );
   }
 
-  //myNextButton（>）点击事件响应函数
+  //myNext（>）点击事件响应函数
   function handleNextClick() {
     //调用<FullCalendar>组件自带的next函数
     calendarComponentRef.current.getApi().next();
@@ -293,6 +359,32 @@ function TaskCalendar() {
     );
   }
 
+  //myDayGridMonth（月）点击事件响应函数
+  function handleDayGridMonthClick() {
+    //设置日历Toolbar中自定义按钮myToday显示的文字为（“本月”）
+    setMyTodayText("本月");
+    //调用<FullCalendar>组件自带的changeView函数    切换至dayGridMonth（月——天——任务）
+    calendarComponentRef.current.getApi().changeView("dayGridMonth");
+    //设置日历数据请求的时间段（根据日历title）
+    setTimeRange(
+      getTimeRange(calendarComponentRef.current.getApi().view.title)
+    );
+    console.log("（月）点击后calendarState", calendarState);
+  }
+
+  //myListMonth（任务）点击事件响应函数
+  function handleListMonthClick() {
+    //设置日历Toolbar中自定义按钮myToday显示的文字为（“本月”）
+    setMyTodayText("本月");
+    //调用<FullCalendar>组件自带的changeView函数    切换至listMonth（月——任务列表）
+    calendarComponentRef.current.getApi().changeView("listMonth");
+    //设置日历数据请求的时间段（根据日历title）
+    setTimeRange(
+      getTimeRange(calendarComponentRef.current.getApi().view.title)
+    );
+    console.log("（任务）点击后calendarState", calendarState);
+  }
+
   //event点击事件响应函数
   function handleEventClick(arg) {
     // console.log("event id:",arg.event.id);
@@ -300,48 +392,54 @@ function TaskCalendar() {
     const message = getTaskDetailById(arg.event.id, calendarState.taskList);
     //发送事件到3_4.TaskDetail.jsx中（刷新任务详细信息）
     message && emitter.emit("taskDetail", message);
+    console.log("event点击后calendarState", calendarState);
+  }
+
+  //event（more）点击事件响应函数
+  function handleEventLimitClick(arg) {
+    // console.log("event id:",arg.event.id);
+    //设置日历Toolbar中自定义按钮myToday显示的文字为（“今天”）
+    setMyTodayText("今天");
+    //调用<FullCalendar>组件自带的changeView函数    切换至listDay（天——任务列表）
+    calendarComponentRef.current
+      .getApi()
+      .changeView("listDay", timeFormat(arg.date));
+
+    console.log(
+      "event（more）点击后timeFormat(arg.date)",
+      timeFormat(arg.date)
+    );
+    console.log("event（more）点击后calendarState", calendarState);
   }
 
   return (
     <div className={classes.root}>
       <Spin spinning={loading} tip="Loading..." size="large">
         <FullCalendar
+          ref={calendarComponentRef}
+          //Locale（地区设置）
+          locale={zh_cn}
           //Premium Plugins
           plugins={plugins}
           //Toolbar
           header={header}
           buttonText={buttonText}
           //Toolbar里的自定义按钮
-          customButtons={{
-            myPrevButton: {
-              text: "<",
-              click: handlePrevClick,
-            },
-            myTodayButton: {
-              text: "本月",
-              click: handleTodayClick,
-            },
-            myNextButton: {
-              text: ">",
-              click: handleNextClick,
-            },
-          }}
+          customButtons={customButtons}
           //Theme
           themeSystem="bootstrap" //自定义style需要这一行！
           style={taskCalendarStyle}
           //Sizing
           contentHeight={730}
-          //view表格
+          //view（视图）
           views={views}
           defaultView="dayGridMonth"
-          ref={calendarComponentRef}
-          //Locale
-          locale={zh_cn} //地区设置
           //State
           weekends={calendarState.calendarWeekends}
           events={calendarState.calendarEvents}
           //Events
           eventClick={handleEventClick}
+          eventLimitClick={handleEventLimitClick}
         />
       </Spin>
     </div>

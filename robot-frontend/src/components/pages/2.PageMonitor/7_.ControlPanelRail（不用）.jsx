@@ -1,6 +1,10 @@
+//configuration
+import { WebSocketUrl } from "../../../configuration/config.js";
 //packages
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Container, Row, Col } from "reactstrap";
+import Paper from "@material-ui/core/Paper";
 import { Toast } from "primereact/toast";
 import { Tooltip } from "antd";
 import { makeStyles } from "@material-ui/core/styles";
@@ -45,13 +49,19 @@ import imgPd2Up from "../../../images/pages/2.PageMonitor/7.ControlPanel/1.挂�
 import imgPd2Down from "../../../images/pages/2.PageMonitor/7.ControlPanel/1.挂轨控制/局放减_DOWN.png";
 
 //elements
-import RobotStatus from "./7_1_3.RobotStatusGuagui.jsx";
+import RobotStatusRail from "./7_2.RobotStatusRail.jsx";
 //functions
 import { postData, getData } from "../../../functions/requestDataFromAPI.js";
 
 //————————————————————————————css
 const useStyles = makeStyles({
   root: {
+    marginLeft: "1.3rem",
+    marginTop: "0.5rem",
+    width: 625,
+    height: 516,
+  },
+  root1: {
     marginLeft: "50px",
     marginTop: "25px",
     width: "620px",
@@ -65,7 +75,7 @@ const useStyles = makeStyles({
     float: "left",
   },
   GuaguiControl: {
-    width: "270px",//
+    width: "270px", //
     height: "405px",
     float: "left",
     overflow: "hidden",
@@ -220,10 +230,12 @@ const useStyles = makeStyles({
   },
 });
 
-
-
-function RobotControl() {
+function ControlPanelRail() {
   const classes = useStyles();
+
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //控件按钮的显示状态
   const [buttonStatus, setButtonStatus] = useState({
@@ -243,50 +255,137 @@ function RobotControl() {
   });
 
   function Control(operation) {
-    postData(operation).then((data) => {
-      if (data.success) {
-        this.toast.show({
+    postData(operation)
+      .then((data) => {
+        if (data.success) {
+          toast.show({
+            severity: "success",
+            summary: "Success Message",
+            detail: data.detail,
+            life: 3000,
+          });
+        } else {
+          toast.show({
+            severity: "error",
+            summary: "Error Message",
+            detail: data.detail,
+            life: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+  }
+
+  const ws = useRef(null);
+  useEffect(() => {
+    ws.current = new WebSocket("ws://127.0.0.1:8900");
+    try {
+      ws.current.onmessage = function (event) {
+        toast.show({
           severity: "success",
           summary: "Success Message",
-          detail: data.detail,
+          detail: event.data,
           life: 3000,
         });
-      } else {
-        this.toast.show({
+      };
+      ws.current.onclose = function (event) {
+        toast.show({
           severity: "error",
           summary: "Error Message",
-          detail: data.detail,
+          detail: "已经与服务器断开连接\r\n当前连接状态：" + this.readyState,
+          life: 3000,
+        });
+      };
+      ws.current.onerror = function (event) {
+        toast.show({
+          severity: "error",
+          summary: "Error Message",
+          detail: "WebSocket异常！",
+          life: 3000,
+        });
+      };
+    } catch (ex) {
+      toast.show({
+        severity: "error",
+        summary: "Error Message",
+        detail: ex.message,
+        life: 3000,
+      });
+    }
+    getData("/robots/robotconfiglist")
+      .then((data) => {
+        if (data.success) {
+          for (let index = 0; index < data.data.robotList.length; index++) {
+            if (data.data.robotList[index].robotId === data.data.curId) {
+              ws.current.send("ip:" + data.data.robotList[index].robotIp);
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+
+    //组件销毁时断开websocket连接
+    return () => {
+      try {
+        ws.current.close();
+      } catch (ex) {
+        toast.show({
+          severity: "error",
+          summary: "Error Message",
+          detail: ex.message,
           life: 3000,
         });
       }
-    });
+    };
+  }, []);
+
+  function SendStartData() {
+    try {
+      var content = "ctrl:s";
+      if (content) {
+        ws.current.send(content);
+      }
+    } catch (ex) {
+      toast.show({
+        severity: "error",
+        summary: "Error Message",
+        detail: ex.message,
+        life: 3000,
+      });
+    }
   }
 
-  // function GetControl(operation) {
-  //   getData(operation).then((data) => {
-  //     if (data.success) {
-  //       this.toast.show({
-  //         severity: "success",
-  //         summary: "Success Message",
-  //         detail: data.detail,
-  //         life: 3000,
-  //       });
-  //     } else {
-  //       this.toast.show({
-  //         severity: "error",
-  //         summary: "Error Message",
-  //         detail: data.detail,
-  //         life: 3000,
-  //       });
-  //     }
-  //   });
-  // }
+  function SendStopData() {
+    try {
+      var content = "ctrl:f";
+      if (content) {
+        ws.current.send(content);
+      }
+    } catch (ex) {
+      toast.show({
+        severity: "error",
+        summary: "Error Message",
+        detail: ex.message,
+        life: 3000,
+      });
+    }
+  }
 
   return (
-    <div>
+    <Paper className={classes.root} elevation="10" raised>
       <Toast ref={(el) => (this.toast = el)} position="top-center" />
       <Row>
-        <div className={classes.root}>
+        <div className={classes.root1}>
           <div className={classes.button}>
             <Tooltip
               placement="bottom"
@@ -375,8 +474,8 @@ function RobotControl() {
                   src={buttonStatus.imgDuijiang}
                   onClick={() => {
                     buttonStatus.imgDuijiang === imgDuijiang1
-                      ? Control("control/vl/voice_talk/start")
-                      : Control("control/vl/voice_talk/stop");
+                      ? SendStartData()
+                      : SendStopData();
                     setButtonStatus((prev) => {
                       return buttonStatus.imgDuijiang === imgDuijiang1
                         ? { ...prev, imgDuijiang: imgDuijiang2 }
@@ -440,7 +539,7 @@ function RobotControl() {
                 />
               </a>
             </Tooltip>
-          </div> 
+          </div>
           <div className={classes.button}>
             <Tooltip
               placement="bottom"
@@ -688,7 +787,7 @@ function RobotControl() {
               <img
                 src={buttonStatus.imgYuntaiBianbei1}
                 onMouseDown={() => {
-                Control("rail_control/vl_zoomIn");
+                  Control("rail_control/vl_zoomIn");
                   setButtonStatus((prev) => {
                     return {
                       ...prev,
@@ -697,7 +796,7 @@ function RobotControl() {
                   });
                 }}
                 onMouseUp={() => {
-                Control("rail_control/vl_zoomStop");
+                  Control("rail_control/vl_zoomStop");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiBianbei1: imgYuntaiBianbei1Up };
                   });
@@ -708,7 +807,7 @@ function RobotControl() {
               <img
                 src={buttonStatus.imgYuntaiBianbei2}
                 onMouseDown={() => {
-                Control("rail_control/vl_zoomOut");
+                  Control("rail_control/vl_zoomOut");
                   setButtonStatus((prev) => {
                     return {
                       ...prev,
@@ -717,7 +816,7 @@ function RobotControl() {
                   });
                 }}
                 onMouseUp={() => {
-                Control("rail_control/vl_zoomStop");
+                  Control("rail_control/vl_zoomStop");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiBianbei2: imgYuntaiBianbei2Up };
                   });
@@ -728,13 +827,13 @@ function RobotControl() {
               <img
                 src={buttonStatus.imgYuntaiJiaoju1}
                 onMouseDown={() => {
-                Control("rail_control/vl_focusIn");
+                  Control("rail_control/vl_focusIn");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiJiaoju1: imgYuntaiJiaoju1Down };
                   });
                 }}
                 onMouseUp={() => {
-                Control("rail_control/vl_focusStop");
+                  Control("rail_control/vl_focusStop");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiJiaoju1: imgYuntaiJiaoju1Up };
                   });
@@ -745,13 +844,13 @@ function RobotControl() {
               <img
                 src={buttonStatus.imgYuntaiJiaoju2}
                 onMouseDown={() => {
-                Control("rail_control/vl_focusOut");
+                  Control("rail_control/vl_focusOut");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiJiaoju2: imgYuntaiJiaoju2Down };
                   });
                 }}
                 onMouseUp={() => {
-                Control("rail_control/vl_focusStop");
+                  Control("rail_control/vl_focusStop");
                   setButtonStatus((prev) => {
                     return { ...prev, imgYuntaiJiaoju2: imgYuntaiJiaoju2Up };
                   });
@@ -761,11 +860,11 @@ function RobotControl() {
           </div>
         </div>
         <div className={classes.status}>
-        <RobotStatus />
+          <RobotStatusRail />
         </div>
       </Row>
-    </div>
+    </Paper>
   );
 }
 
-export default RobotControl;
+export default ControlPanelRail;

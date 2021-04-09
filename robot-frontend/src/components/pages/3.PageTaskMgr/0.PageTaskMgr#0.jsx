@@ -13,7 +13,6 @@ import TaskTableAndDetail from "./3_.TaskTableAndDetail.jsx";
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
-    width: "1920px",
     height: "962px",
   },
   navBarRow: {
@@ -23,15 +22,6 @@ const useStyles = makeStyles((theme) => ({
   },
   navBarCol: {
     padding: "0px",
-  },
-  main: {
-    top: "0",
-    height: "892px",
-  },
-  tabTreeCalendar: {
-    top: "0",
-    height: "850px",
-    padding: "0px 5px 0px 5px",
   },
   blankRow: {
     height: "38px",
@@ -65,12 +55,12 @@ function PageTaskMgr() {
           />
         </Col>
       </Row>
-      <Row className={classes.main}>
+      <Row>
         <Col sm="12" md={{ size: 3, offset: 0 }}>
           <Row>
             <Breadcrumb3 />
           </Row>
-          <Row className={classes.tabTreeCalendar}>
+          <Row>
             <TabTreeCalendar />
           </Row>
         </Col>

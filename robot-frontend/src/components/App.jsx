@@ -18,8 +18,8 @@ function App() {
     <HashRouter history={history}>
       <div>
         <Switch>
-          {/* <Route path="/" component={PageLogin} exact></Route> */}
-          <Route path="/" component={PageMonitor} exact></Route>
+          <Route path="/" component={PageLogin} exact></Route>
+          {/* <Route path="/" component={PageMonitor} exact></Route> */}
           <Route path="/Monitor" component={PageMonitor}></Route>
           <Route path="/TaskMgr" component={PageTaskMgr}></Route>
           <Route path="/AllRecords" component={PageAllRecords}></Route>

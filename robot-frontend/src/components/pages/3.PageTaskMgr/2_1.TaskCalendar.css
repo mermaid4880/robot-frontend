@@ -1,3 +1,9 @@
+/* 工具栏 */
+.fc-toolbar.fc-header-toolbar {
+  margin-top: 0px;
+  margin-bottom: 9px;
+}
+
 /* 按钮-正常状态 */
 .btn-primary {
   color: #fff;

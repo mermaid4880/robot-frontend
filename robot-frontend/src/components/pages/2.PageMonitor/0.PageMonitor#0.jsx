@@ -7,24 +7,18 @@ import { Loader, Dimmer } from "semantic-ui-react";
 import Navigation from "../../elements/0.Navigation.jsx";
 import Breadcrumb2 from "./1.Breadcrumb2.jsx";
 import TaskStatus from "./2.TaskStatus.jsx";
-import IndoorEnvironmentInfo from "./3.IndoorEnvironmentInfo.jsx";
-// import OutdoorEnvironmentInfo from "./3.OutdoorEnvironmentInfo.jsx";
+// import IndoorEnvironmentInfo from "./3.IndoorEnvironmentInfo.jsx";
+import OutdoorEnvironmentInfo from "./3.OutdoorEnvironmentInfo.jsx";
 import Map from "./4_.Map.jsx";
 import TabInfo from "./5.TabInfo.jsx";
 import TabVideo from "./6_.TabVideo.jsx";
-import ControlPanel from "./7_.ControlPanel.jsx";
+import ControlPanelWheel from "./7_.ControlPanelWheel.jsx";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: "#eeeeee",
     height: "962px",
-  },
-  dimmer: {
-    width: "100%",
-    padding: "0px",
-    margin: "0px",
-    height: "892px",
   },
   navBarRow: {
     top: "0",
@@ -70,15 +64,15 @@ function PageMonitor() {
       <Row>
         <Breadcrumb2 />
       </Row>
-      <Row className={classes.main}>
+      <Row>
         <Col className={classes.col} sm="12" md={{ size: 8, offset: 0 }}>
           <Row>
             <TaskStatus />
           </Row>
           <Row>
             <Col className={classes.col} sm={{ size: "auto", offset: 0 }}>
-              <IndoorEnvironmentInfo />
-              {/* <OutdoorEnvironmentInfo /> */}
+              {/* <IndoorEnvironmentInfo /> */}
+              <OutdoorEnvironmentInfo />
             </Col>
             <Col className={classes.col} sm={{ size: "9", offset: 0 }}>
               <Map />
@@ -101,7 +95,7 @@ function PageMonitor() {
                 tabVideoRef.current.stopRecord(); //调用<TabVideo>组件的函数
               }}
             /> */}
-            <ControlPanel />
+            <ControlPanelWheel />
           </Row>
         </Col>
       </Row>

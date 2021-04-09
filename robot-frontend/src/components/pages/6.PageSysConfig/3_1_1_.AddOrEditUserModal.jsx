@@ -1,5 +1,6 @@
 //packages
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Button1 from "@material-ui/core/Button";
 import { Button, Header, Modal } from "semantic-ui-react";
@@ -26,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
 function EditUserModal(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //本modal是否打开状态
   const [modalOpen, setModalOpen] = useState(false);
@@ -49,7 +53,7 @@ function EditUserModal(props) {
         title: "新增失败",
         text: "以上内容为必填消息，均不能为空",
         icon: "warning",
-        timer: 1500,
+        timer: 3000,
         buttons: false,
       });
       return;
@@ -60,7 +64,7 @@ function EditUserModal(props) {
           title: "新增失败",
           text: "前后密码不一致",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -83,7 +87,7 @@ function EditUserModal(props) {
           title: "新增失败",
           text: "姓名不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -97,7 +101,7 @@ function EditUserModal(props) {
           title: "新增失败",
           text: "显示姓名不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -111,7 +115,7 @@ function EditUserModal(props) {
           title: "新增失败",
           text: "手机号不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -121,7 +125,7 @@ function EditUserModal(props) {
           title: "新增失败",
           text: "手机号必须为11位数字",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -138,32 +142,49 @@ function EditUserModal(props) {
     postParamData.append("accessIds", paramData.accessIds.toString());
     postParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送POST请求
-    postData("/users", postParamData).then((data) => {
-      console.log("post结果", data);
-      if (data.success) {
+    postData("/users", postParamData)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //关闭本modal
+          setModalOpen(false);
+          //alert成功
+          swal({
+            title: "新增成功",
+            text: "用户" + paramData.username + "新增成功",
+            icon: "success",
+            timer: 3000,
+            buttons: false,
+          });
+          //调用父组件函数（重新GET用户列表并刷新页面）
+          props.updateParent();
+        } else {
+          //alert失败
+          swal({
+            title: "新增失败",
+            text: data.detail,
+            icon: "error",
+            timer: 3000,
+            buttons: false,
+          });
+        }
+      })
+      .catch((error) => {
         //关闭本modal
         setModalOpen(false);
-        //alert成功
-        swal({
-          title: "新增成功",
-          text: "用户" + paramData.username + "新增成功",
-          icon: "success",
-          timer: 3000,
-          buttons: false,
-        });
-        //调用父组件函数（重新GET用户列表并刷新页面）
-        props.updateParent();
-      } else {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "新增失败",
-          text: data.detail,
+          text: error.toString(),
           icon: "error",
           timer: 3000,
           buttons: false,
         });
-      }
-    });
+      });
   }
 
   //修改用户PUT请求
@@ -180,7 +201,7 @@ function EditUserModal(props) {
         title: "编辑失败",
         text: "以上内容为必填消息，均不能为空",
         icon: "warning",
-        timer: 1500,
+        timer: 3000,
         buttons: false,
       });
       return;
@@ -191,7 +212,7 @@ function EditUserModal(props) {
           title: "编辑失败",
           text: "前后密码不一致",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -214,7 +235,7 @@ function EditUserModal(props) {
           title: "编辑失败",
           text: "姓名不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -228,7 +249,7 @@ function EditUserModal(props) {
           title: "编辑失败",
           text: "显示姓名不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -242,7 +263,7 @@ function EditUserModal(props) {
           title: "编辑失败",
           text: "手机号不能包含特殊字符和空格",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -252,7 +273,7 @@ function EditUserModal(props) {
           title: "编辑失败",
           text: "手机号必须为11位数字",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -270,32 +291,49 @@ function EditUserModal(props) {
     putParamData.append("accessIds", paramData.accessIds.toString());
     putParamData.append("phoneNum", paramData.phoneNum.toString());
     //发送PUT请求
-    putData("/users/" + props.data.id, putParamData).then((data) => {
-      console.log("post结果", data);
-      if (data.success) {
+    putData("/users/" + props.data.id, putParamData)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //关闭本modal
+          setModalOpen(false);
+          //alert成功
+          swal({
+            title: "编辑成功",
+            text: "用户" + paramData.username + "编辑成功",
+            icon: "success",
+            timer: 3000,
+            buttons: false,
+          });
+          //调用父组件函数（重新GET用户列表并刷新页面）
+          props.updateParent();
+        } else {
+          //alert失败
+          swal({
+            title: "编辑失败",
+            text: data.detail,
+            icon: "error",
+            timer: 3000,
+            buttons: false,
+          });
+        }
+      })
+      .catch((error) => {
         //关闭本modal
         setModalOpen(false);
-        //alert成功
-        swal({
-          title: "编辑成功",
-          text: "用户" + paramData.username + "编辑成功",
-          icon: "success",
-          timer: 1500,
-          buttons: false,
-        });
-        //调用父组件函数（重新GET用户列表并刷新页面）
-        props.updateParent();
-      } else {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "编辑失败",
-          text: data.detail,
+          text: error.toString(),
           icon: "error",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
-      }
-    });
+      });
   }
 
   return (

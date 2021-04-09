@@ -1,11 +1,11 @@
 //packages
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Label as Label1 } from "semantic-ui-react";
-import { Typography, Card, CardContent } from "@material-ui/core"; 
+import { Typography, Card, CardContent } from "@material-ui/core";
 import { PieChart, Pie, Cell } from "recharts";
 import { Tooltip } from "antd";
-import { Toast } from "primereact/toast";
+import { Alert } from "rsuite";
 //functions
 import { getData, postData } from "../../../functions/requestDataFromAPI.js";
 //images
@@ -49,7 +49,7 @@ const pieChartStyle = {
   overflow: "hidden",
 };
 //饼图的展示区域（text）
-const pieChartText = {
+const pieChartTextStyle = {
   fontSize: "1.1rem",
   whiteSpace: "normal",
   wordBreak: "break-all",
@@ -166,9 +166,6 @@ function getPieData(realtimeTaskInfo) {
 function TaskStatus() {
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
-
-  //———————————————————————————————————————————————useRef
-  const toastRef = useRef(null); //<Toast>组件的ref
 
   //———————————————————————————————————————————————useState
   //本组件是否需要更新的状态
@@ -330,15 +327,25 @@ function TaskStatus() {
         break;
     }
     //发送POST请求
-    postData("taskManager/" + path).then((data) => {
-      console.log("post结果", data);
-      this.toast.show({
-        severity: "error",
-        summary: "Error Message",
-        detail: data.detail,
-        life: 3000,
+    postData("taskManager/" + path)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //rsuite Alert成功
+          Alert.success(buttonName + "：" + data.detail, 3000);
+        } else {
+          //rsuite Alert失败
+          Alert.error(buttonName + "失败：" + data.detail, 0);
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+        //rsuite Alert失败
+        Alert.error(buttonName + "失败：" + error.toString(), 0);
       });
-    });
   }
 
   //设置按钮图片的显示为UP状态（按钮名字）
@@ -399,7 +406,6 @@ function TaskStatus() {
 
   return (
     <Card style={rootStyle} raised>
-      <Toast ref={(el) => (this.toast = el)} position="top-center" />
       <CardContent style={cardContentStyle}>
         <Typography style={labelStyle} color="textSecondary">
           <Label1 color="teal" ribbon>
@@ -409,7 +415,7 @@ function TaskStatus() {
         {/* 当前巡检进度text + 饼饼 */}
         <PieChart style={pieChartStyle} width={280} height={90}>
           <text
-            style={pieChartText}
+            style={pieChartTextStyle}
             x={54}
             y={32}
             dx={5}
@@ -422,7 +428,7 @@ function TaskStatus() {
             当前巡检进度
           </text>
           <text
-            style={pieChartText}
+            style={pieChartTextStyle}
             x={168}
             y={32}
             dx={5}

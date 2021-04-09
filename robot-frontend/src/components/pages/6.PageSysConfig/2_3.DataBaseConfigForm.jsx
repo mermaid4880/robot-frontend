@@ -1,5 +1,6 @@
 //packages
 import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import { Form } from "semantic-ui-react";
 import swal from "sweetalert";
 //functions
@@ -20,6 +21,9 @@ function initInput(data) {
 }
 
 function DataBaseConfigForm(props) {
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
+
   //———————————————————————————————————————————————useState
   //用户输入内容
   const [input, setInput] = useState(initInput());
@@ -46,7 +50,7 @@ function DataBaseConfigForm(props) {
         title: "修改数据库配置失败",
         text: "以上内容为必填消息，均不能为空",
         icon: "warning",
-        timer: 1500,
+        timer: 3000,
         buttons: false,
       });
       return;
@@ -57,7 +61,7 @@ function DataBaseConfigForm(props) {
           title: "修改数据库配置失败",
           text: "前后密码不一致",
           icon: "warning",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
         return;
@@ -74,30 +78,45 @@ function DataBaseConfigForm(props) {
     }
 
     //发送PUT请求
-    putData("/robots/robotupdate", putParamData).then((data) => {
-      console.log("post结果", data);
-      if (data.success) {
-        //alert成功
-        swal({
-          title: "数据库配置成功",
-          text: "                 ",
-          icon: "success",
-          timer: 3000,
-          buttons: false,
-        });
-        //调用父组件函数（重新GET配置列表并刷新）
-        props.updateParent();
-      } else {
+    putData("/robots/robotupdate", putParamData)
+      .then((data) => {
+        console.log("post结果", data);
+        if (data.success) {
+          //alert成功
+          swal({
+            title: "数据库配置成功",
+            text: "                 ",
+            icon: "success",
+            timer: 3000,
+            buttons: false,
+          });
+          //调用父组件函数（重新GET配置列表并刷新）
+          props.updateParent();
+        } else {
+          //alert失败
+          swal({
+            title: "数据库配置失败",
+            text: data.detail,
+            icon: "error",
+            timer: 3000,
+            buttons: false,
+          });
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
         //alert失败
         swal({
           title: "数据库配置失败",
-          text: data.detail,
+          text: error.toString(),
           icon: "error",
-          timer: 1500,
+          timer: 3000,
           buttons: false,
         });
-      }
-    });
+      });
   }
   return (
     <Form>

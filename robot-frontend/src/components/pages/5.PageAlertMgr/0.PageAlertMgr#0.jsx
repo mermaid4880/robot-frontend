@@ -23,11 +23,6 @@ const useStyles = makeStyles((theme) => ({
   navBarCol: {
     padding: "0px",
   },
-  main: {
-    top: "0",
-    height: "530px",
-    padding: "0px 8px 0px 8px",
-  },
 }));
 
 function PageAlertMgr(props) {
@@ -60,7 +55,7 @@ function PageAlertMgr(props) {
       <Row>
         <Breadcrumb5 />
       </Row>
-      <Row className={classes.main}>
+      <Row>
         <AlertTableAndDetail
           filter={props.location.query && props.location.query.filter} //从导航栏小铃铛进入告警页面时带参数
         />
