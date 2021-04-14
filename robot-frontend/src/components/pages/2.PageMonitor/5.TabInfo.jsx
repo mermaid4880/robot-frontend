@@ -1,3 +1,4 @@
+// 5.TabInfo（Websocket）
 //packages
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -158,26 +159,21 @@ function TabTable() {
     try {
       //——————设置接收消息处理函数
       ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("detectInfo")) {
-          // ws.current.send("received");
-          let messageDetectInfo = JSON.parse(msg.toString()).detectInfo;
-          // console.log("event", event.data.toString());
-          messageDetectInfo &&
-            addRealtimeInfoMessage(JSON.stringify(messageDetectInfo));
+        var strMsg = event.data; //例如："{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}"
+        var objMsg = JSON.parse(strMsg.toString()); //例如：{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}
+        // console.log("接收到的websocket消息字符串：", strMsg, "  接收到的websocket消息JSON对象：", objMsg);
+
+        //  （Websocket group2）4. 任务实时信息
+        if (objMsg.hasOwnProperty("detectInfo")) {
+          objMsg.detectInfo && addRealtimeInfoMessage(objMsg.detectInfo);
         }
-        if (JSON.parse(msg.toString()).hasOwnProperty("systemAlarm")) {
-          // ws.current.send("received");
-          let messageSystemAlarm = JSON.parse(msg.toString()).systemAlarm;
-          messageSystemAlarm &&
-            addSystemAlarmInfoMessage(JSON.stringify(messageSystemAlarm));
+        // （Websocket group2）5. 机器人本体报警信息
+        if (objMsg.hasOwnProperty("systemAlarm")) {
+          objMsg.systemAlarm && addSystemAlarmInfoMessage(objMsg.systemAlarm);
         }
-        if (JSON.parse(msg.toString()).hasOwnProperty("softwareInfo")) {
-          // ws.current.send("received");
-          let messageSoftwareInfo = JSON.parse(msg.toString()).softwareInfo;
-          messageSoftwareInfo &&
-            addSoftwareInfoMessage(JSON.stringify(messageSoftwareInfo));
+        // （Websocket group2）6. 软件调试信息
+        if (objMsg.hasOwnProperty("softwareInfo")) {
+          objMsg.softwareInfo && addSoftwareInfoMessage(objMsg.softwareInfo);
         }
       };
     } catch (ex) {
@@ -284,8 +280,9 @@ function TabTable() {
   }
 
   //添加一条信息到实时信息Tab中
-  function addRealtimeInfoMessage(message) {
-    // console.log("addRealtimeInfoMessage", typeof message);
+  function addRealtimeInfoMessage(objMsg) {
+    // console.log("addRealtimeInfoMessage", typeof objMsg);
+    let message = JSON.stringify(objMsg);
     setRealtimeInfo((prev) => ({
       messageArray: [
         `${message}`,
@@ -302,8 +299,9 @@ function TabTable() {
   }
 
   //添加一条信息到系统告警信息Tab中
-  function addSystemAlarmInfoMessage(message) {
-    // console.log("addSystemAlarmInfoMessage", typeof message);
+  function addSystemAlarmInfoMessage(objMsg) {
+    // console.log("addSystemAlarmInfoMessage", typeof objMsg);
+    let message = JSON.stringify(objMsg);
     setSystemAlarmInfo((prev) => ({
       messageArray: [
         `${message}`,
@@ -320,8 +318,9 @@ function TabTable() {
   }
 
   //添加一条信息到软件调试信息Tab中
-  function addSoftwareInfoMessage(message) {
-    // console.log("addSoftwareInfoMessage", typeof message);
+  function addSoftwareInfoMessage(objMsg) {
+    // console.log("addSoftwareInfoMessage", typeof objMsg);
+    let message = JSON.stringify(objMsg);
     setSoftwareInfo((prev) => ({
       messageArray: [
         `${message}`,

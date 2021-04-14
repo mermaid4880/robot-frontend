@@ -8,7 +8,7 @@ import Navigation from "../../elements/0.Navigation.jsx";
 import Breadcrumb6 from "./1.Breadcrumb6.jsx";
 import SysConfig from "./2_.SysConfig.jsx";
 import UserConfig from "./3_.UserConfig.jsx";
-import SysStatus from "./4_.SysStatus.jsx";
+import SysStatus from "./4.SysStatus.jsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -70,7 +70,7 @@ function PageSysConfig() {
           <Row>
             <Breadcrumb6 />
           </Row>
-          <Row >
+          <Row>
             <SysConfig />
           </Row>
         </Col>

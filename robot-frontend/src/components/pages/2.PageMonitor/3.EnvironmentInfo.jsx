@@ -1,3 +1,4 @@
+// 3.EnvironmentInfo（室外）
 //packages
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";

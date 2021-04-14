@@ -1,3 +1,4 @@
+// 7_2.RobotStatus（挂轨）（轮询）
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
@@ -34,7 +35,7 @@ const Space = {
   height: 8,
 };
 
-function RobotStatusRail() {
+function RobotStatus() {
   const classes = useStyles();
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
@@ -232,4 +233,4 @@ function RobotStatusRail() {
     </div>
   );
 }
-export default RobotStatusRail;
+export default RobotStatus;

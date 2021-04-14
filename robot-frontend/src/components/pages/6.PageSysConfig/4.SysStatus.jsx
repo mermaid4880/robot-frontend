@@ -1,3 +1,4 @@
+// 4.SysStatus（轮式）（Websocket）
 //packages
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -11,7 +12,6 @@ import {
 } from "reactstrap";
 import { Alert } from "rsuite";
 import classnames from "classnames";
-import { makeStyles } from "@material-ui/core/styles";
 import { Typography, Card, CardContent } from "@material-ui/core";
 import { Label, List, Grid } from "semantic-ui-react";
 //functions
@@ -93,12 +93,13 @@ function SysStatus() {
     try {
       //——————设置接收消息处理函数
       ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("robotStatus")) {
-          // ws.current.send("received");
-          let json = JSON.parse(msg.toString()).robotStatus;
-          setSystemStatus(json);
+        var strMsg = event.data; //例如："{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}"
+        var objMsg = JSON.parse(strMsg.toString()); //例如：{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}
+        // console.log("接收到的websocket消息字符串：", strMsg, "  接收到的websocket消息JSON对象：", objMsg);
+
+        // （Websocket group3）1_1. 机器人状态（详）（轮式）
+        if (objMsg.hasOwnProperty("robotStatus")) {
+          setSystemStatus(objMsg.robotStatus);
         }
       };
     } catch (ex) {

@@ -1,3 +1,4 @@
+// 3.EnvironmentInfo（室内）
 //packages
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
@@ -109,35 +110,7 @@ function getIndoorEnvironmentData(data) {
   return newData;
 }
 
-function Control(operation) {
-  console.log("enter control:", operation);
-  postData(operation)
-    .then((data) => {
-      if (data.success) {
-        this.toast.show({
-          severity: "success",
-          summary: "Success Message",
-          detail: data.detail,
-          life: 3000,
-        });
-      } else {
-        this.toast.show({
-          severity: "error",
-          summary: "Error Message",
-          detail: data.detail,
-          life: 3000,
-        });
-      }
-    })
-    .catch((error) => {
-      //如果鉴权失败，跳转至登录页
-      if (error.response.status === 401) {
-        history.push("/");
-      }
-    });
-}
-
-function IndoorEnvironmentInfo() {
+function EnvironmentInfo() {
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
@@ -273,6 +246,34 @@ function IndoorEnvironmentInfo() {
     );
   }
 
+  function Control(operation) {
+    console.log("enter control:", operation);
+    postData(operation)
+      .then((data) => {
+        if (data.success) {
+          this.toast.show({
+            severity: "success",
+            summary: "Success Message",
+            detail: data.detail,
+            life: 3000,
+          });
+        } else {
+          this.toast.show({
+            severity: "error",
+            summary: "Error Message",
+            detail: data.detail,
+            life: 3000,
+          });
+        }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+  }
+
   return (
     <Card style={rootStyle}>
       <CardContent style={cardContentStyle}>
@@ -295,4 +296,4 @@ function IndoorEnvironmentInfo() {
   );
 }
 
-export default IndoorEnvironmentInfo;
+export default EnvironmentInfo;

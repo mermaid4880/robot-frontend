@@ -1,3 +1,4 @@
+// 7_.ControlPanel（轮式）
 //packages
 import React, { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
@@ -8,9 +9,9 @@ import { Alert } from "rsuite";
 import { Tooltip } from "antd";
 //elements
 import Radar from "./7_1.Radar.jsx";
-import RobotStatusWheel from "./7_2.RobotStatusWheel.jsx";
+import RobotStatus from "./7_2.RobotStatus.jsx";
 //functions
-import { postData, getData } from "../../../functions/requestDataFromAPI.js";
+import { postData } from "../../../functions/requestDataFromAPI.js";
 import {
   initWebsocket,
   destroyWebsocket,
@@ -217,7 +218,7 @@ function modifyJsonObj(jsonObj, key, oldValue, newValue) {
 //   ...
 // }
 
-function ControlPanelWheel() {
+function ControlPanel() {
   const classes = useStyles();
 
   //———————————————————————————————————————————————useHistory
@@ -473,8 +474,8 @@ function ControlPanelWheel() {
       img2: imgDuijiang2, //按钮状态2对应的图片
       text1: "开始对讲", //按钮状态1对应的操作提示
       text2: "停止对讲", //按钮状态2对应的操作提示
-      message1: "ctrl:s", //按钮状态1对应的点击触发websocket发送的指令
-      message2: "ctrl:f", //按钮状态2对应的点击触发websocket发送的指令
+      message1: "voiceTalk:start", //按钮状态1对应的点击触发websocket发送的指令
+      message2: "voiceTalk:stop", //按钮状态2对应的点击触发websocket发送的指令
     },
   });
 
@@ -486,34 +487,6 @@ function ControlPanelWheel() {
     ws.current = initWebsocket("voiceTalk");
     //接收websocket消息
     recvWebsocketRecMsg(ws.current);
-    //————————————————————————————根据（GET请求结果计算出当前机器人IP）发送websocket消息
-    getData("/robots/robotconfiglist")
-      .then((data) => {
-        if (data.success) {
-          //—————————————计算出当前机器人IP
-          //获取当前机器人ID
-          let curRobotId = data.data.curId;
-          // console.log("curRobotId", curRobotId);
-          //根据（当前机器人ID）从所有机器人信息列表data.data.robotList（JSON数组）中过滤出当前机器人信息curRobotArray（单元素JSON数组）
-          let curRobotArray = data.data.robotList.filter((item) => {
-            return item.robotId === curRobotId;
-          });
-          // console.log("curRobotArray", curRobotArray);
-          //根据（当前机器人信息）获取当前机器人IP
-          let curRobotIp = curRobotArray[0].robotIp;
-          // console.log("curRobotIp", curRobotIp);
-
-          //—————————————发送websocket消息
-          //发送websocket消息（例如："ip:192.168.0.100"）
-          sendWebsocketMsg(ws.current, "ip:" + curRobotIp, "voiceTalk");
-        }
-      })
-      .catch((error) => {
-        //如果鉴权失败，跳转至登录页
-        if (error.response.status === 401) {
-          history.push("/");
-        }
-      });
 
     //组件销毁时
     return () => {
@@ -530,40 +503,31 @@ function ControlPanelWheel() {
       //——————设置接收消息处理函数
       ws.onmessage = function (event) {
         var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
+        console.log("event", event);
         switch (msg) {
-          case "server connected!": //连接（对讲）服务器成功
-            //rsuite Alert（对讲）服务器成功
-            Alert.info(
-              "WebSocket连接（对讲）服务器成功！\r\n消息内容：" + msg,
-              3000
-            );
-            break;
-          case "recv robot IP addr!": //设置机器人IP成功
-            //rsuite Alert设置机器人IP成功
-            Alert.info("WebSocket设置机器人IP成功！\r\n消息内容：" + msg, 3000);
-            break;
-          case "recv start msg!": //开始对讲成功
+          case "voiceTalk:startSuccess": //开始对讲成功
             //rsuite Alert开始对讲成功
-            Alert.success(
-              buttons4.duijiang.text1 + "成功！消息内容：" + msg,
-              3000
-            );
+            Alert.success("开始对讲成功！", 3000);
             //设置4类按钮的状态（相应的按钮状态设为"STATE2"）
             setButtons4(
               modifyJsonObj(buttons4, "duijiang", "STATE1", "STATE2")
             );
             break;
-          case "recv finish msg!": //停止对讲成功
-            //rsuite Alert停止对讲成功
-            Alert.success(
-              buttons4.duijiang.text2 + "成功！消息内容：" + msg,
-              3000
-            );
+          case "voiceTalk:startFailed": //开始对讲失败
+            //rsuite Alert开始对讲失败
+            Alert.error("开始对讲失败！", 0);
+            break;
+          case "voiceTalk:stopSuccess": //结束对讲成功
+            //rsuite Alert结束对讲成功
+            Alert.success("结束对讲成功！", 3000);
             //设置4类按钮的状态（相应的按钮状态设为"STATE1"）
             setButtons4(
               modifyJsonObj(buttons4, "duijiang", "STATE2", "STATE1")
             );
+            break;
+          case "voiceTalk:stopFailed": //结束对讲失败
+            //rsuite Alert结束对讲失败
+            Alert.error("结束对讲失败！", 0);
             break;
           default:
             //rsuite Alert收到的消息
@@ -812,7 +776,7 @@ function ControlPanelWheel() {
       <Row>
         <div className={classes.radar}>{/* <Radar /> */}</div>
         <div className={classes.status}>
-          <RobotStatusWheel />
+          <RobotStatus />
         </div>
       </Row>
       <div className={classes.cheti}>
@@ -837,4 +801,4 @@ function ControlPanelWheel() {
   );
 }
 
-export default ControlPanelWheel;
+export default ControlPanel;

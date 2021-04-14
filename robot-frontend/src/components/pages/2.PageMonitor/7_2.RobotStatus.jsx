@@ -1,3 +1,4 @@
+// 7_2.RobotStatus（轮式）（Websocket）
 import React, { useState, useEffect, useRef } from "react";
 import { Typography } from "@material-ui/core";
 import { Alert } from "rsuite";
@@ -31,7 +32,7 @@ const dotStyle = {
   borderRadius: "50%",
 };
 
-function RobotStatusWheel() {
+function RobotStatus() {
   //———————————————————————————————————————————————useRef
   const ws = useRef(null); //存放websocket对象的ref
 
@@ -64,12 +65,13 @@ function RobotStatusWheel() {
     try {
       //——————设置接收消息处理函数
       ws.onmessage = function (event) {
-        var msg = event.data;
-        // console.log("接收到的websocket消息：", message);
-        if (JSON.parse(msg.toString()).hasOwnProperty("robotStatusSimple")) {
-          // ws.current.send("received");
-          let messageRobotStatus = JSON.parse(msg.toString()).robotStatusSimple;
-          setRobotStatus(messageRobotStatus);
+        var strMsg = event.data; //例如："{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}"
+        var objMsg = JSON.parse(strMsg.toString()); //例如：{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}
+        // console.log("接收到的websocket消息字符串：", strMsg, "  接收到的websocket消息JSON对象：", objMsg);
+
+        // （Websocket group2）7_1. 机器人状态（简）（轮式）
+        if (objMsg.hasOwnProperty("robotStatusSimple")) {
+          setRobotStatus(objMsg.robotStatusSimple);
         }
       };
     } catch (ex) {
@@ -103,4 +105,4 @@ function RobotStatusWheel() {
   );
 }
 
-export default RobotStatusWheel;
+export default RobotStatus;

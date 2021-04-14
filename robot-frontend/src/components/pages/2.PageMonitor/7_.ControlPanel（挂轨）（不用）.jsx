@@ -1,3 +1,4 @@
+// 7_.ControlPanel（挂轨）
 //configuration
 import { WebSocketUrl } from "../../../configuration/config.js";
 //packages
@@ -49,7 +50,7 @@ import imgPd2Up from "../../../images/pages/2.PageMonitor/7.ControlPanel/1.挂�
 import imgPd2Down from "../../../images/pages/2.PageMonitor/7.ControlPanel/1.挂轨控制/局放减_DOWN.png";
 
 //elements
-import RobotStatusRail from "./7_2.RobotStatusRail.jsx";
+import RobotStatus from "./7_2.RobotStatus.jsx";
 //functions
 import { postData, getData } from "../../../functions/requestDataFromAPI.js";
 
@@ -230,7 +231,7 @@ const useStyles = makeStyles({
   },
 });
 
-function ControlPanelRail() {
+function ControlPanel() {
   const classes = useStyles();
 
   //———————————————————————————————————————————————useHistory
@@ -860,11 +861,11 @@ function ControlPanelRail() {
           </div>
         </div>
         <div className={classes.status}>
-          <RobotStatusRail />
+          <RobotStatus />
         </div>
       </Row>
     </Paper>
   );
 }
 
-export default ControlPanelRail;
+export default ControlPanel;
