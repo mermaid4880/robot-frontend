@@ -1,4 +1,4 @@
-// 5.TabInfo（Websocket）
+// （Websocket）
 //packages
 import React, { useState, useEffect, useRef } from "react";
 import {
@@ -11,7 +11,7 @@ import {
   Col,
 } from "reactstrap";
 import classnames from "classnames";
-import { Paper, Switch } from "@material-ui/core";
+import { Paper } from "@material-ui/core";
 import { Label, Segment } from "semantic-ui-react";
 import { Alert } from "rsuite";
 //functions

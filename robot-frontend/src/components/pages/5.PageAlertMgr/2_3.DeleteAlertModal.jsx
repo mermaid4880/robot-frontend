@@ -59,7 +59,7 @@ function DeleteAlertModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "删除告警信息成功",
             text: "                 ",
@@ -72,7 +72,7 @@ function DeleteAlertModal(props) {
         } else {
           //关闭本modal
           setModalOpen(false);
-          //alert失败
+          //sweetalert失败
           swal({
             title: "删除告警信息失败",
             text: "请重试！错误信息：" + data.detail.toString(),
@@ -89,7 +89,7 @@ function DeleteAlertModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "删除告警信息失败",
           text: "请重试！错误信息：" + error.toString(),

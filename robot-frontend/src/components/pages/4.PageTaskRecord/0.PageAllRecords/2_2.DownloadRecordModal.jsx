@@ -64,7 +64,7 @@ function DownloadRecordModal(props) {
         } else {
           //关闭本modal
           setModalOpen(false);
-          //alert失败
+          //sweetalert失败
           swal({
             title: "下载巡检结果记录报表失败",
             text: "请重试！错误信息：" + data.detail.toString(),
@@ -81,7 +81,7 @@ function DownloadRecordModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "下载巡检结果记录报表失败",
           text: "请重试！错误信息：" + error.toString(),

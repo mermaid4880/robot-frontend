@@ -1,6 +1,7 @@
-// 4.SysStatus（轮式）（Websocket）
+// （轮式）（轮询）
 //packages
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import {
   TabContent,
   TabPane,
@@ -10,15 +11,12 @@ import {
   Row,
   Col,
 } from "reactstrap";
-import { Alert } from "rsuite";
 import classnames from "classnames";
 import { Typography, Card, CardContent } from "@material-ui/core";
 import { Label, List, Grid } from "semantic-ui-react";
+import { Alert } from "rsuite";
 //functions
-import {
-  initWebsocket,
-  destroyWebsocket,
-} from "../../../functions/websockets.js";
+import { getData } from "../../../functions/requestDataFromAPI.js";
 
 //———————————————————————————————————————————————css
 const root = {
@@ -64,50 +62,55 @@ const contentStyle = {
 };
 
 function SysStatus() {
-  //———————————————————————————————————————————————useRef
-  const ws = useRef(null); //存放websocket对象的ref
-
+  //———————————————————————————————————————————————useHistory
+  const history = useHistory();
   //———————————————————————————————————————————————useState
+  //本组件是否需要更新的状态
+  const [update, setUpdate] = useState(false);
   //Tab中当前激活的<NavItem>标签的状态
   const [activeTab, setActiveTab] = useState("1");
   //系统状态栏内容的状态
   const [systemStatus, setSystemStatus] = useState({});
+
+  //———————————————————————————————————————————————Timer
+  //开启定时器（重新获取当前机器人状态的实时信息、刷新组件）
+  var timerID = setTimeout(() => {
+    setUpdate(!update);
+  }, 1500);
+
   //———————————————————————————————————————————————useEffect
+  //当（本组件销毁时），销毁定时器（重新获取当前机器人状态的实时信息、刷新组件）
   useEffect(() => {
-    //————————————————————————————websocket
-    //初始化websocket
-    ws.current = initWebsocket("group3");
-    //接收websocket消息
-    recvWebsocketRecMsg(ws.current);
-    //组件销毁时断开websocket连接
+    //当组件销毁时，销毁定时器（重新获取当前机器人状态的实时信息、刷新组件）
     return () => {
-      //————————————————————————————websocket
-      //销毁websocket
-      destroyWebsocket(ws.current, "group3");
+      clearTimeout(timerID);
     };
   }, []);
 
-  //———————————————————————————————————————————————其他函数（websocket相关）
-  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
-  function recvWebsocketRecMsg(ws) {
-    try {
-      //——————设置接收消息处理函数
-      ws.onmessage = function (event) {
-        var strMsg = event.data; //例如："{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}"
-        var objMsg = JSON.parse(strMsg.toString()); //例如：{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}
-        // console.log("接收到的websocket消息字符串：", strMsg, "  接收到的websocket消息JSON对象：", objMsg);
-
-        // （Websocket group3）1_1. 机器人状态（详）（轮式）
-        if (objMsg.hasOwnProperty("robotStatus")) {
-          setSystemStatus(objMsg.robotStatus);
+  //当（本组件加载完成或需要更新时），GET请求获取当前机器人状态的实时信息
+  useEffect(() => {
+    //————————————————————————————GET请求
+    getData("robots/robotStatus")
+      .then((data) => {
+        // console.log("get结果", data);
+        if (data.success) {
+          //设置机器人状态
+          setSystemStatus(data.data);
+        } else {
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取当前机器人状态的实时信息异常！异常信息：" + data.detail,
+            2000
+          );
         }
-      };
-    } catch (ex) {
-      //——————设置接收消息异常处理
-      //rsuite Alert异常：接收消息
-      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
-    }
-  }
+      })
+      .catch((error) => {
+        //如果鉴权失败，跳转至登录页
+        if (error.response.status === 401) {
+          history.push("/");
+        }
+      });
+  }, [update]);
 
   //———————————————————————————————————————————————事件响应函数
   //Tab中<NavItem>的点击事件响应函数（切换Tab）

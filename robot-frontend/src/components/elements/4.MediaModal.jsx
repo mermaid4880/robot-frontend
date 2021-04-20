@@ -44,16 +44,25 @@ function MediaModal(props) {
   //当<Loader>是否显示发生变化时，添加定时器（轮询<img>的加载状态img.complete），如果<img>完成加载则设置<Loader>不显示并销毁定时器
   useEffect(() => {
     //添加定时器（轮询<img>的加载状态img.complete）
-    var timer = setInterval(function () {
+    var timerID = setInterval(function () {
+      console.log("进入轮询<img>的加载状态定时器----------------ID：", timerID);
       var img = document.getElementById(mediaInfo.mediaUrl);
-      if (img && img.complete) {
-        //设置<Loader>不显示
-        setLoaderDisplay(false);
+      if (img) {
+        console.log("img.complete", img.complete);
+        if (img.complete) {
+          //设置<Loader>不显示
+          setLoaderDisplay(false);
+          console.log("img加载完成，销毁定时器----------------ID：", timerID);
+          //销毁定时器
+          clearInterval(timerID);
+        }
+      } else {
+        console.log("img不存在，销毁定时器----------------ID：", timerID);
         //销毁定时器
-        clearInterval(timer);
+        clearInterval(timerID);
       }
     }, 200);
-  }, [loaderDisplay]);
+  }, [modalOpen]);
 
   //———————————————————————————————————————————————设置<Modal>用到的函数
   //根据不同的mediaType设置相应的触发本modal的小图标

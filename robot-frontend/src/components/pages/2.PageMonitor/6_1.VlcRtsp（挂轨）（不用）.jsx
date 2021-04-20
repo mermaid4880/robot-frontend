@@ -1,4 +1,4 @@
-// （轮式）红外分辨率：640*512
+// （挂轨）红外分辨率：640*480
 //configuration
 import { rtspAddress } from "../../../configuration/config.js";
 //packages
@@ -42,7 +42,7 @@ function VlcRtsp(props) {
         id="vlc"
         classid="clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921"
         codebase="http://downloads.videolan.org/pub/videolan/vlc/latest/win32/axvlc.cab"
-        width="405"
+        width="432"
         height="324"
         events="False"
         onDoubleClick={(e) => {

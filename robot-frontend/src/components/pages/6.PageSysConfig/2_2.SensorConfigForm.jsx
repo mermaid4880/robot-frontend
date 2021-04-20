@@ -91,6 +91,7 @@ function SensorConfigForm(props) {
           input.vlUserName === "" ||
           input.vlFocusMode === ""
         ) {
+          //sweetalert失败
           swal({
             title: "修改可见光配置失败",
             text: "以上内容为必填消息，均不能为空",
@@ -102,6 +103,7 @@ function SensorConfigForm(props) {
         } else {
           //密码验证
           if (input.vlPassWord !== input.vlPassWord_) {
+            //sweetalert失败
             swal({
               title: "修改可见光配置失败",
               text: "前后密码不一致",
@@ -128,7 +130,7 @@ function SensorConfigForm(props) {
           .then((data) => {
             console.log("post结果", data);
             if (data.success) {
-              //alert成功
+              //sweetalert成功
               swal({
                 title: "可见光配置成功",
                 text: "                 ",
@@ -139,7 +141,7 @@ function SensorConfigForm(props) {
               //调用父组件函数（重新GET配置列表并刷新）
               props.updateParent();
             } else {
-              //alert失败
+              //sweetalert失败
               swal({
                 title: "可见光配置失败",
                 text: data.detail,
@@ -154,7 +156,7 @@ function SensorConfigForm(props) {
             if (error.response.status === 401) {
               history.push("/");
             }
-            //alert失败
+            //sweetalert失败
             swal({
               title: "可见光配置失败",
               text: error.toString(),
@@ -166,12 +168,13 @@ function SensorConfigForm(props) {
         break;
       }
       case "ir": {
-        // 输入格式判断
+        //输入格式判断
         if (
           input.irIp === "" ||
           input.irPort === "" ||
           input.irUserName === ""
         ) {
+          //sweetalert失败
           swal({
             title: "修改红外配置失败",
             text: "以上内容为必填消息，均不能为空",
@@ -183,6 +186,7 @@ function SensorConfigForm(props) {
         } else {
           //密码验证
           if (input.irPassWord !== input.irPassWord_) {
+            //sweetalert失败
             swal({
               title: "修改红外配置失败",
               text: "前后密码不一致",
@@ -208,7 +212,7 @@ function SensorConfigForm(props) {
           .then((data) => {
             console.log("post结果", data);
             if (data.success) {
-              //alert成功
+              //sweetalert成功
               swal({
                 title: "红外配置成功",
                 text: "                 ",
@@ -219,7 +223,7 @@ function SensorConfigForm(props) {
               //调用父组件函数（重新GET配置列表并刷新）
               props.updateParent();
             } else {
-              //alert失败
+              //sweetalert失败
               swal({
                 title: "红外配置失败",
                 text: data.detail,
@@ -234,7 +238,7 @@ function SensorConfigForm(props) {
             if (error.response.status === 401) {
               history.push("/");
             }
-            //alert失败
+            //sweetalert失败
             swal({
               title: "红外配置失败",
               text: error.toString(),
@@ -248,6 +252,7 @@ function SensorConfigForm(props) {
       case "pd": {
         // 输入格式判断
         if (input.pdIp === "" || input.pdPort === "") {
+          //sweetalert失败
           swal({
             title: "修改局放配置失败",
             text: "以上内容为必填消息，均不能为空",
@@ -268,7 +273,7 @@ function SensorConfigForm(props) {
           .then((data) => {
             console.log("post结果", data);
             if (data.success) {
-              //alert成功
+              //sweetalert成功
               swal({
                 title: "局放配置成功",
                 text: "                 ",
@@ -279,7 +284,7 @@ function SensorConfigForm(props) {
               //调用父组件函数（重新GET配置列表并刷新）
               props.updateParent();
             } else {
-              //alert失败
+              //sweetalert失败
               swal({
                 title: "局放配置失败",
                 text: data.detail,
@@ -294,7 +299,7 @@ function SensorConfigForm(props) {
             if (error.response.status === 401) {
               history.push("/");
             }
-            //alert失败
+            //sweetalert失败
             swal({
               title: "局放配置失败",
               text: error.toString(),

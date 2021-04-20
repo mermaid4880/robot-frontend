@@ -242,7 +242,11 @@ function TaskStatus() {
           //设置<Pie>中要展示的数据
           setPieData(pieData);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取当前巡检任务的实时信息异常！异常信息：" + data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {

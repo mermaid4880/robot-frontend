@@ -78,7 +78,7 @@ function AddOrEditTaskModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "新增任务成功",
             text: "                 ",
@@ -91,7 +91,7 @@ function AddOrEditTaskModal(props) {
           //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar");
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "新增任务失败",
             text: "请重新编辑任务信息！错误信息：" + data.detail.toString(),
@@ -106,7 +106,7 @@ function AddOrEditTaskModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "新增任务失败",
           text: "请重新编辑任务信息！错误信息：" + error.toString(),
@@ -155,7 +155,7 @@ function AddOrEditTaskModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "修改任务成功",
             text: "                 ",
@@ -168,7 +168,7 @@ function AddOrEditTaskModal(props) {
           //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar");
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "修改任务失败",
             text: "请重新编辑任务信息！错误信息：" + data.detail.toString(),
@@ -183,7 +183,7 @@ function AddOrEditTaskModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "修改任务失败",
           text: "请重新编辑任务信息！错误信息：" + error.toString(),

@@ -49,6 +49,7 @@ function EditUserModal(props) {
       paramData.accessIds === "" ||
       paramData.phoneNum === ""
     ) {
+      //sweetalert失败
       swal({
         title: "新增失败",
         text: "以上内容为必填消息，均不能为空",
@@ -60,6 +61,7 @@ function EditUserModal(props) {
     } else {
       //密码验证
       if (paramData.password !== paramData.password_) {
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: "前后密码不一致",
@@ -83,6 +85,7 @@ function EditUserModal(props) {
         regCn.test(paramData.username) ||
         nbsp.test(paramData.username)
       ) {
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: "姓名不能包含特殊字符和空格",
@@ -97,6 +100,7 @@ function EditUserModal(props) {
         regCn.test(paramData.showname) ||
         nbsp.test(paramData.showname)
       ) {
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: "显示姓名不能包含特殊字符和空格",
@@ -111,6 +115,7 @@ function EditUserModal(props) {
         regCn.test(paramData.phoneNum) ||
         nbsp.test(paramData.phoneNum)
       ) {
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: "手机号不能包含特殊字符和空格",
@@ -121,6 +126,7 @@ function EditUserModal(props) {
         return;
       }
       if (!Phone.test(paramData.phoneNum)) {
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: "手机号必须为11位数字",
@@ -148,7 +154,7 @@ function EditUserModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "新增成功",
             text: "用户" + paramData.username + "新增成功",
@@ -159,7 +165,7 @@ function EditUserModal(props) {
           //调用父组件函数（重新GET用户列表并刷新页面）
           props.updateParent();
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "新增失败",
             text: data.detail,
@@ -176,7 +182,7 @@ function EditUserModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "新增失败",
           text: error.toString(),
@@ -197,6 +203,7 @@ function EditUserModal(props) {
       paramData.accessIds === "" ||
       paramData.phoneNum === ""
     ) {
+      //sweetalert失败
       swal({
         title: "编辑失败",
         text: "以上内容为必填消息，均不能为空",
@@ -208,6 +215,7 @@ function EditUserModal(props) {
     } else {
       //密码验证
       if (paramData.password !== paramData.password_) {
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: "前后密码不一致",
@@ -231,6 +239,7 @@ function EditUserModal(props) {
         regCn.test(paramData.username) ||
         nbsp.test(paramData.username)
       ) {
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: "姓名不能包含特殊字符和空格",
@@ -245,6 +254,7 @@ function EditUserModal(props) {
         regCn.test(paramData.showname) ||
         nbsp.test(paramData.showname)
       ) {
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: "显示姓名不能包含特殊字符和空格",
@@ -259,6 +269,7 @@ function EditUserModal(props) {
         regCn.test(paramData.phoneNum) ||
         nbsp.test(paramData.phoneNum)
       ) {
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: "手机号不能包含特殊字符和空格",
@@ -269,6 +280,7 @@ function EditUserModal(props) {
         return;
       }
       if (!Phone.test(paramData.phoneNum)) {
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: "手机号必须为11位数字",
@@ -297,7 +309,7 @@ function EditUserModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "编辑成功",
             text: "用户" + paramData.username + "编辑成功",
@@ -308,7 +320,7 @@ function EditUserModal(props) {
           //调用父组件函数（重新GET用户列表并刷新页面）
           props.updateParent();
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "编辑失败",
             text: data.detail,
@@ -325,7 +337,7 @@ function EditUserModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "编辑失败",
           text: error.toString(),

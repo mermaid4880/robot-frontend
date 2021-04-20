@@ -1,10 +1,11 @@
-// 7_2.RobotStatus（挂轨）（轮询）
+// （挂轨）（轮询）
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
-import { Typography, Card, CardContent } from "@material-ui/core";
+import { Typography } from "@material-ui/core";
+import { Alert } from "rsuite";
 //functions
-import { getData, postData } from "../../../functions/requestDataFromAPI.js";
+import { getData } from "../../../functions/requestDataFromAPI.js";
 
 const useStyles = makeStyles({
   root: {
@@ -86,7 +87,11 @@ function RobotStatus() {
           //设置机器人状态
           setRobotStatus(data.data);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取当前机器人状态的实时信息（简）异常！异常信息：" + data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {

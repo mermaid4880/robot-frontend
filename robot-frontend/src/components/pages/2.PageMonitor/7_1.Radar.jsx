@@ -16,7 +16,6 @@ import {
   Util,
 } from "bizcharts";
 import { makeStyles } from "@material-ui/core/styles";
-
 //functions
 import { getData, postData } from "../../../functions/requestDataFromAPI.js";
 

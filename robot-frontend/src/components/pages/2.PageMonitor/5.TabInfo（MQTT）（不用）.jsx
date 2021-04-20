@@ -1,4 +1,4 @@
-// 5.TabInfo（MQTT）
+// （MQTT）
 //configuration
 import { mqttUrl } from "../../../configuration/config.js";
 //packages

@@ -85,7 +85,7 @@ function CheckRecordModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "审核巡检点位信息成功",
             text: "                 ",
@@ -96,7 +96,7 @@ function CheckRecordModal(props) {
           //调用父组件函数（重新GET全部详细点位信息列表并刷新组件）
           props.updateParent();
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "审核巡检点位信息失败",
             text: "请重新审核巡检点位信息！错误信息：" + data.detail.toString(),
@@ -111,7 +111,7 @@ function CheckRecordModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "审核巡检点位信息",
           text: "请重新审核巡检点位信息！错误信息：" + error.toString(),

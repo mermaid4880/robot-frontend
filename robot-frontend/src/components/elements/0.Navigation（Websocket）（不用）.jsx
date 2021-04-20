@@ -1,6 +1,21 @@
+// （Websocket）
 //packages
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
+import cookie from "react-cookies";
+import {
+  Navbar,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  NavbarText,
+} from "reactstrap";
+import { makeStyles } from "@material-ui/core/styles";
 import { Paper } from "@material-ui/core";
 import Badge from "@material-ui/core/Badge";
 import {
@@ -23,24 +38,11 @@ import {
   BatteryCharging90,
   BatteryChargingFull,
 } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
-import {
-  Navbar,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  NavbarText,
-} from "reactstrap";
 import { Tooltip } from "antd";
-import cookie from "react-cookies";
+import { Alert } from "rsuite";
 //functions
 import emitter from "../../functions/events.js";
-import { getData } from "../../functions/requestDataFromAPI.js";
+import { initWebsocket, destroyWebsocket } from "../../functions/websockets.js";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
@@ -87,13 +89,13 @@ function getBatteryInfo(data) {
 function Navigation(props) {
   const classes = useStyles();
 
+  //———————————————————————————————————————————————useRef
+  const ws = useRef(null); //存放websocket对象的ref
+
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
   //———————————————————————————————————————————————useState
-  //本组件是否需要更新的状态
-  const [update, setUpdate] = useState(false);
-
   //当前系统时间
   const [time, setTime] = useState(new Date().toLocaleString());
 
@@ -117,51 +119,7 @@ function Navigation(props) {
   //页面跳转状态
   const [jump, setJump] = useState(false);
 
-  //———————————————————————————————————————————————Timer
-  //开启定时器（重新获取电池信息、刷新组件）
-  var timerID = setTimeout(() => {
-    setUpdate(!update);
-  }, 5000);
-
-  //———————————————————————————————————————————————useEffect
-  //当（本组件销毁时），销毁定时器（重新获取电池信息、刷新组件）
-  useEffect(() => {
-    //当组件销毁时，销毁定时器（重新获取电池信息、刷新组件）
-    return () => {
-      clearTimeout(timerID);
-    };
-  }, []);
-
-  //当（本组件加载完成或需要更新时），GET请求获取电池信息
-  useEffect(() => {
-    //————————————————————————————GET请求
-    getData("robots/batteryAndAlarm")
-      .then((data) => {
-        // console.log("get结果", data);
-        if (data.success) {
-          var result = data.data;
-          // console.log("result", result);
-          //获取电池信息
-          const batteryInfo = getBatteryInfo(result.batteryInfo);
-          //设置电池信息
-          setBatteryInfo(batteryInfo);
-          //获取<Badge>中设备告警信息的条数
-          const alertCount = result.robotDeviceAlarm.count;
-          //设置<Badge>中设备告警信息的条数
-          setAlertCount(alertCount);
-        } else {
-          alert(data.detail);
-        }
-      })
-      .catch((error) => {
-        //如果鉴权失败，跳转至登录页
-        if (error.response.status === 401) {
-          history.push("/");
-        }
-      });
-  }, [update]);
-
-  //当本组件加载完成后，开启定时器（刷新系统时间time）
+  //当本组件加载完成后，开启定时器（刷新系统时间time）、创建mqtt连接、订阅mqtt消息（设备告警条数）、定义mqtt消息处理函数（设备告警条数）
   useEffect(() => {
     //————————————————————————————开启定时器（每秒刷新系统时间time）
     let intervalID = setInterval(function updateTime() {
@@ -169,12 +127,55 @@ function Navigation(props) {
       setTime(newTime);
     }, 1000);
 
-    //当本组件销毁时，销毁定时器（刷新系统时间time）
+    //————————————————————————————websocket
+    //初始化websocket
+    ws.current = initWebsocket("group1");
+    //接收websocket消息
+    recvWebsocketRecMsg(ws.current);
+
+    //当本组件销毁时，销毁websocket、销毁定时器（刷新系统时间time）
     return () => {
+      //————————————————————————————websocket
+      //销毁websocket
+      destroyWebsocket(ws.current, "group1");
+
       //————————————————————————————销毁定时器（每秒刷新系统时间time）
       clearInterval(intervalID);
+
+      //————————————————————————————关闭所有rsuite Alert
+      Alert.closeAll();
     };
   }, []);
+
+  //———————————————————————————————————————————————其他函数（websocket相关）
+  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
+  function recvWebsocketRecMsg(ws) {
+    try {
+      //——————设置接收消息处理函数
+      ws.onmessage = function (event) {
+        var strMsg = event.data; //例如："{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}"
+        var objMsg = JSON.parse(strMsg.toString()); //例如：{"softwareInfo": {"time": "2021-3-25 16:36:44", "detail": "\u8f6f\u4ef6\u8c03\u8bd5"}}
+        // console.log("接收到的websocket消息字符串：", strMsg, "  接收到的websocket消息JSON对象：", objMsg);
+
+        // （Websocket group1）1. 电池状态信息
+        if (objMsg.hasOwnProperty("batteryInfo")) {
+          //获取电池信息数据（电池信息）
+          const batteryInfo = getBatteryInfo(objMsg.batteryInfo);
+          //设置电池信息
+          setBatteryInfo(batteryInfo);
+        }
+        // （Websocket group1）2. 设备告警条数
+        if (objMsg.hasOwnProperty("robotDeviceAlarm")) {
+          //设置<Badge>中设备告警信息的条数
+          setAlertCount(parseInt(objMsg.robotDeviceAlarm.count));
+        }
+      };
+    } catch (ex) {
+      //——————设置接收消息异常处理
+      //rsuite Alert异常：接收消息
+      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
+    }
+  }
 
   //——————————————页面跳转
   useEffect(() => {
@@ -213,8 +214,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power >= 0 && batteryInfo.power <= 20) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging20 fontSize="large" />
         </Tooltip>
       ) : (
@@ -223,8 +224,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 20 && batteryInfo.power <= 30) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging30 fontSize="large" />
         </Tooltip>
       ) : (
@@ -233,8 +234,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 30 && batteryInfo.power <= 50) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging50 fontSize="large" />
         </Tooltip>
       ) : (
@@ -243,8 +244,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 50 && batteryInfo.power <= 60) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging60 fontSize="large" />
         </Tooltip>
       ) : (
@@ -253,8 +254,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 60 && batteryInfo.power <= 80) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging80 fontSize="large" />
         </Tooltip>
       ) : (
@@ -263,8 +264,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 80 && batteryInfo.power < 100) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging90 fontSize="large" />
         </Tooltip>
       ) : (
@@ -273,12 +274,12 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power == 100) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle} color="primary">
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryChargingFull fontSize="large" />
         </Tooltip>
       ) : (
-        <Tooltip placement="bottom" title={tooltipTitle} color="primary">
+        <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryFull fontSize="large" />
         </Tooltip>
       );

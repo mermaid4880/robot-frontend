@@ -1,8 +1,23 @@
+// （MQTT）
 //configuration
 import { mqttUrl } from "../../configuration/config.js";
 //packages
 import React, { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
+import cookie from "react-cookies";
+import {
+  Navbar,
+  NavbarBrand,
+  Nav,
+  NavItem,
+  NavLink,
+  UncontrolledDropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  NavbarText,
+} from "reactstrap";
+import { makeStyles } from "@material-ui/core/styles";
 import { Paper } from "@material-ui/core";
 import Badge from "@material-ui/core/Badge";
 import {
@@ -25,22 +40,9 @@ import {
   BatteryCharging90,
   BatteryChargingFull,
 } from "@material-ui/icons";
-import { makeStyles } from "@material-ui/core/styles";
-import {
-  Navbar,
-  NavbarBrand,
-  Nav,
-  NavItem,
-  NavLink,
-  UncontrolledDropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  NavbarText,
-} from "reactstrap";
 import { Tooltip } from "antd";
+import { Alert } from "rsuite";
 import { connect } from "mqtt";
-import cookie from "react-cookies";
 //functions
 import emitter from "../../functions/events.js";
 import { getData } from "../../functions/requestDataFromAPI.js";
@@ -149,7 +151,11 @@ function Navigation(props) {
           //设置电池信息
           setBatteryInfo(batteryInfo);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取电池信息和设备告警信息异常！异常信息：" + data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {
@@ -249,8 +255,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power >= 0 && batteryInfo.power <= 20) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging20 fontSize="large" />
         </Tooltip>
       ) : (
@@ -259,8 +265,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 20 && batteryInfo.power <= 30) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging30 fontSize="large" />
         </Tooltip>
       ) : (
@@ -269,8 +275,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 30 && batteryInfo.power <= 50) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging50 fontSize="large" />
         </Tooltip>
       ) : (
@@ -279,8 +285,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 50 && batteryInfo.power <= 60) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging60 fontSize="large" />
         </Tooltip>
       ) : (
@@ -289,8 +295,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 60 && batteryInfo.power <= 80) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging80 fontSize="large" />
         </Tooltip>
       ) : (
@@ -299,8 +305,8 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power > 80 && batteryInfo.power < 100) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle}>
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryCharging90 fontSize="large" />
         </Tooltip>
       ) : (
@@ -309,12 +315,12 @@ function Navigation(props) {
         </Tooltip>
       );
     } else if (batteryInfo.power == 100) {
-      return batteryInfo.Charging ? (
-        <Tooltip placement="bottom" title={tooltipTitle} color="primary">
+      return batteryInfo.Charging == 1 ? (
+        <Tooltip placement="bottom" title={tooltipTitle + "（充电中）"}>
           <BatteryChargingFull fontSize="large" />
         </Tooltip>
       ) : (
-        <Tooltip placement="bottom" title={tooltipTitle} color="primary">
+        <Tooltip placement="bottom" title={tooltipTitle}>
           <BatteryFull fontSize="large" />
         </Tooltip>
       );

@@ -14,6 +14,7 @@ import {
   Util,
   Konva,
 } from "react-konva";
+import { Alert } from "rsuite";
 // import "./4_.Map.css";
 //elements
 import Portal from "./4_1.Portal.jsx";
@@ -137,6 +138,7 @@ const stageSize = {
   station: {
     width: 16,
     height: 24,
+    offsetY: 9, //停车点图片（尖尖与中心的距离）
   },
   robot: {
     width: 16,
@@ -454,7 +456,12 @@ function Map() {
           //设置所有检修区域的信息
           setDangerAreaInfo(dangerAreaInfo);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取地图（绘制信息【道路+检修区域】）异常！异常信息：" +
+              data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {
@@ -487,7 +494,11 @@ function Map() {
           //设置所有停车点菜单的信息（ID、坐标、包含的所有点位信息、菜单是否显示）
           setStationMenusInfo(stationMenusInfo);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取地图（所有停车点信息）异常！异常信息：" + data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {
@@ -522,7 +533,12 @@ function Map() {
           //对应stationsStatus（实时停车点状态list）中的state（状态）设置stationsInfo（所有停车点的信息）中的state（状态）
           setStateInStationsInfo(stationsStatus);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning(
+            "获取地图（实时信息【机器人位置+停车点状态】）异常！异常信息：" +
+              data.detail,
+            2000
+          );
         }
       })
       .catch((error) => {
@@ -645,7 +661,7 @@ function Map() {
                 } else {
                   //设置正在删除检修区域标志位为false
                   setIsDeleteDangerArea(false);
-                  //alert新增检修区域操作说明
+                  //sweetalert新增检修区域操作说明
                   swal({
                     title: "新增检修区域",
                     text: "请在地图上选择区域（按下并拖拽鼠标左键）",
@@ -685,7 +701,7 @@ function Map() {
                 } else {
                   //设置正在新增检修区域标志位为false
                   setIsAddDangerArea(false);
-                  //alert删除检修区域操作说明
+                  //sweetalert删除检修区域操作说明
                   swal({
                     title: "删除检修区域",
                     text: "请在地图上选择区域（双击鼠标左键）",
@@ -863,7 +879,7 @@ function Map() {
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
-          //alert成功
+          //sweetalert成功
           swal({
             title: "新增检修区域成功",
             text: "                 ",
@@ -874,7 +890,7 @@ function Map() {
           //更新绘制信息【道路+检修区域】
           setUpdate10min(!update10min);
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "新增检修区域失败",
             text: "错误信息：" + data.detail.toString(),
@@ -889,7 +905,7 @@ function Map() {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "新增检修区域失败",
           text: "错误信息：" + error.toString(),
@@ -908,7 +924,7 @@ function Map() {
       .then((data) => {
         console.log("delete结果", data);
         if (data.success) {
-          //alert成功
+          //sweetalert成功
           swal({
             title: "删除检修区域成功",
             text: "                 ",
@@ -919,7 +935,7 @@ function Map() {
           //更新绘制信息【道路+检修区域】
           setUpdate10min(!update10min);
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "删除检修区域失败",
             text: "请重试！错误信息：" + data.detail.toString(),
@@ -934,7 +950,7 @@ function Map() {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "删除检修区域失败",
           text: "请重试！错误信息：" + error.toString(),
@@ -1313,8 +1329,10 @@ function Map() {
               id={item.id}
               width={stageSize.station.width}
               height={stageSize.station.height}
-              x={(item.X - stageSize.station.width / 2) * scale}
-              y={(item.Y - stageSize.station.height / 2) * scale}
+              offsetX={stageSize.station.width / 2}
+              offsetY={stageSize.station.height / 2 + stageSize.station.offsetY}
+              x={item.X * scale}
+              y={item.Y * scale}
               image={getImageProperty(item.state)}
               opacity={0.8}
               onClick={handleClickStation} //（左键、右键）单击
@@ -1388,9 +1406,16 @@ function Map() {
           <Image //车体
             width={stageSize.robot.width}
             height={stageSize.robot.height}
-            x={(robotPos.robotX - stageSize.robot.width / 2) * scale}
-            y={(robotPos.robotY - stageSize.robot.height / 2) * scale}
+            offsetX={stageSize.robot.width / 2}
+            offsetY={stageSize.robot.height / 2}
+            x={robotPos.robotX * scale}
+            y={robotPos.robotY * scale}
             rotation={robotPos.robotOrientation}
+            //offset from center point and rotation point
+            offset={{
+              x: stageSize.robot.width / 2,
+              y: stageSize.robot.height / 2,
+            }}
             image={imageRobot}
             opacity={0.8}
           />

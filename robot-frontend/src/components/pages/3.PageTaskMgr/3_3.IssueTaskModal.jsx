@@ -41,7 +41,7 @@ function IssueTaskModal(props) {
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
-          //alert成功
+          //sweetalert成功
           swal({
             title: "下发任务成功",
             text: "                 ",
@@ -54,7 +54,7 @@ function IssueTaskModal(props) {
           //发送事件到2_1.TaskCalendar.jsx中（重新GET任务列表并刷新组件）
           emitter.emit("updateCalendar");
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "下发任务失败",
             text: "请重试！错误信息：" + data.detail.toString(),
@@ -69,7 +69,7 @@ function IssueTaskModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "下发任务失败",
           text: "请重试！错误信息：" + error.toString(),

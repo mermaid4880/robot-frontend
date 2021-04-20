@@ -43,6 +43,7 @@ function StationConfigForm(props) {
   function ConfirmStationConfig() {
     // 输入格式判断
     if (input.stationId === "" || input.stationName === "") {
+      //sweetalert失败
       swal({
         title: "修改站所配置失败",
         text: "以上内容为必填消息，均不能为空",
@@ -62,7 +63,7 @@ function StationConfigForm(props) {
     putData("/robots/robotupdate", putParamData).then((data) => {
       console.log("post结果", data);
       if (data.success) {
-        //alert成功
+        //sweetalert成功
         swal({
           title: "站所配置成功",
           text: "                 ",
@@ -73,7 +74,7 @@ function StationConfigForm(props) {
         //调用父组件函数（重新GET配置列表并刷新）
         props.updateParent();
       } else {
-        //alert失败
+        //sweetalert失败
         swal({
           title: "站所配置失败",
           text: data.detail,
@@ -88,7 +89,7 @@ function StationConfigForm(props) {
       if (error.response.status === 401) {
         history.push("/");
       }
-      //alert失败
+      //sweetalert失败
       swal({
         title: "站所配置失败",
         text: error.toString(),

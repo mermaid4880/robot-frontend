@@ -1,9 +1,10 @@
-// 3.EnvironmentInfo（室外）
+// （室外）
 //packages
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Label as Label1 } from "semantic-ui-react";
 import { Typography, Card, CardContent } from "@material-ui/core";
+import { Alert } from "rsuite";
 //functions
 import { getData } from "../../../functions/requestDataFromAPI.js";
 //images
@@ -158,7 +159,8 @@ function EnvironmentInfo() {
           //设置当前最新气象信息
           setRealtimeWeatherData(realtimeWeatherData);
         } else {
-          alert(data.detail);
+          //rsuite Alert异常信息
+          Alert.warning("获取室外环境信息异常！异常信息：" + data.detail, 2000);
         }
       })
       .catch((error) => {

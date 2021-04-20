@@ -38,7 +38,7 @@ function DeleteUserModal(props) {
         if (data.success) {
           //关闭本modal
           setModalOpen(false);
-          //alert成功
+          //sweetalert成功
           swal({
             title: "删除成功",
             text: "用户" + props.data.userName + "删除成功",
@@ -51,7 +51,7 @@ function DeleteUserModal(props) {
           return;
         } else {
           setModalOpen(false);
-          //alert失败
+          //sweetalert失败
           swal({
             title: "删除失败",
             text: data.detail,
@@ -69,7 +69,7 @@ function DeleteUserModal(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "删除失败",
           text: "请重试！错误信息：" + error.toString(),

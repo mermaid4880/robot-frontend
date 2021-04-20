@@ -1,6 +1,6 @@
-// （轮式）（POST对讲）
+// （轮式）（Websocket对讲）
 //packages
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -12,6 +12,11 @@ import Radar from "./7_1.Radar.jsx";
 import RobotStatus from "./7_2.RobotStatus.jsx";
 //functions
 import { postData } from "../../../functions/requestDataFromAPI.js";
+import {
+  initWebsocket,
+  destroyWebsocket,
+  sendWebsocketMsg,
+} from "../../../functions/websockets.js";
 //images
 //1类按钮
 import imgPaizhao_UP from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons1/拍照_UP.png";
@@ -21,8 +26,6 @@ import imgChongdianmentingzhi_DOWN from "../../../images/pages/2.PageMonitor/7.C
 import imgHongwaiduijiao_UP from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons1/红外对焦_UP.png";
 import imgHongwaiduijiao_DOWN from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons1/红外对焦_DOWN.png";
 //2类按钮
-import imgDuijiang1 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons2/对讲1.png";
-import imgDuijiang2 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons2/对讲2.png";
 import imgKongzhimoshi1 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons2/控制模式1.png"; //手动
 import imgKongzhimoshi2 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons2/控制模式2.png"; //自动
 import imgLuxiang1 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons2/录像1.png";
@@ -68,6 +71,9 @@ import imgYuntaiJiaojuAdd_UP from "../../../images/pages/2.PageMonitor/7.Control
 import imgYuntaiJiaojuAdd_DOWN from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons3/焦距加_DOWN.png";
 import imgYuntaiJiaojuSub_UP from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons3/焦距减_UP.png";
 import imgYuntaiJiaojuSub_DOWN from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons3/焦距减_DOWN.png";
+//4类按钮
+import imgDuijiang1 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons4/对讲1.png";
+import imgDuijiang2 from "../../../images/pages/2.PageMonitor/7.ControlPanel/2.轮式控制/buttons4/对讲2.png";
 
 //———————————————————————————————————————————————css
 const useStyles = makeStyles({
@@ -218,6 +224,9 @@ function ControlPanel() {
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
 
+  //———————————————————————————————————————————————useRef
+  const ws = useRef(null); //存放websocket对象的ref
+
   //———————————————————————————————————————————————useState
   //1类按钮（按钮按下和抬起状态对应不同按钮图片，按下时触发POST请求）的状态
   //【拍照、充电门停止、红外对焦】
@@ -246,7 +255,7 @@ function ControlPanel() {
   });
 
   //2类按钮（按钮通过鼠标点击在两种状态中相互切换，每种状态对应不同的按钮图片、操作提示和点击时触发POST请求）的状态
-  //【控制模式：自动/手动】【对讲、录像、录音、照明灯、雨刷、防跌落、前避障、后避障、充电门：关闭/开启】
+  //【控制模式：自动/手动】【录像、录音、照明灯、雨刷、防跌落、前避障、后避障、充电门：关闭/开启】
   const [buttons2, setButtons2] = useState({
     kongzhimoshi: {
       status: "STATE1", //按钮状态【"STATE1"-按钮状态1、"STATE2"-按钮状态2】
@@ -256,15 +265,6 @@ function ControlPanel() {
       text2: "切换为自动模式", //按钮状态2对应的操作提示
       API1: "robotMode/task", //按钮状态1对应的点击触发POST请求url
       API2: "robotMode/backEndControl", //按钮状态2对应的点击触发POST请求url
-    },
-    duijiang: {
-      status: "STATE1",
-      img1: imgDuijiang1,
-      img2: imgDuijiang2,
-      text1: "开始对讲",
-      text2: "停止对讲",
-      API1: "control/vl/voice_talk/start",
-      API2: "control/vl/voice_talk/stop",
     },
     luxiang: {
       status: "STATE1",
@@ -465,6 +465,83 @@ function ControlPanel() {
     },
   });
 
+  //4类按钮（按钮通过鼠标点击在两种状态中相互切换，每种状态对应不同的按钮图片、操作提示和点击时触发websocket指令发送）的状态
+  //【对讲：停止/开启】
+  const [buttons4, setButtons4] = useState({
+    duijiang: {
+      status: "STATE1", //按钮状态【"STATE1"-按钮状态1、"STATE2"-按钮状态2】
+      img1: imgDuijiang1, //按钮状态1对应的图片
+      img2: imgDuijiang2, //按钮状态2对应的图片
+      text1: "开始对讲", //按钮状态1对应的操作提示
+      text2: "停止对讲", //按钮状态2对应的操作提示
+      message1: "voiceTalk:start", //按钮状态1对应的点击触发websocket发送的指令
+      message2: "voiceTalk:stop", //按钮状态2对应的点击触发websocket发送的指令
+    },
+  });
+
+  //———————————————————————————————————————————————useEffect
+  //当组件加载完成后
+  useEffect(() => {
+    //————————————————————————————websocket
+    //初始化websocket
+    ws.current = initWebsocket("voiceTalk");
+    //接收websocket消息
+    recvWebsocketRecMsg(ws.current);
+
+    //组件销毁时
+    return () => {
+      //————————————————————————————websocket
+      //销毁websocket
+      destroyWebsocket(ws.current, "voiceTalk");
+    };
+  }, []);
+
+  //———————————————————————————————————————————————其他函数（websocket相关）
+  //接收websocket消息（设置接收消息处理函数、设置接收消息异常处理）
+  function recvWebsocketRecMsg(ws) {
+    try {
+      //——————设置接收消息处理函数
+      ws.onmessage = function (event) {
+        var msg = event.data;
+        console.log("event", event);
+        switch (msg) {
+          case "voiceTalk:startSuccess": //开始对讲成功
+            //rsuite Alert开始对讲成功
+            Alert.success("开始对讲成功！", 3000);
+            //设置4类按钮的状态（相应的按钮状态设为"STATE2"）
+            setButtons4(
+              modifyJsonObj(buttons4, "duijiang", "STATE1", "STATE2")
+            );
+            break;
+          case "voiceTalk:startFailed": //开始对讲失败
+            //rsuite Alert开始对讲失败
+            Alert.error("开始对讲失败！", 0);
+            break;
+          case "voiceTalk:stopSuccess": //结束对讲成功
+            //rsuite Alert结束对讲成功
+            Alert.success("结束对讲成功！", 3000);
+            //设置4类按钮的状态（相应的按钮状态设为"STATE1"）
+            setButtons4(
+              modifyJsonObj(buttons4, "duijiang", "STATE2", "STATE1")
+            );
+            break;
+          case "voiceTalk:stopFailed": //结束对讲失败
+            //rsuite Alert结束对讲失败
+            Alert.error("结束对讲失败！", 0);
+            break;
+          default:
+            //rsuite Alert收到的消息
+            Alert.info("WebSocket消息内容：" + msg, 3000);
+            break;
+        }
+      };
+    } catch (ex) {
+      //——————设置接收消息异常处理
+      //rsuite Alert异常：接收消息
+      Alert.error("WebSocket接收消息异常！异常信息：" + ex.message, 0);
+    }
+  }
+
   //———————————————————————————————————————————————其他函数（获取界面组件）
   //获取1类按钮组件（根据按钮状态和按钮名称）
   function getButton1Div(button, buttonName) {
@@ -560,6 +637,31 @@ function ControlPanel() {
     );
   }
 
+  //获取4类按钮组件（根据按钮状态和按钮名称）
+  function getButton4Div(button) {
+    //按钮文字提示
+    var hint = button.status === "STATE1" ? button.text1 : button.text2;
+    //按钮图片
+    var img = button.status === "STATE1" ? button.img1 : button.img2;
+
+    return (
+      <div className={classes.button}>
+        <Tooltip placement="bottom" title={hint}>
+          <a>
+            <img
+              alt={hint}
+              src={img}
+              onClick={() => {
+                //发送websocket消息
+                controlWebsocket(button);
+              }}
+            />
+          </a>
+        </Tooltip>
+      </div>
+    );
+  }
+
   //———————————————————————————————————————————————其他函数（按钮事件响应调用）
   //发送POST请求（POST请求url，按钮的状态）
   //1类、3类按钮调用
@@ -646,10 +748,18 @@ function ControlPanel() {
       });
   }
 
+  //发送Websocket消息（按钮的状态）
+  //4类按钮调用
+  function controlWebsocket(button) {
+    button.status === "STATE1"
+      ? sendWebsocketMsg(ws.current, button.message1, "voiceTalk")
+      : sendWebsocketMsg(ws.current, button.message2, "voiceTalk");
+  }
+
   return (
     <Paper className={classes.root} elevation="10" raised>
       <div className={classes.buttonArea}>
-        {getButton2Div(buttons2.duijiang, "duijiang")}
+        {getButton4Div(buttons4.duijiang)}
         {getButton1Div(buttons1.paizhao, "paizhao")}
         {getButton2Div(buttons2.zhaoming, "zhaoming")}
         {getButton2Div(buttons2.qianbizhang, "qianbizhang")}

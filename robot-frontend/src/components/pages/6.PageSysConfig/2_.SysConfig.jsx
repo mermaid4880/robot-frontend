@@ -108,6 +108,7 @@ function SysConfig() {
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
+          //sweetalert成功
           swal({
             title: "机器人选择成功",
             text: "                 ",
@@ -117,7 +118,7 @@ function SysConfig() {
           });
           setRobotChange(!robotChange);
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "机器人选择失败",
             text: data.detail,
@@ -194,7 +195,7 @@ function SysConfig() {
           setDataBaseConfig(curDataBaseConfig);
           setStationConfig(curStationConfig);
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "获取系统配置失败",
             text: data.detail,

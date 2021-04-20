@@ -46,6 +46,7 @@ function DataBaseConfigForm(props) {
   function ConfirmDataBaseConfig() {
     // 输入格式判断
     if (input.dbIp === "" || input.dbPort === "" || input.dbUserName === "") {
+      //sweetalert失败
       swal({
         title: "修改数据库配置失败",
         text: "以上内容为必填消息，均不能为空",
@@ -57,6 +58,7 @@ function DataBaseConfigForm(props) {
     } else {
       //密码验证
       if (input.mysqlPassWord !== input.mysqlPassWord_) {
+        //sweetalert失败
         swal({
           title: "修改数据库配置失败",
           text: "前后密码不一致",
@@ -82,7 +84,7 @@ function DataBaseConfigForm(props) {
       .then((data) => {
         console.log("post结果", data);
         if (data.success) {
-          //alert成功
+          //sweetalert成功
           swal({
             title: "数据库配置成功",
             text: "                 ",
@@ -93,7 +95,7 @@ function DataBaseConfigForm(props) {
           //调用父组件函数（重新GET配置列表并刷新）
           props.updateParent();
         } else {
-          //alert失败
+          //sweetalert失败
           swal({
             title: "数据库配置失败",
             text: data.detail,
@@ -108,7 +110,7 @@ function DataBaseConfigForm(props) {
         if (error.response.status === 401) {
           history.push("/");
         }
-        //alert失败
+        //sweetalert失败
         swal({
           title: "数据库配置失败",
           text: error.toString(),

@@ -1,4 +1,4 @@
-// 7_.ControlPanel（挂轨）
+// （挂轨）
 //configuration
 import { WebSocketUrl } from "../../../configuration/config.js";
 //packages
