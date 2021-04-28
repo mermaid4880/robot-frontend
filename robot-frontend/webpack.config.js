@@ -59,7 +59,7 @@ module.exports = {
         loader: "url-loader?limit=10000",
       },
       {
-        test: /\.(png|jpg|gif)$/,
+        test: /\.(png|jpg|gif|mp3)$/,
         use: {
           loader: "url-loader?limit=8192",
         },

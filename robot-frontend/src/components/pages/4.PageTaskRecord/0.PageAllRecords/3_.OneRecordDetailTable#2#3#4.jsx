@@ -479,7 +479,8 @@ function OneRecordDetailTable() {
       return <a>上一页</a>;
     }
     if (type === "next") {
-      return <a>下一页</a>;
+      // eslint-disable-next-line jsx-a11y/anchor-is-valid
+      return <a onClick={() => handleTableNextPageClick()}>下一页</a>;
     }
     return originalElement;
   }
@@ -497,6 +498,24 @@ function OneRecordDetailTable() {
       total: prev.total,
       pageIndex: pageIndex,
       pageSize: pageSize,
+      tableData: prev.tableData,
+      selectedRowKeys: [],
+    }));
+    //设置<Table>中被CheckBox选中的行对应的巡检结果ID用","级联组成的字符串为空
+    setIdString({
+      resultIdString: "",
+    });
+    //重新请求当前页巡检结果记录数据
+    setUpdate(!update);
+  }
+
+  //点击<Table>中下一页的事件响应函数（因为分页请求数据导致pagination变化事件响应函数并不响应下一页）
+  function handleTableNextPageClick() {
+    //设置<Table>的状态（更新当前页码、每页行数、checkbox选中行的key数组）
+    setTableState((prev) => ({
+      total: prev.total,
+      pageIndex: parseInt(prev.pageIndex) + 1, //下一页
+      pageSize: prev.pageSize,
       tableData: prev.tableData,
       selectedRowKeys: [],
     }));

@@ -1,3 +1,4 @@
+// （鉴权）
 //configuration
 import { httpUrl as baseUrl } from "../configuration/config.js";
 //packages
@@ -8,7 +9,7 @@ import cookie from "react-cookies";
 //————————————————————————————从cookie里获取token
 function getTokenConfig() {
   const token = cookie.load("token");
-  console.log("token", token);
+  // console.log("token", token);
   const config = {
     headers: {
       Authorization: `Bearer ${token}`,

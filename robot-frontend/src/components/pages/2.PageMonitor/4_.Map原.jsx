@@ -3,7 +3,6 @@ import { useHistory } from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
 import { Badge, Modal, Tooltip } from "antd";
 import swal from "sweetalert";
-import { Alert } from "rsuite";
 import {
   Stage,
   Layer,
@@ -15,15 +14,7 @@ import {
   Util,
   Konva,
 } from "react-konva";
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemAvatar,
-  ListItemSecondaryAction,
-} from "@material-ui/core";
-import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
+import { Alert } from "rsuite";
 // import "./4_.Map.css";
 //elements
 import Portal from "./4_1.Portal.jsx";
@@ -82,8 +73,36 @@ const sonStyle = {
   border: "1px solid grey",
   backgroundColor: "lightgrey",
 };
+//CTT停车点菜单背景（不显示）
+const stationMenuBkStyle = {
+  display: "none",
+  position: "absolute",
+  width: "60px",
+  backgroundColor: "white",
+  boxShadow: "0 0 5px grey",
+  borderRadius: "3px",
+};
+//CTT停车点菜单背景（显示）
+const stationMenuBk1Style = {
+  display: "initial",
+  position: "absolute",
+  width: "60px",
+  backgroundColor: "white",
+  boxShadow: "0 0 5px grey",
+  borderRadius: "3px",
+  top: "314px",
+  left: "748px",
+};
+//CTT停车点菜单项目
+const stationMenuItemStyle = {
+  width: "100%",
+  backgroundColor: "white",
+  border: "none",
+  margin: 0,
+  padding: "10px",
+};
 
-//———————————————————————————————————————————————全局变量（地图绘制相关）
+//———————————————————————————————————————————————地图绘制
 //颜色（道路、检修区域、停车点（8种状态））
 const color = {
   road: "#2db7f5",
@@ -127,7 +146,7 @@ const stageSize = {
   },
 };
 
-//———————————————————————————————————————————————全局函数（功能性）（和useState无关）
+//———————————————————————————————————————————————Data
 //获取所有停车点的信息
 function getStationsInfo(list) {
   //停车点的信息
@@ -167,7 +186,7 @@ function getStationsInfo(list) {
   return newStationsInfo;
 }
 
-//获取所有停车点菜单的信息（根据所有停车点的信息stationsInfo）
+//获取所有停车点菜单的信息（根据停车点的信息stationsInfo）
 function getStationMenusInfo(list) {
   //停车点菜单的信息
   var newStationMenusInfo = [];
@@ -204,32 +223,6 @@ function getStationMenusInfo(list) {
   return newStationMenusInfo;
 }
 
-//获取需要显示的停车点菜单的信息（stationMenusInfo中show为true的项目）（根据所有停车点菜单的信息stationMenusInfo和指定停车点ID）
-function getStationMenuShow(list, ID) {
-  // list：所有停车点菜单的信息（ID、坐标、包含的所有点位信息、菜单是否显示）
-  // console.log("list", list);
-
-  //如果list为空，返回
-  if (list.length < 1) return;
-
-  //如果list不为空，遍历list找到指定停车点ID的项并将该项的菜单是否显示属性改为true
-  list.forEach((listItem) => {
-    if (ID === listItem.id) {
-      listItem.show = true;
-    } else {
-      listItem.show = false;
-    }
-  });
-
-  //过滤出list中菜单是否显示状态为true的项目
-  var stationMenuShow = list.filter(function (item) {
-    return item.show === true;
-  });
-
-  // console.log("stationMenuShow", stationMenuShow);
-  return stationMenuShow;
-}
-
 //获取车体的实时位置信息
 function getRobotPos(data) {
   //车体的实时位置信息
@@ -257,8 +250,8 @@ function Map() {
   //———————————————————————————————————————————————useRef
   const legendStageRef = useRef(); //图例<Stage>标签的节点
   const mapStageRef = useRef(); //地图<Stage>标签的节点
-  const debugLayerRef = useRef(); //DEBUG 调试信息<Layer>标签的节点
-  const debugTextRef = useRef(); //DEBUG 调试信息<Text>标签的节点
+  const debugLayerRef = useRef(); //调试信息<Layer>标签的节点
+  const debugTextRef = useRef(); //调试信息<Text>标签的节点
 
   //———————————————————————————————————————————————useImage
   const [imageMap] = useImage(imgMap); //地图背景图片
@@ -392,12 +385,12 @@ function Map() {
   });
 
   //———————————————————————————————————————————————useEffect
-  //当（本组件加载完成时），添加window监听click事件回调函数（隐藏停车点菜单）
+  //CTT当（本组件加载完成时），
   useEffect(() => {
-    //添加window监听click事件回调函数
+    //添加监听message事件
     window.addEventListener("click", () => {
-      console.log("监听到（window点击）事件！！！！");
-      //设置需要显示的停车点菜单的信息（stationMenusInfo中show为true的项目）为空，即隐藏停车点菜单
+      console.log("监听到事件！！！！！！！！！！！！！！！！！！！！！！！！");
+      // hide menu
       setStationMenuShow([]);
     });
   }, []);
@@ -416,7 +409,7 @@ function Map() {
       //开启定时器（200ms后打开新增地图检修区域modal）
       setTimeout(() => {
         setIsModalOpen(true);
-        //DEBUG 显示调试信息
+        //显示调试信息
         // var debugInfo =
         //   "selectDangerArea x1 x2 y1 y2：" +
         //   selectDangerArea.x1 +
@@ -479,7 +472,7 @@ function Map() {
       });
   }, [update10min]);
 
-  //每10分钟————GET请求获取地图（所有停车点信息），设置stationsInfo和stationMenusInfo
+  //CTT每10分钟————GET请求获取地图（所有停车点信息），设置stationsInfo和stationMenusInfo
   useEffect(() => {
     //————————————————————————————GET请求
     //获取地图（所有停车点信息）
@@ -529,8 +522,7 @@ function Map() {
           //————————————————实时信息【机器人位置】
           //获取车体的实时位置信息
           const robotPos = getRobotPos(result);
-          //DEBUG 获取车体的实时位置信息（Fake）
-          // const robotPos = getRobotPosFake(result);
+          // const robotPos = getRobotPosFake(result); //CTT
           // console.log("robotPos", robotPos);
           //设置车体的实时位置信息（X坐标、Y坐标、头部与正北方向的夹角（正北0-360°顺时针））
           setRobotPos(robotPos);
@@ -791,7 +783,7 @@ function Map() {
     }
   }
 
-  //———————————————————————————————————————————————其他函数（功能性）（和useState相关）
+  //———————————————————————————————————————————————其他函数（功能性）
   //对应stationsStatus（实时停车点状态list）中的state（状态）设置stationsInfo（所有停车点的信息）中的state（状态）
   function setStateInStationsInfo(list) {
     //list为空，返回
@@ -808,6 +800,28 @@ function Map() {
         }
       });
     });
+  }
+
+  //CTT 根据停车点ID找到stationMenusInfo
+  function getStationMenuShow(list, id) {
+    //list为空，返回
+    if (list.length < 1) return;
+    //CTT list不为空，遍历list（找到list中???中的show）
+    list.forEach((listItem) => {
+      if (id === listItem.id) {
+        listItem.show = true;
+      } else {
+        listItem.show = false;
+      }
+    });
+
+    //过滤出show只有true的项目
+    var stationMenuShow = list.filter(function (item) {
+      return item.show === true;
+    });
+
+    console.log("stationMenuShow", stationMenuShow);
+    return stationMenuShow;
   }
 
   //更新newDangerAreaInfo（根据selectDangerArea）
@@ -948,6 +962,85 @@ function Map() {
   }
 
   //———————————————————————————————————————————————事件响应函数
+  //CTT（左键）双击
+  function handleDblClick(e) {
+    //阻止事件的默认行为
+    // e.evt.preventDefault();
+
+    console.log("进入地图<Stage>（左键）双击事件！");
+
+    //实现鼠标右键双击新增新检修区域
+    const mapStageNode = mapStageRef.current; //获取地图<Stage>标签的节点
+
+    var pointer = mapStageNode.getPointerPosition(); //获取鼠标的绝对指针位置（相对于舞台容器左上角的指针的普通位置）
+
+    console.log("pointer~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", pointer);
+
+    // var layer = new Konva.Layer();
+    // console.log("layer~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", layer);
+    mapStageNode.add(
+      <Layer>
+        <Image //检修区
+          x={pointer.x}
+          y={pointer.y}
+          width={100}
+          height={46}
+          image={imageDangerArea}
+        />
+      </Layer>
+    );
+    // console.log(
+    //   "mapStageNode~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+    //   mapStageNode
+    // );
+    // // add a new shape
+    // var newShape = new Konva.Circle({
+    //   x: mapStageNode.getPointerPosition().x,
+    //   y: mapStageNode.getPointerPosition().y,
+    //   radius: 10 + Math.random() * 30,
+    //   fill: "green",
+    //   shadowBlur: 10,
+    // });
+    // console.log(
+    //   "x~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+    //   mapStageNode.getPointerPosition().x,
+    //   "y~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
+    //   mapStageNode.getPointerPosition().y
+    // );
+    // layer.add(newShape);
+    // layer.draw();
+
+    mapStageNode.batchDraw();
+  }
+
+  //CTT 地图<Stage>的鼠标滑轮滚动事件处理函数
+  function handleWheelMap(e) {
+    //阻止事件的默认行为
+    e.evt.preventDefault();
+
+    //实现鼠标滑轮滚动缩放
+    const mapStageNode = mapStageRef.current; //获取地图<Stage>标签的节点
+
+    var scaleBy = 1.01; //缩放比例尺
+    var oldScale = mapStageNode.scaleX(); // get scale x
+    var pointer = mapStageNode.getPointerPosition(); //获取鼠标的绝对指针位置（相对于舞台容器左上角的指针的普通位置）
+    var mousePointTo = {
+      x: (pointer.x - mapStageNode.x()) / oldScale,
+      y: (pointer.y - mapStageNode.y()) / oldScale,
+    };
+    var newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy; // e.evt.deltaY: the vertical scroll amount
+    mapStageNode.scale({ x: newScale, y: newScale }); // set scale
+    var newPos = {
+      x: pointer.x - mousePointTo.x * newScale,
+      y: pointer.y - mousePointTo.y * newScale,
+    };
+    mapStageNode.position(newPos); // set node position relative to parent
+
+    console.log("mapStageNode", mapStageNode);
+
+    mapStageNode.batchDraw();
+  }
+
   //————————————————————————————地图<Stage>
   //（左键、右键）按下
   function handleMouseDownMap(e) {
@@ -986,7 +1079,7 @@ function Map() {
       });
       //根据selectDangerArea获取newDangerAreaInfo
       updateNewDangerAreaInfo();
-      //DEBUG 显示调试信息
+      //显示调试信息
       // var debugInfo =
       //   "x：" +
       //   x +
@@ -1038,140 +1131,7 @@ function Map() {
     }
   }
 
-  //鼠标移入
-  function handleMouseOverMap(e) {
-    console.log("enter handleMouseOverMap~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //（左键、右键）单击
-  function handleClickMap(e) {
-    console.log("enter handleClickMap~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //CTT（左键）双击 计划修改检修区
-  function handleDblClickMap(e) {
-    //阻止事件的默认行为
-    // e.evt.preventDefault();
-
-    console.log("进入地图<Stage>（左键）双击事件！");
-
-    //实现鼠标右键双击新增新检修区域
-    const mapStageNode = mapStageRef.current; //获取地图<Stage>标签的节点
-
-    var pointer = mapStageNode.getPointerPosition(); //获取鼠标的绝对指针位置（相对于舞台容器左上角的指针的普通位置）
-    console.log("pointer~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~", pointer);
-
-    mapStageNode.add(
-      <Layer>
-        <Image //检修区
-          x={pointer.x}
-          y={pointer.y}
-          width={100}
-          height={46}
-          image={imageDangerArea}
-        />
-      </Layer>
-    );
-    // console.log(
-    //   "mapStageNode~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-    //   mapStageNode
-    // );
-    // // add a new shape
-    // var newShape = new Konva.Circle({
-    //   x: mapStageNode.getPointerPosition().x,
-    //   y: mapStageNode.getPointerPosition().y,
-    //   radius: 10 + Math.random() * 30,
-    //   fill: "green",
-    //   shadowBlur: 10,
-    // });
-    // console.log(
-    //   "x~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-    //   mapStageNode.getPointerPosition().x,
-    //   "y~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
-    //   mapStageNode.getPointerPosition().y
-    // );
-    // layer.add(newShape);
-    // layer.draw();
-
-    mapStageNode.batchDraw();
-  }
-
-  //鼠标滑轮滚动
-  function handleWheelMap(e) {
-    //阻止事件的默认行为
-    e.evt.preventDefault();
-
-    //实现鼠标滑轮滚动缩放
-    const mapStageNode = mapStageRef.current; //获取地图<Stage>标签的节点
-
-    var scaleBy = 1.01; //缩放比例尺
-    var oldScale = mapStageNode.scaleX(); // get scale x
-    var pointer = mapStageNode.getPointerPosition(); //获取鼠标的绝对指针位置（相对于舞台容器左上角的指针的普通位置）
-    var mousePointTo = {
-      x: (pointer.x - mapStageNode.x()) / oldScale,
-      y: (pointer.y - mapStageNode.y()) / oldScale,
-    };
-    var newScale = e.evt.deltaY > 0 ? oldScale * scaleBy : oldScale / scaleBy; // e.evt.deltaY: the vertical scroll amount
-    mapStageNode.scale({ x: newScale, y: newScale }); // set scale
-    var newPos = {
-      x: pointer.x - mousePointTo.x * newScale,
-      y: pointer.y - mousePointTo.y * newScale,
-    };
-    mapStageNode.position(newPos); // set node position relative to parent
-
-    console.log("mapStageNode", mapStageNode);
-
-    mapStageNode.batchDraw();
-  }
-
-  //————————————————————————————停车点<Image>
-  //（左键、右键）按下
-  function handleMouseDownStation(e) {
-    console.log("enter handleMouseDownStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //鼠标移动
-  function handleMouseMoveStation(e) {
-    console.log("enter handleMouseMoveStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //（左键、右键）抬起
-  function handleMouseUpStation(e) {
-    console.log("enter handleMouseUpStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //鼠标移入
-  function handleMouseOverStation(e) {
-    console.log("enter handleMouseOverStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //（左键、右键）单击
-  function handleClickStation(e) {
-    console.log("enter handleClickStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //（左键）双击
-  function handleDblClickStation(e) {
-    console.log("enter handleDblClickStation~~~~~~~~~~~~~~~~~~", e);
-  }
-
-  //（右键）显示菜单
-  function handleContextMenuStation(e) {
-    //阻止事件的默认行为
-    e.evt.preventDefault();
-
-    //获取当前停车点ID
-    const stationID = e.target.id();
-    console.log("当前停车点ID", stationID);
-    //获取需要显示的停车点菜单的信息（stationMenusInfo中show为true的项目）（根据所有停车点菜单的信息stationMenusInfo和指定停车点ID）
-    const stationMenuShow = getStationMenuShow(stationMenusInfo, stationID);
-    // console.log("stationMenuShow", stationMenuShow);
-    //设置需要显示的停车点菜单的信息（stationMenusInfo中show为true的项目）
-    setStationMenuShow(stationMenuShow);
-  }
-
   //————————————————————————————检修区<Image>
-  //（左键）双击
   function handleDblClickDangerArea(uuid) {
     console.log("进入检修区<Image>（左键）双击事件！  检修区uuid：", uuid);
 
@@ -1184,13 +1144,87 @@ function Map() {
     }
   }
 
-  //DEBUG  ———————————————————————————————————————————————其他函数（调试用）
+  //————————————————————————————停车点<Image>
+  //停车点<Image>的鼠标滑轮滚动事件处理函数
+  function handleClickStation(e) {
+    console.log("enter handleClickStation~~~~~~~~~~~~~~~~~~", e);
+    // hide menu
+  }
+
+  function handleDblClickStation(e) {
+    console.log("enter handleDblClickStation~~~~~~~~~~~~~~~~~~", e);
+  }
+
+  function handleMouseOverStation(e) {
+    console.log("enter handleMouseOverStation~~~~~~~~~~~~~~~~~~", e);
+  }
+
+  function handleMouseDownStation(e) {
+    console.log("enter handleMouseDownStation~~~~~~~~~~~~~~~~~~", e);
+  }
+
+  function handleMouseUpStation(e) {
+    console.log("enter handleMouseUpStation~~~~~~~~~~~~~~~~~~", e);
+  }
+
+  function handleMouseMoveStation(e) {
+    console.log("enter handleMouseMoveStation~~~~~~~~~~~~~~~~~~", e);
+  }
+
+  function handleContextMenuStation(e) {
+    console.log("enter handleContextMenuStation~~~~~~~~~~~~~~~~~~", e);
+    // prevent default behavior
+    e.evt.preventDefault();
+
+    const mapStageNode = mapStageRef.current; //获取地图<Stage>标签的节点
+    console.log("mapStageNode", mapStageNode);
+    console.log("e.currentTarget", e.currentTarget);
+    console.log("e.currentTarget.index", e.currentTarget.index);
+    // console.log("e.currentTarget.parent", e.currentTarget.parent);
+    // console.log("e.currentTarget.parent.parent", e.currentTarget.parent.parent);
+
+    if (e.currentTarget.parent.parent === mapStageNode) {
+      // if we are on empty place of the stage we will do nothing
+      console.log("do nothing~~~~~~~~~~~~~~~~~~");
+      // return;
+    }
+
+    // show menu
+    const id = e.target.id();
+    console.log("id", id);
+    const stationMenuShow = getStationMenuShow(stationMenusInfo, id);
+    console.log("stationMenuShow", stationMenuShow);
+    setStationMenuShow(stationMenuShow);
+
+    // show menu
+    // var menuNode = document.getElementById("menu");
+    // menuNode.style.display = "initial";
+    // console.log("menuNode.style~~~~~~~~~~~~~~~~~~", menuNode.style);
+    // var containerRect = mapStageNode.container().getBoundingClientRect();
+    // console.log("containerRect~~~~~~~~~~~~~~~~~~", containerRect);
+    // menuNode.style.top =
+    //   containerRect.top + mapStageNode.getPointerPosition().y + 4 + "px";
+    // menuNode.style.left =
+    //   containerRect.left + mapStageNode.getPointerPosition().x + 4 + "px";
+    // console.log("menuNode.style~~~~~~~~~~~~~~~~~~1", menuNode.style);
+
+    // console.log(
+    //   "top",
+    //   containerRect.top + mapStageNode.getPointerPosition().y + 4 + "px"
+    // );
+    // console.log(
+    //   "left",
+    //   containerRect.left + mapStageNode.getPointerPosition().x + 4 + "px"
+    // );
+  }
+
+  //———————————————————————————————————————————————其他函数（调试用）
   //DEBUG 产生随机数
   function generateRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
   }
 
-  //DEBUG 获取车体的实时位置信息（Fake）
+  //DEBUG 按规律获取车体的实时位置信息（Fake）
   function getRobotPosFake(data) {
     //车体的实时位置信息
     var newRobotPos = {
@@ -1222,7 +1256,7 @@ function Map() {
     return newRobotPos;
   }
 
-  //DEBUG 显示调试信息（地图左上角）
+  //显示调试信息（地图左上角）
   function displayDebugInfo(debugInfo) {
     const debugTextNode = debugTextRef.current; //获取调试信息<Text>标签的节点
     debugTextNode.text(debugInfo);
@@ -1261,13 +1295,12 @@ function Map() {
         width={stageSize.map.width}
         height={stageSize.map.height}
         // draggable
+        // onClick={(e) => handleClickMap(e)} //（左键、右键）单击
+        // onDblClick={(e) => handleDblClickMap(e)} //（左键）双击
+        // onMouseOver={(e) => handleMouseOverMap(e)} //鼠标移入
         onMouseDown={(e) => handleMouseDownMap(e)} //（左键、右键）按下
         onMouseMove={(e) => handleMouseMoveMap(e)} //鼠标移动
         onMouseup={(e) => handleMouseUpMap(e)} //（左键、右键）抬起
-        // onMouseOver={(e) => handleMouseOverMap(e)} //鼠标移入
-        // onClick={(e) => handleClickMap(e)} //（左键、右键）单击
-        // onDblClick={(e) => handleDblClickMap(e)} //（左键）双击
-        // onWheel={(e) => handleWheelMap(e)} //鼠标滑轮滚动
       >
         <Layer>
           <Image //地图背景
@@ -1302,12 +1335,12 @@ function Map() {
               y={item.Y * scale}
               image={getImageProperty(item.state)}
               opacity={0.8}
-              // onMouseDown={handleMouseDownStation} //（左键、右键）按下
+              onClick={handleClickStation} //（左键、右键）单击
+              onDblClick={handleDblClickStation} //（左键）双击
+              onMouseOver={handleMouseOverStation} //鼠标移入
+              onMouseDown={handleMouseDownStation} //（左键、右键）按下
+              onMouseup={handleMouseUpStation} //（左键、右键）抬起
               // onMousemove={handleMouseMoveStation} //鼠标移动
-              // onMouseup={handleMouseUpStation} //（左键、右键）抬起
-              // onMouseOver={handleMouseOverStation} //鼠标移入
-              // onClick={handleClickStation} //（左键、右键）单击
-              // onDblClick={handleDblClickStation} //（左键）双击
               onContextMenu={handleContextMenuStation} //（右键）显示菜单
             />
           ))}
@@ -1344,6 +1377,30 @@ function Map() {
               onDblClick={() => handleDblClickDangerArea(item.uuid)} //（左键）双击
             />
           ))}
+        </Layer>
+        <Layer>
+          <Portal>
+            {/* 停车点菜单 */}
+            {stationMenuShow.map((item, index) => (
+              <div
+                style={{
+                  display: "initial",
+                  position: "absolute",
+                  width: "60px",
+                  backgroundColor: "white",
+                  boxShadow: "0 0 5px grey",
+                  borderRadius: "3px",
+                  left: item.X * scale + 252 + "px",
+                  top: item.Y * scale + 270 + "px",
+                }}
+              >
+                <div>
+                  <button style={stationMenuItemStyle}>Pulse</button>
+                  <button style={stationMenuItemStyle}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </Portal>
         </Layer>
         <Layer>
           <Image //车体
@@ -1383,7 +1440,7 @@ function Map() {
           )}
         </Layer>
         <Layer ref={debugLayerRef}>
-          <Text //DEBUG 打印调试信息
+          <Text //打印调试信息
             ref={debugTextRef}
             text=""
             fontFamily={"Calibri"}
@@ -1410,45 +1467,43 @@ function Map() {
           />
         </Layer> */}
       </Stage>
-      {/* 停车点菜单 */}
-      {stationMenuShow &&
-        stationMenuShow[0] &&
-        stationMenuShow[0].meters &&
-        stationMenuShow[0].meters.length !== 0 && (
-          <div
-            id="menu"
-            style={{
-              display: "initial",
-              position: "absolute",
-              backgroundColor: "white",
-              boxShadow: "0 0 5px grey",
-              borderRadius: "3px",
-              top:
-                parseInt(stationMenuShow[0].Y) * scale + 30 + 200 < 465
-                  ? parseInt(stationMenuShow[0].Y) * scale + 30 + "px"
-                  : parseInt(stationMenuShow[0].Y) * scale + 30 - 200 + "px",
-              left:
-                parseInt(stationMenuShow[0].X) * scale + 22 + 200 < 1008
-                  ? parseInt(stationMenuShow[0].X) * scale + 22 + "px"
-                  : parseInt(stationMenuShow[0].X) * scale + 22 - 200 + "px",
-              width: "100%",
-              height: 200,
-              maxWidth: 200,
-              overflow: "auto",
-            }}
-          >
-            <List dense={true}>
-              {stationMenuShow[0].meters.map((item, index) => (
-                <ListItem>
-                  <ListItemIcon>
-                    <FiberManualRecordIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary={item.meterName} />
-                </ListItem>
-              ))}
-            </List>
-          </div>
-        )}
+      {/* </div> */}
+      {/* <Stage
+        width={stageSize.mapPreview.width}
+        height={stageSize.mapPreview.height}
+        container="papa"
+      >
+        <Layer>
+          <Text text="SON........." />
+        </Layer>
+      </Stage> */}
+      {/* <div
+        id="menu"
+        // style={getStationMenuBkStyle(showMenu)}
+        // style={showMenu ? stationMenuBk1Style : stationMenuBkStyle}
+        // style={stationMenuBk1Style}
+      >
+        <div>
+          <button id="pulse-button">Pulse</button>
+          <button id="delete-button">Delete</button>
+        </div>
+      </div> */}
+      {/* <div
+        id="menu"
+        // style={getStationMenuBkStyle(showMenu)}
+        // style={showMenu ? stationMenuBk1Style : stationMenuBkStyle}
+        // style={stationMenuBk1Style}
+        style={{ position: "relative", display: "inline-block" }}
+      >
+        <div>
+          <button id="pulse-button" style={stationMenuItemStyle}>
+            Pulse
+          </button>
+          <button id="delete-button" style={stationMenuItemStyle}>
+            Delete
+          </button>
+        </div>
+      </div> */}
     </Paper>
   );
 }

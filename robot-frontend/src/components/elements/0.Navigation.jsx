@@ -1,6 +1,6 @@
 // （轮询）
 //packages
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import cookie from "react-cookies";
 import {
@@ -61,11 +61,11 @@ const useStyles = makeStyles({
 });
 
 //———————————————————————————————————————————————Data
+// 电池信息数据（电池信息）
 // "Charging": 0,                                    是否正在充电【0-否、1-是】
 // "BatteryAlert": 0,                                电量报警【0-否、1-是】
 // "power": 50,                                      电量百分比【0~100】
 // "BatteryUnknown": 1,                              电量未知【0-否、1-是】
-
 //获取电池信息数据（电池信息）
 function getBatteryInfo(data) {
   var newData = {
@@ -86,11 +86,36 @@ function getBatteryInfo(data) {
   return newData;
 }
 
+//综合告警信息
+// "isAlarm": true,                                  是否告警【false-否、true-是】
+// "detail": "电量过低！",                            告警详情
+// "faultCode": "500",                               告警故障码
+//获取综合告警信息
+function getAlarmInfo(data) {
+  var newData = {
+    //综合告警信息
+    isAlarm: false, //是否告警【false-否、true-是】
+    detail: "", //告警详情
+    faultCode: "", //告警故障码
+  };
+
+  //综合告警信息
+  newData.isAlarm = data.isAlarm;
+  newData.detail = data.detail;
+  newData.faultCode = data.faultCode;
+
+  // console.log("newData", newData);
+  return newData;
+}
+
 function Navigation(props) {
   const classes = useStyles();
 
   //———————————————————————————————————————————————useHistory
   const history = useHistory();
+
+  //———————————————————————————————————————————————useRef
+  const audioRef = useRef(); //<audio>标签的节点
 
   //———————————————————————————————————————————————useState
   //本组件是否需要更新的状态
@@ -99,15 +124,22 @@ function Navigation(props) {
   //当前系统时间
   const [time, setTime] = useState(new Date().toLocaleString());
 
-  //<Badge>中设备告警信息的条数
-  const [alertCount, setAlertCount] = useState(0);
-
   //机器人电量信息
   const [batteryInfo, setBatteryInfo] = useState({
     Charging: 0, //是否正在充电【0-否、1-是】
     BatteryAlert: 0, //电量报警【0-否、1-是】
     power: 50, //电量百分比【0~100】
     BatteryUnknown: 1, //电量未知【0-否、1-是】
+  });
+
+  //<Badge>中设备告警信息的条数
+  const [alertCount, setAlertCount] = useState(0);
+
+  //综合告警信息
+  const [alarmInfo, setAlarmInfo] = useState({
+    isAlarm: false, //是否告警【false-否、true-是】
+    detail: "", //告警详情
+    faultCode: "", //告警故障码
   });
 
   //页面跳转路径
@@ -151,6 +183,14 @@ function Navigation(props) {
           const alertCount = result.robotDeviceAlarm.count;
           //设置<Badge>中设备告警信息的条数
           setAlertCount(alertCount);
+          // //获取综合告警信息
+          // const alarmInfo = getAlarmInfo(result.alarmInfo);
+          // //设置综合告警信息
+          // setAlarmInfo(alarmInfo);
+          //如果收到告警信息，播放报警声音+弹出报警提示
+          result.alarmInfo &&
+            result.alarmInfo.isAlarm &&
+            alarmHandler(result.alarmInfo.detail, result.alarmInfo.faultCode);
         } else {
           //rsuite Alert异常信息
           Alert.warning(
@@ -291,6 +331,15 @@ function Navigation(props) {
     }
   }
 
+  //播放报警声音+弹出报警提示
+  function alarmHandler(detail, faultCode) {
+    //播放报警声音
+    audioRef.current.play();
+    //弹出报警提示
+    //rsuite Alert异常信息
+    Alert.error("报警信息：" + detail + ";故障代码：" + faultCode, 1000);
+  }
+
   //———————————————————————————————————————————————事件响应函数
   //调用父组件<Page...#0>的函数（设置<Dimmer>为激活状态、如果父组件是<PageMonitor>销毁其子组件<TabVideo>的iframe）并在组件下个生命周期开启定时器（页面跳转）
   function handleNavLinkClick(path) {
@@ -320,6 +369,11 @@ function Navigation(props) {
 
   return (
     <Paper elevation="10">
+      <audio
+        src={require("../../audio/报警声音.mp3").default}
+        preload="preload"
+        ref={audioRef}
+      />
       <Navbar light expand="lg" className={classes.root}>
         <NavbarBrand className={classes.brand}>智能巡检机器人系统</NavbarBrand>
         <Nav className="mr-auto" navbar>

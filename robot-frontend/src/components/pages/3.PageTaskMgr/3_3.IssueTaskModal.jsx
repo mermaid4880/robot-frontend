@@ -30,12 +30,13 @@ function IssueTaskModal(props) {
   const [modalOpen, setModalOpen] = useState(false);
 
   //———————————————————————————————————————————————其他函数
-  //下发任务POST请求
-  function issueTaskPOST() {
+  //下发任务POST请求（根据任务执行优先级firstPriority【true-立即执行、false-顺序执行】）
+  function issueTaskPOST(firstPriority) {
     //————————————————————————————POST请求
     // 用URLSearchParams来传递参数
     let BodyParams = new URLSearchParams();
     BodyParams.append("id", props.taskId.toString());
+    BodyParams.append("firstPriority", firstPriority === true ? true : false);
     //发送POST请求
     postData("taskManager/sendbyid", BodyParams)
       .then((data) => {
@@ -101,12 +102,22 @@ function IssueTaskModal(props) {
       <Modal.Actions>
         <Button
           primary
-          content="确认下发"
+          content="确认下发（立即执行）"
           onClick={() => {
             //关闭本modal
             setModalOpen(false);
-            //下发任务POST请求
-            issueTaskPOST();
+            //下发任务POST请求（立即执行）
+            issueTaskPOST(true);
+          }}
+        />
+        <Button
+          primary
+          content="确认下发（顺序执行）"
+          onClick={() => {
+            //关闭本modal
+            setModalOpen(false);
+            //下发任务POST请求（顺序执行）
+            issueTaskPOST(false);
           }}
         />
         <Button content="取消下发" onClick={() => setModalOpen(false)} />
